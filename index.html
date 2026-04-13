@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>PHP Hotel Room Booking</title>
+
+    <style>
+        p, body, td, input, select, button { font-family: -apple-system,system-ui,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; font-size: 14px; }
+        body { padding: 0px; margin: 0px; background-color: #ffffff; }
+        a { color: #1155a3; }
+        .space { margin: 10px 0px 10px 0px; }
+        .header { background: #003267; background: linear-gradient(to right, #011329 0%,#00639e 44%,#011329 100%); padding:20px 10px; color: white; box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.75); }
+        .header a { color: white; }
+        .header h1 a { text-decoration: none; }
+        .header h1 { padding: 0px; margin: 0px; }
+        .main { padding: 10px; margin-top: 10px; }
+    </style>
+    
+
+    <!-- DayPilot library -->
+    <script src="js/daypilot/daypilot-all.min.js"></script>
+
+    <link type="text/css" rel="stylesheet" href="icons/style.css" />
+    <link type="text/css" rel="stylesheet" href="index.css" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">   
+    <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/datatables/datatables.min.css" rel="stylesheet">
+    <link href="assets/css/master.css" rel="stylesheet">
+
+</head>
+<body>
+    <div class="wrapper">
+        <!-- sidebar navigation component -->
+        <nav id="sidebar" class="active">
+            <div class="sidebar-header">
+                <img src="assets/img/bootstraper-logo.png" alt="bootraper logo" class="app-logo">
+            </div>
+            <ul class="list-unstyled components text-secondary">
+                <li>
+                    <a href="dashboard.html"><i class="fas fa-home"></i>Dashboard</a>
+                </li>
+                
+                <li>
+                    <a href="#authmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-user-shield"></i>Authentication</a>
+                    <ul class="collapse list-unstyled" id="authmenu">
+                        <li>
+                            <a href="login.html"><i class="fas fa-lock"></i>Login</a>
+                        </li>
+                        <li>
+                            <a href="signup.html"><i class="fas fa-user-plus"></i>Signup</a>
+                        </li>
+                        <li>
+                            <a href="forgot-password.html"><i class="fas fa-user-lock"></i>Forgot password</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="users.html"><i class="fas fa-user-friends"></i>Users</a>
+                </li>
+                <li>
+                    <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                </li>
+            </ul>
+        </nav>
+        <!-- end of sidebar component -->
+        <div id="body" class="active">
+            <!-- navbar navigation component -->
+            <nav class="navbar navbar-expand-lg navbar-white bg-white">
+                <button type="button" id="sidebarCollapse" class="btn btn-light">
+                    <i class="fas fa-bars"></i><span></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <div class="nav-dropdown">
+                                <a href="#" id="nav1" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-link"></i> <span>Quick Links</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end nav-link-menu" aria-labelledby="nav1">
+                                    <ul class="nav-list">
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-list"></i> Access Logs</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-database"></i> Back ups</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-cloud-download-alt"></i> Updates</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-user-shield"></i> Roles</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <div class="nav-dropdown">
+                                <a href="#" id="nav2" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user"></i> <span>John Doe</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end nav-link-menu">
+                                    <ul class="nav-list">
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-address-card"></i> Profile</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-envelope"></i> Messages</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- end of navbar navigation -->
+            <div class="content">
+                <div class="container">
+                    <div class="page-title">
+                        <h3>Rooms
+                            <div style="display: inline-block">              
+                                <select id="timerange" class="form-select">
+                                    <option value="week">Week</option>
+                                    <option value="month" selected>Month</option>
+                                </select>
+                            </div>
+                            <button id="addroom" class="btn btn-primary float-end"><i class="fas fa-plus-circle"></i> Add room</button>
+                        </h3>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div id="nav"></div>
+                            
+                            <div>
+                                <h5>Room filter
+                                    <div style="display: inline-block" class="float-end"><select class="form-select" id="filter">
+                                        <option value="0">All</option>
+                                        <option value="1">Single</option>
+                                        <option value="2">Double</option>
+                                        <option value="4">Family</option>
+                                    </select></div>
+                                </h5>
+                                <!--<label for="autocellwidth"><input type="checkbox" id="autocellwidth" checked>Auto Cell Width</label>-->
+                            </div>
+                            <div id="dp"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const app = {
+            days: DayPilot.Date.today().daysInMonth(),
+            elements: {
+                filter: document.querySelector("#filter"),
+                timerange: document.querySelector("#timerange"),
+                //autocellwidth: document.querySelector("#autocellwidth"),
+                addroom: document.querySelector("#addroom"),
+            },
+            loadTimeline(date) {
+                const timeline = [];
+                const start = date.getDatePart().addHours(12);
+    
+                for (let i = 0; i < app.days; i++) {
+                    timeline.push({start: start.addDays(i), end: start.addDays(i+1)});
+                }
+                return timeline;
+            },
+            loadReservations() {
+                dp.events.load("backend_reservations.php");
+            },
+            async loadRooms() {
+                const {data} = await DayPilot.Http.post("backend_rooms.php", { capacity: app.elements.filter.value });
+                dp.update({resources: data});
+            },
+            addEventHandlers() {
+                app.elements.filter.addEventListener("change", (e) => {
+                    app.loadRooms();
+                });
+    
+                app.elements.timerange.addEventListener("change", () => {
+                    switch (app.elements.timerange.value) {
+                        case "week":
+                            app.days = 7;
+                            nav.selectMode = "Week";
+                            nav.select(nav.selectionDay);
+                            break;
+                        case "month":
+                            app.days = dp.startDate.daysInMonth();
+                            nav.selectMode = "Month";
+                            nav.select(nav.selectionDay);
+                            break;
+                    }
+                });
+                // app.elements.autocellwidth.addEventListener("click", () => {
+                //     dp.cellWidth = 60;  // reset for "Fixed" mode
+                //     dp.cellWidthSpec = app.elements.autocellwidth.checked ? "Auto" : "Fixed";
+                //     dp.update();
+                // });
+                app.elements.addroom.addEventListener("click", async (ev) => {
+                    ev.preventDefault();
+    
+                    const capacities = [
+                        {name: "1", id: 1},
+                        {name: "2", id: 2},
+                        {name: "4", id: 4},
+                    ];
+    
+                    const form = [
+                        {name: "Room Name", id: "name"},
+                        {name: "Capacity", id: "capacity", type: "select", options: capacities}
+                    ];
+    
+                    const data = {
+                        capacity: 2
+                    };
+    
+                    const modal = await DayPilot.Modal.form(form, data);
+                    if (modal.canceled) {
+                        return;
+                    }
+    
+                    const room = modal.result;
+                    const {data: result} = await DayPilot.Http.post("backend_room_create.php", room);
+    
+                    room.id = result.id;
+                    room.status = result.status;
+                    dp.resources.push(room);
+                    dp.update();
+    
+                });
+            },
+            init() {
+                app.loadRooms();
+                app.loadReservations();
+                app.addEventHandlers();
+            }
+        };
+    
+        const dp = new DayPilot.Scheduler("dp", {
+            allowEventOverlap: false,
+            scale: "Manual",
+            timeline: app.loadTimeline(DayPilot.Date.today().firstDayOfMonth()),
+            //eventDeleteHandling: "Update",
+            //eventDeleteHandling: "Disabled",
+            timeHeaders: [
+                { groupBy: "Month", format: "MMMM yyyy" },
+                { groupBy: "Day", format: "d" }
+            ],
+            eventHeight: 80,
+            cellWidth: 80,
+            cellWidthMin: 60,
+            cellWidthSpec: "Auto",
+            rowHeaderColumns: [
+                {title: "Room", display: "name", sort: "name"},
+                {title: "Capacity", display: "capacity", sort: "capacity"},
+                {title: "Status", sort: "status"}
+            ],
+            separators: [
+                { location: DayPilot.Date.now(), color: "#cc000066" }
+            ],
+            //tapAndHoldTimeout: 200,
+            //eventTapAndHoldHandling: "ContextMenu",
+            //contextMenu: new DayPilot.Menu({items:[{text: "Delete..."}]}),
+            contextMenuResource: new DayPilot.Menu({
+                items: [
+                    { text: "Edit...", onClick: async (args) => {
+                            const capacities = [
+                                {name: "1", id: 1},
+                                {name: "2", id: 2},
+                                {name: "4", id: 4},
+                            ];
+    
+                            const statuses = [
+                                {name: "Ready", id: "Ready"},
+                                {name: "Cleanup", id: "Cleanup"},
+                                {name: "Dirty", id: "Dirty"},
+                            ];
+    
+                            const form = [
+                                {name: "Room Name", id: "name"},
+                                {name: "Capacity", id: "capacity", type: "select", options: capacities},
+                                {name: "Status", id: "status", type: "select", options: statuses}
+                            ];
+    
+                            const data = args.source.data;
+    
+                            const modal = await DayPilot.Modal.form(form, data);
+                            if (modal.canceled) {
+                                return;
+                            }
+    
+                            const room = modal.result;
+                            await DayPilot.Http.post("backend_room_update.php", room);
+                            dp.rows.update(room);
+                        }},
+                    { text: "Delete", onClick: async (args) => {
+                            const id = args.source.id;
+    
+                            await DayPilot.Http.post("backend_room_delete.php", {id: id});
+                            dp.rows.remove(id);
+                        }
+                    }
+                ]
+            }),
+            onBeforeRowHeaderRender: (args) => {
+                const beds = (count) => {
+                    return `${count} bed${count > 1 ? "s" : ""}`;
+                };
+    
+                args.row.columns[1].html = beds(args.row.data.capacity);
+    
+                args.row.columns[0].areas = [
+                    {right: 3, top: 3, width: 16, height: 16, cssClass: "area-menu", action: "ContextMenu", visibility: "TouchVisible"}
+                ];
+    
+                args.row.columns[2].areas = [
+                    {left: "calc(50% - 10px)", top: 20, width: 20, height: 20, fontColor: "#ffffff", padding: 2, style: "border-radius: 50%;" },
+                    // status text
+                    {left: 0, top: 45, right: 0, bottom: 0, html: args.row.data.status, style: "text-align: center;"},
+                ];
+    
+                const icon = args.row.columns[2].areas[0];
+    
+                switch (args.row.data.status) {
+                    case "Ready":
+                        icon.symbol = "icons/daypilot.svg#checkmark-2";
+                        icon.backColor = "#6bbf45";
+                        break;
+                    case "Cleanup":
+                        icon.symbol = "icons/daypilot.svg#figure";
+                        icon.backColor = "#f5c447";
+                        break;
+                    case "Dirty":
+                        icon.symbol = "icons/daypilot.svg#x-2";
+                        icon.backColor = "#fa3f3f";
+                        break;
+                }
+    
+            },
+            // onEventMove: async (args) => {
+            //     args.async = true;
+            //     const modal = await DayPilot.Modal.confirm("Do you really want to move this event?");
+            //     if (modal.canceled) {
+            //         args.preventDefault();
+            //     }
+            //     args.loaded();
+            // },
+            onEventMoved: async (args) => {
+                const params = {
+                    id: args.e.id(),
+                    newStart: args.newStart,
+                    newEnd: args.newEnd,
+                    newResource: args.newResource
+                };
+    
+                const {data} = await DayPilot.Http.post("backend_reservation_move.php", params);
+                dp.message(data.message);
+    
+            },
+            onEventResized: async (args) => {
+                const params = {
+                    id: args.e.id(),
+                    newStart: args.newStart,
+                    newEnd: args.newEnd
+                };
+    
+                const {data} = await DayPilot.Http.post("backend_reservation_resize.php", params);
+                dp.message("Resized");
+    
+            },
+            onEventDelete: async (args) => {
+                // const modal = await DayPilot.Modal.confirm("Do you really want to delete this event?");
+                // if (modal.canceled) {
+                //     args.preventDefault();
+                //     return;
+                // }
+                //dp.message("Delete...");
+                // if (!confirm("Do you really want to delete this event?")) {
+                //     args.preventDefault();
+                // }
+            },
+            onEventDeleted: async (args) => {
+                // const modal = await DayPilot.Modal.confirm("Do you really want to delete this event?");
+                // if (modal.canceled) {
+                //     args.preventDefault();
+                //     return;
+                // }
+                // await DayPilot.Http.post("backend_reservation_delete.php", {id: args.e.id()});
+                // dp.message("Deleted.");
+            },
+            onTimeRangeSelected: async (args) => {
+    
+                const rooms = dp.resources.map((item) => {
+                    return {
+                        name: item.name,
+                        id: item.id
+                    };
+                });
+    
+                const form = [
+                    {name: "Text", id: "text"},
+                    {name: "Start", id: "start", dateFormat: "MM/dd/yyyy HH:mm tt"},
+                    {name: "End", id: "end", dateFormat: "MM/dd/yyyy HH:mm tt"},
+                    {name: "Room", id: "resource", options: rooms},
+                ];
+    
+                const data = {
+                    start: args.start,
+                    end: args.end,
+                    resource: args.resource
+                };
+    
+                const modal = await DayPilot.Modal.form(form, data);
+    
+                dp.clearSelection();
+                if (modal.canceled) {
+                    return;
+                }
+                const e = modal.result;
+    
+                const {data: result} = await DayPilot.Http.post("backend_reservation_create.php", e);
+    
+                e.id = result.id;
+                e.paid = result.paid;
+                e.status = result.status;
+                dp.events.add(e);
+    
+            },
+            onEventClick: async (args) => {
+                const rooms = dp.resources.map((item) => {
+                    return {
+                        name: item.name,
+                        id: item.id
+                    };
+                });
+    
+                const statuses = [
+                    {name: "New", id: "New"},
+                    {name: "Confirmed", id: "Confirmed"},
+                    {name: "Arrived", id: "Arrived"},
+                    {name: "CheckedOut", id: "CheckedOut"}
+                ];
+    
+                const paidoptions = [
+                    {name: "0%", id: 0},
+                    {name: "50%", id: 50},
+                    {name: "100%", id: 100},
+                ]
+    
+                const form = [
+                    {name: "Text", id: "text"},
+                    {name: "Start", id: "start", dateFormat: "MM/dd/yyyy h:mm tt"},
+                    {name: "End", id: "end", dateFormat: "MM/dd/yyyy h:mm tt"},
+                    {name: "Room", id: "resource", options: rooms},
+                    {name: "Status", id: "status", type: "select", options: statuses},
+                    {name: "Paid", id: "paid", type: "select", options: paidoptions},
+                ];
+    
+                const data = args.e.data;
+    
+                const modal = await DayPilot.Modal.form(form, data);
+    
+                dp.clearSelection();
+                if (modal.canceled) {
+                    return;
+                }
+                const e = modal.result;
+                await DayPilot.Http.post("backend_reservation_update.php", e);
+                dp.events.update(e);
+            },
+            
+            onBeforeEventRender: (args) => {
+                const start = new DayPilot.Date(args.data.start);
+                const end = new DayPilot.Date(args.data.end);
+    
+                const today = DayPilot.Date.today();
+                const now = new DayPilot.Date();
+    
+                args.data.html = `${DayPilot.Util.escapeHtml(args.data.text)} (${start.toString("M/d/yyyy")} - ${end.toString("M/d/yyyy")})`;
+    
+                switch (args.data.status) {
+                    case "New":
+                        const in2days = today.addDays(1);
+    
+                        if (start < in2days) {
+                            args.data.barColor = "#cc0000";
+                            args.data.toolTip = "Expired (not confirmed in time)";
+                        }
+                        else {
+                            args.data.barColor = '#e69138';
+                            args.data.toolTip = "New";
+                        }
+                        break;
+                    case "Confirmed":
+                        const arrivalDeadline = today.addHours(18);
+    
+                        if (start < today || (start.getDatePart() === today.getDatePart() && now > arrivalDeadline)) { // must arrive before 6 pm
+                            args.data.barColor = "#cc4125";  // red
+                            args.data.toolTip = "Late arrival";
+                        }
+                        else {
+                            args.data.barColor = "#38761d";
+                            args.data.toolTip = "Confirmed";
+                        }
+                        break;
+                    case 'Arrived': // arrived
+                        const checkoutDeadline = today.addHours(10);
+    
+                        if (end < today || (end.getDatePart() === today.getDatePart() && now > checkoutDeadline)) { // must checkout before 10 am
+                            args.data.barColor = "#cc4125";  // red
+                            args.data.toolTip = "Late checkout";
+                        }
+                        else
+                        {
+                            args.data.barColor = "#1691f4";  // blue
+                            args.data.toolTip = "Arrived";
+                        }
+                        break;
+                    case 'CheckedOut': // checked out
+                        args.data.barColor = "gray";
+                        args.data.toolTip = "Checked out";
+                        break;
+                    default:
+                        args.data.toolTip = "Unexpected state";
+                        break;
+                }
+    
+                args.data.html = `<div>${args.data.html}<br /><span style='color:gray'>${args.data.toolTip}</span></div>`;
+    
+                const paid = args.data.paid;
+                const paidColor = "#aaaaaa";
+
+                args.data.areas = [
+                    {
+                        right: 5,
+                        top: 5,
+                        width: 17,
+                        height: 17,
+                        cssClass: "scheduler_default_event_delete",
+                        //cssClass: "event_action_delete",
+                        action: "None",
+                        visibility: "TouchVisible",
+                        onClick: async args => {
+                            //bug action None not working
+                            args.originalEvent.preventDefault();
+                            args.originalEvent.stopPropagation();
+                            //end bug
+                            args.preventDefault();
+                            //args.source.stopPropagation();
+                            if (!confirm("Do you really want to delete this event?")) {
+                                //args.preventDefault();
+                                return false;
+                            }
+                            //console.log(args.source);
+                            //alert(args.source.id());
+                            await DayPilot.Http.post("backend_reservation_delete.php", { id: args.source.id() });
+                            //DayPilot.Http.post("backend_reservation_delete.php", { id: args.source.id()});
+                            dp.events.remove(args.source);
+                            dp.message("Deleted.");
+                            return false;
+                        }
+                    },
+                    { bottom: 10, right: 4, html: `<div style='color:${paidColor}; font-size: 8pt;'>Paid: ${paid}%</div>`, v: "Visible"},
+                    { left: 4, bottom: 8, right: 4, height: 2, html: `<div style='background-color:${paidColor}; height: 100%; width:${paid}%'></div>`, v: "Visible"}
+                ];
+    
+            }
+        });
+        dp.init();
+    
+        const nav = new DayPilot.Navigator("nav", {
+            orientation: "Vertical",
+            cellWidth: "Auto",
+            showMonths: 1,
+            skipMonths: 1,
+            selectMode: "Month",
+            onTimeRangeSelected: (args) => {
+                dp.timeline = app.loadTimeline(args.start);
+                dp.update();
+                app.loadReservations();
+            }
+        });
+        nav.init();
+    
+        app.init();
+    
+    </script>
+    <script src="assets/vendor/jquery/jquery.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/datatables/datatables.min.js"></script>
+    <script src="assets/js/initiate-datatables.js"></script>
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

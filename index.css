@@ -1,0 +1,134 @@
+select {
+    padding: 5px;
+}
+
+.icon {
+    font-size: 14px;
+    text-align: center;
+    line-height: 14px;
+    vertical-align: middle;
+
+    cursor: pointer;
+}
+
+.scheduler_default_rowheader_inner
+{
+    border-right: 1px solid #ccc;
+}
+.scheduler_default_rowheadercol2
+{
+    background: White;
+}
+
+.area-menu {
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0.5 1.5 L 5 6.5 L 9.5 1.5' style='fill:none;stroke:%23999999;stroke-width:2;stroke-linejoin:round;stroke-linecap:butt' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 3px;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.area-menu:hover {
+    opacity: 1;
+}
+
+
+/* toolbar */
+
+.toolbar {
+    background-color: #F9F9F9;
+    border-radius: 8px;
+    padding: 10px 20px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    border: 1px solid #E0E0E0;
+}
+
+.toolbar a,
+.toolbar button {
+    background-color: #E0E0E0;
+    color: #333;
+    text-decoration: none;
+    margin: 0 10px;
+    padding: 5px 15px;
+    border-radius: 15px;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.toolbar a:hover,
+.toolbar button:hover {
+    background-color: #007BFF;
+    color: #FFF;
+}
+
+
+.toolbar button {
+    background-color: #666;
+    color: #FFF;
+    padding: 7px 17px;
+}
+
+.toolbar select {
+    border: 1px solid #E0E0E0;
+    background-color: #FFF;
+    padding: 5px 15px;
+    border-radius: 15px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    margin: 0 10px;
+}
+
+.toolbar select:focus {
+    border-color: #007BFF;
+}
+
+.toolbar select option {
+    padding: 5px 10px;
+}
+
+
+.toolbar label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.toolbar input[type="radio"] {
+    margin-right: 5px;
+    margin-bottom: 4px;
+}
+
+.toolbar input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.toolbar input[type="text"] {
+    border: 1px solid #E0E0E0;
+    padding: 5px 10px;
+    border-radius: 15px;
+    outline: none;
+    transition: border-color 0.3s;
+    margin: 0 10px;
+}
+
+.toolbar input[type="text"]:focus {
+    border-color: #007BFF;
+}
+
+
+.toolbar-item {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}

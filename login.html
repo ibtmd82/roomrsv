@@ -1,0 +1,90 @@
+<!doctype html>
+<!-- 
+* Bootstrap Simple Admin Template
+* Version: 2.1
+* Author: Alexis Luna
+* Website: https://github.com/alexis-luna/bootstrap-simple-admin-template
+-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Login | Bootstrap Simple Admin Template</title>
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/auth.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="auth-content">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <img class="brand" src="assets/img/bootstraper-logo.png" alt="bootstraper logo">
+                    </div>
+                    <h6 class="mb-4 text-muted">Đăng nhập bằng tài khoản của bạn</h6>
+                    <form action="index.html" method="get">
+                        <div class="mb-3 text-start">
+                            <label for="clientid" class="form-label">Tài khoản</label>
+                            <input type="text" class="form-control" name="clientid" value="test" class="form-control" required>
+                        </div>
+                        <div class="mb-3 text-start">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" name="password" value="12345" placeholder="Password" required>
+                        </div>
+                        <div class="mb-3 text-start">
+                            <div class="form-check">
+                              <input class="form-check-input" name="remember" type="checkbox" value="" id="check1">
+                              <label class="form-check-label" for="check1">
+                                Ghi nhớ đăng nhập tự động
+                              </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary shadow-2 mb-4">Login</button>
+                    </form>
+                    <!--
+                    <p class="mb-2 text-muted">Forgot password? <a href="forgot-password.html">Reset</a></p>
+                    <p class="mb-0 text-muted">Don't have account yet? <a href="signup.html">Signup</a></p>
+                    -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/vendor/jquery/jquery.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+        //
+        $( document ).ready(function() {
+            localStorage.removeItem("clientid");
+            $(".btn").click(function () {
+                //alert("The paragraph was clicked.");
+                event.preventDefault();
+                event.stopPropagation();
+                let clientid = $('[name="clientid"]').val();
+                let pass = $('[name="password"]').val();
+                fetch(`http://lottery.dynu.net/member/clients/login/${clientid}/${pass}`)
+                .then(res => res.json())
+                .then(data => {
+                    //
+                    //alert(data['messages']);
+                    if (data['messages'] === 'ok') {
+                        //alert('ok1');
+                        localStorage.setItem("clientid",clientid);
+                        window.location.href = 'index.html';
+                        //location.reload();
+                    } else {
+                        alert("==="+data['messages']+"===");
+                        //event.preventDefault();
+                        //event.stopPropagation();
+                    }
+                })
+                //localStorage.setItem("clientid",$('[name="clientid"]').val())
+                
+            });
+        });      
+    </script>
+</body>
+
+</html>
