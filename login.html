@@ -64,7 +64,7 @@
                 event.stopPropagation();
                 let clientid = $('[name="clientid"]').val();
                 let pass = $('[name="password"]').val();
-                fetch(`http://lottery.dynu.net/member/clients/login/${clientid}/${pass}`)
+                fetch(`https://lottery.dynu.net/member/clients/login/${clientid}/${pass}`)
                 .then(res => res.json())
                 .then(data => {
                     //
