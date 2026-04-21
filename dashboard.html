@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Tổng quan | Room Reservation</title>
+    <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/master.css" rel="stylesheet">
+    <style>
+        .stat-card { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
+        .stat-title { color: #64748b; font-size: 13px; margin-bottom: 6px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+        .section-card { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <nav id="sidebar" class="active">
+        <div class="sidebar-header">
+            <img src="assets/img/bootstraper-logo.png" alt="bootraper logo" class="app-logo">
+        </div>
+        <ul class="list-unstyled components text-secondary">
+            <li><a href="dashboard.html"><i class="fas fa-chart-line"></i>Tổng quan</a></li>
+            <li>
+                <a href="#authmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-user-shield"></i>Xác thực</a>
+                <ul class="collapse list-unstyled" id="authmenu">
+                    <li><a href="login.html"><i class="fas fa-lock"></i>Đăng nhập</a></li>
+                    <li><a href="signup.html"><i class="fas fa-user-plus"></i>Đăng ký</a></li>
+                </ul>
+            </li>
+            <li><a href="users.html"><i class="fas fa-user-friends"></i>Người dùng</a></li>
+            <li><a href="index.html"><i class="fas fa-calendar-alt"></i>Đặt/Thuê phòng</a></li>
+        </ul>
+    </nav>
+
+    <div id="body" class="active">
+        <nav class="navbar navbar-expand-lg navbar-white bg-white">
+            <button type="button" id="sidebarCollapse" class="btn btn-light">
+                <i class="fas fa-bars"></i><span></span>
+            </button>
+        </nav>
+
+        <div class="content">
+            <div class="container">
+                <div class="page-title mb-3">
+                    <h3>Tổng quan hệ thống</h3>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="p-3 stat-card">
+                            <div class="stat-title">Tổng số phòng</div>
+                            <div id="roomsTotal" class="stat-value">0</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="p-3 stat-card">
+                            <div class="stat-title">Tổng reservation</div>
+                            <div id="reservationsTotal" class="stat-value">0</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="p-3 stat-card">
+                            <div class="stat-title">Tổng giá trị còn lại</div>
+                            <div id="totalFinalPrice" class="stat-value">0 đ</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="p-3 stat-card">
+                            <div class="stat-title">TB/Reservation</div>
+                            <div id="averageFinalPrice" class="stat-value">0 đ</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <div class="section-card p-3 h-100">
+                            <h5 class="mb-3">Trạng thái phòng</h5>
+                            <ul id="roomsByStatus" class="list-group list-group-flush"></ul>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="section-card p-3 h-100">
+                            <h5 class="mb-3">Trạng thái reservation</h5>
+                            <ul id="reservationsByStatus" class="list-group list-group-flush"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card p-3 mt-3">
+                    <h5 class="mb-3">5 reservation gần nhất</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nội dung</th>
+                                <th>Thời gian</th>
+                                <th>Trạng thái</th>
+                                <th class="text-end">Giá còn lại</th>
+                            </tr>
+                            </thead>
+                            <tbody id="latestReservations"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const toCurrency = (v) => `${Number(v || 0).toLocaleString("vi-VN")} đ`;
+
+    const fillStatus = (targetId, data) => {
+        const target = document.getElementById(targetId);
+        target.innerHTML = "";
+        const keys = Object.keys(data || {});
+        if (keys.length === 0) {
+            target.innerHTML = "<li class='list-group-item text-muted'>Không có dữ liệu</li>";
+            return;
+        }
+        keys.forEach((key) => {
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between";
+            li.innerHTML = `<span>${key}</span><strong>${data[key]}</strong>`;
+            target.appendChild(li);
+        });
+    };
+
+    const fillLatest = (rows) => {
+        const body = document.getElementById("latestReservations");
+        body.innerHTML = "";
+        if (!rows || rows.length === 0) {
+            body.innerHTML = "<tr><td colspan='5' class='text-center text-muted'>Không có dữ liệu</td></tr>";
+            return;
+        }
+        rows.forEach((r) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${r.id}</td>
+                <td>${r.name}</td>
+                <td>${r.start} - ${r.end}</td>
+                <td>${r.status}</td>
+                <td class="text-end">${toCurrency(r.finalPrice)}</td>
+            `;
+            body.appendChild(tr);
+        });
+    };
+
+    const loadDashboard = async () => {
+        const res = await fetch("backend_dashboard.php");
+        const data = await res.json();
+
+        document.getElementById("roomsTotal").textContent = data.roomsTotal || 0;
+        document.getElementById("reservationsTotal").textContent = data.reservationsTotal || 0;
+        document.getElementById("totalFinalPrice").textContent = toCurrency(data.totalFinalPrice);
+        document.getElementById("averageFinalPrice").textContent = toCurrency(data.averageFinalPrice);
+
+        fillStatus("roomsByStatus", data.roomsByStatus);
+        fillStatus("reservationsByStatus", data.reservationsByStatus);
+        fillLatest(data.latestReservations);
+    };
+
+    loadDashboard();
+</script>
+<script src="assets/vendor/jquery/jquery.min.js"></script>
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
