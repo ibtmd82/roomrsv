@@ -22,6 +22,7 @@ foreach($rooms as $room) {
   $r->name = $room['name'];
   $r->capacity = intval($room['capacity']);
   $r->status = $room['status'];
+  $r->price = floatval($room['price']);
   $result[] = $r;
 }
 

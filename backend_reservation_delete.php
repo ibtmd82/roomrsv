@@ -4,13 +4,12 @@ require_once '_db.php';
 $json = file_get_contents('php://input');
 $params = json_decode($json);
 
+$id = $params->id;
 $stmt = $db->prepare("DELETE FROM reservations WHERE id = :id");
-$stmt->bindParam(':id', $params->id);
+$stmt->bindValue(':id', $id);
 $stmt->execute();
 
-class Result {}
-
-$response = new Result();
+$response = new stdClass();
 $response->result = 'OK';
 $response->message = 'Delete successful';
 

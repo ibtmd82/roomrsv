@@ -1,11 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <title>PHP Hotel Room Booking</title>
+    <title>Đặt phòng khách sạn PHP</title>
 
     <style>
+        :root {
+            --accent: #2563eb;
+            --accent-strong: #1e40af;
+            --text-primary: #1f2937;
+            --text-secondary: #64748b;
+            --surface-soft: #f8fafc;
+            --cal-header-bg: #f1f5f9;
+            --cal-header-text: #334155;
+            --cal-selected-bg: #dbeafe;
+            --cal-selected-border: #60a5fa;
+        }
         p, body, td, input, select, button { font-family: -apple-system,system-ui,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; font-size: 14px; }
-        body { padding: 0px; margin: 0px; background-color: #ffffff; }
+        body { padding: 0px; margin: 0px; background-color: #ffffff; color: var(--text-primary); }
         a { color: #1155a3; }
         .space { margin: 10px 0px 10px 0px; }
         .header { background: #003267; background: linear-gradient(to right, #011329 0%,#00639e 44%,#011329 100%); padding:20px 10px; color: white; box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.75); }
@@ -13,11 +24,315 @@
         .header h1 a { text-decoration: none; }
         .header h1 { padding: 0px; margin: 0px; }
         .main { padding: 10px; margin-top: 10px; }
+        .content .container {
+            max-width: 1200px;
+        }
+        .page-title {
+            margin-bottom: 12px;
+        }
+        .box.box-primary {
+            border: 1px solid #e7edf3;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+        }
+        .box.box-primary .box-body {
+            padding: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, var(--surface-soft) 100%);
+        }
+        #timerange, #filter {
+            min-width: 160px;
+            width: auto;
+        }
+        .toolbar-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+        .toolbar-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        h3, h5 { color: var(--text-primary); font-weight: 700; }
+        .form-select {
+            border-color: #cbd5e1;
+            color: var(--text-primary);
+            background-color: #f8fafc;
+        }
+        .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, var(--accent-strong) 100%);
+            border-color: var(--accent-strong);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+            border-color: #1e3a8a;
+        }
+        #nav {
+            margin-bottom: 10px;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            background: #fff;
+            padding: 6px;
+        }
+        #dp {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+            border: 1px solid #dbeafe;
+            background: #fff;
+        }
+        .corner-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            width: 100%;
+            font-weight: 700;
+        }
+        .corner-add-btn {
+            border: 1px solid #2563eb;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 11px;
+            line-height: 1.1;
+            padding: 2px 6px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        /* DayPilot Scheduler/Navigator corporate muted theme */
+        .scheduler_default_timeheadercol,
+        .scheduler_default_timeheadergroup {
+            background: var(--cal-header-bg) !important;
+            color: var(--cal-header-text) !important;
+            font-weight: 600;
+        }
+        .scheduler_default_corner {
+            background: #e2e8f0 !important;
+            color: #334155 !important;
+            font-weight: 700;
+        }
+        .scheduler_default_rowheader {
+            background: #f8fafc !important;
+            color: #1f2937 !important;
+        }
+        .scheduler_default_cell {
+            background: #ffffff !important;
+        }
+        .scheduler_default_cell_selected,
+        .scheduler_default_selected {
+            background: var(--cal-selected-bg) !important;
+            box-shadow: inset 0 0 0 1px var(--cal-selected-border);
+        }
+        .scheduler_default_event {
+            border-radius: 6px !important;
+            color: #1f2937 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+        }
+        .navigator_default_main {
+            border-color: #dbeafe !important;
+            background: #ffffff !important;
+        }
+        .navigator_default_title,
+        .navigator_default_dayheader {
+            color: #334155 !important;
+            font-weight: 600;
+            background: #f1f5f9 !important;
+        }
+        .navigator_default_cell,
+        .navigator_default_day {
+            background: #ffffff !important;
+            color: #334155 !important;
+            border-color: #e2e8f0 !important;
+        }
+        .navigator_default_weekend {
+            background: #f8fafc !important;
+            color: #475569 !important;
+        }
+        .navigator_default_cell:hover,
+        .navigator_default_day:hover {
+            background: #eff6ff !important;
+            color: #1e3a8a !important;
+        }
+        .navigator_default_todaybox {
+            border: 1px solid #93c5fd !important;
+            border-radius: 6px;
+        }
+        .navigator_default_cell_selected,
+        .navigator_default_selected {
+            background: var(--cal-selected-bg) !important;
+            color: #1e3a8a !important;
+            box-shadow: inset 0 0 0 1px var(--cal-selected-border);
+        }
+        /* DayPilot Modal (create/edit room/reservation) */
+        .modal_default_main {
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+            overflow: hidden;
+        }
+        .modal_default_content {
+            padding: 16px;
+            background: #ffffff;
+        }
+        .modal_default_form_item {
+            margin-bottom: 10px;
+        }
+        .modal_default_form_item_label {
+            margin-bottom: 4px;
+            color: #374151;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .modal_default_form_item input,
+        .modal_default_form_item select,
+        .modal_default_form_item textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.625rem;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .modal_default_form_item input:focus,
+        .modal_default_form_item select:focus,
+        .modal_default_form_item textarea:focus {
+            outline: 0;
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        .modal_default_buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .modal_default_buttons input {
+            border-radius: 0.375rem;
+            border: 1px solid #0d6efd;
+            background: #0d6efd;
+            color: #fff;
+            padding: 0.35rem 0.75rem;
+            font-size: 14px;
+        }
+        .modal_default_cancel {
+            border-color: #6c757d !important;
+            background: #6c757d !important;
+        }
+        @media (max-width: 576px) {
+            .content .container {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            .box.box-primary .box-body {
+                padding: 10px;
+            }
+            #timerange { min-width: 96px; width: auto; }
+            #filter { min-width: 108px; width: auto; }
+            .page-title .d-flex.align-items-center.justify-content-between {
+                flex-wrap: wrap !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+            }
+            .page-title .d-flex.align-items-center.gap-2.flex-nowrap {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .page-title .d-flex.align-items-center.ms-auto {
+                width: auto;
+                margin-left: auto !important;
+            }
+            #addroom {
+                width: auto;
+                padding: 0.22rem 0.48rem;
+                font-size: 12px;
+            }
+            .box-body > .d-flex.align-items-start.justify-content-between {
+                background: transparent;
+                border: 0;
+                border-radius: 0;
+                padding: 2px 0;
+                margin: 2px 0 6px;
+            }
+            .box-body > .d-flex.align-items-start.justify-content-between > .d-flex.align-items-center.ms-auto {
+                width: auto;
+                margin-left: auto !important;
+            }
+            .toolbar-label {
+                font-size: 13px;
+            }
+            .toolbar-hint {
+                display: none;
+            }
+            #nav {
+                margin-bottom: 8px;
+                padding: 4px;
+            }
+            #dp {
+                margin-top: 6px;
+            }
+            .corner-add-btn {
+                padding: 2px 4px;
+                font-size: 10px;
+            }
+            .corner-add-btn .corner-add-text {
+                display: none;
+            }
+            .modal_default_main {
+                position: fixed !important;
+                width: min(92vw, 420px) !important;
+                max-width: min(92vw, 420px) !important;
+                max-height: 92vh !important;
+                left: 50% !important;
+                right: auto !important;
+                top: 48% !important;
+                transform: translate(-50%, -48%) !important;
+                margin: 0 !important;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+            .modal_default_content {
+                max-height: calc(92vh - 20px);
+                overflow-y: auto;
+                padding: 12px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .modal_default_form_item {
+                margin-bottom: 8px;
+            }
+            .modal_default_form_item_label {
+                font-size: 12px;
+            }
+            .modal_default_buttons {
+                margin-top: 10px;
+                gap: 6px;
+                position: sticky;
+                bottom: 0;
+                background: #ffffff;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 8px;
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+            .modal_default_buttons input {
+                min-width: 92px;
+                padding: 0.32rem 0.6rem;
+                font-size: 13px;
+            }
+            .scheduler_default_event {
+                border-radius: 5px !important;
+                box-shadow: none !important;
+            }
+        }
     </style>
     
 
     <!-- DayPilot library -->
-    <script src="js/daypilot/daypilot-all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@daypilot/daypilot-lite-javascript@5.4.1/daypilot-javascript.min.js"></script>
 
     <link type="text/css" rel="stylesheet" href="icons/style.css" />
     <link type="text/css" rel="stylesheet" href="index.css" />
@@ -41,28 +356,31 @@
             </div>
             <ul class="list-unstyled components text-secondary">
                 <li>
-                    <a href="dashboard.html"><i class="fas fa-home"></i>Dashboard</a>
+                    <a href="dashboard.html"><i class="fas fa-chart-line"></i>Tổng quan</a>
+                </li>
+                <li>
+                    <a href="index.html"><i class="fas fa-calendar-check"></i>Đặt/Thuê phòng</a>
                 </li>
                 
                 <li>
-                    <a href="#authmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-user-shield"></i>Authentication</a>
+                    <a href="#authmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-user-shield"></i>Xác thực</a>
                     <ul class="collapse list-unstyled" id="authmenu">
                         <li>
-                            <a href="login.html"><i class="fas fa-lock"></i>Login</a>
+                            <a href="login.html"><i class="fas fa-lock"></i>Đăng nhập</a>
                         </li>
                         <li>
-                            <a href="signup.html"><i class="fas fa-user-plus"></i>Signup</a>
+                            <a href="signup.html"><i class="fas fa-user-plus"></i>Đăng ký</a>
                         </li>
                         <li>
-                            <a href="forgot-password.html"><i class="fas fa-user-lock"></i>Forgot password</a>
+                            <a href="forgot-password.html"><i class="fas fa-user-lock"></i>Quên mật khẩu</a>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a href="users.html"><i class="fas fa-user-friends"></i>Users</a>
+                    <a href="users.html"><i class="fas fa-user-friends"></i>Người dùng</a>
                 </li>
                 <li>
-                    <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                    <a href="settings.html"><i class="fas fa-cog"></i>Cài đặt</a>
                 </li>
             </ul>
         </nav>
@@ -78,17 +396,17 @@
                         <li class="nav-item dropdown">
                             <div class="nav-dropdown">
                                 <a href="#" id="nav1" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-link"></i> <span>Quick Links</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
+                                    <i class="fas fa-link"></i> <span>Liên kết nhanh</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end nav-link-menu" aria-labelledby="nav1">
                                     <ul class="nav-list">
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-list"></i> Access Logs</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-list"></i> Nhật ký truy cập</a></li>
                                         <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-database"></i> Back ups</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-database"></i> Sao lưu</a></li>
                                         <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-cloud-download-alt"></i> Updates</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-cloud-download-alt"></i> Cập nhật</a></li>
                                         <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-user-shield"></i> Roles</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-user-shield"></i>Vai trò</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -100,11 +418,11 @@
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end nav-link-menu">
                                     <ul class="nav-list">
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-address-card"></i> Profile</a></li>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-envelope"></i> Messages</a></li>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-address-card"></i> Hồ sơ</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-envelope"></i> Tin nhắn</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-cog"></i> Cài đặt</a></li>
                                         <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -116,29 +434,33 @@
             <div class="content">
                 <div class="container">
                     <div class="page-title">
-                        <h3>Rooms
-                            <div style="display: inline-block">              
-                                <select id="timerange" class="form-select">
-                                    <option value="week">Week</option>
-                                    <option value="month" selected>Month</option>
+                        <div class="d-flex align-items-center justify-content-between gap-2 flex-nowrap">
+                            <div class="d-flex align-items-center gap-2 flex-nowrap">
+                                <h3 class="toolbar-label">Hình thức thuê</h3>
+                                <select id="timerange" class="form-select form-select-sm">
+                                    <option value="week">Tuần</option>
+                                    <option value="month" selected>Tháng</option>
                                 </select>
                             </div>
-                            <button id="addroom" class="btn btn-primary float-end"><i class="fas fa-plus-circle"></i> Add room</button>
-                        </h3>
+                        </div>
                     </div>
                     <div class="box box-primary">
                         <div class="box-body">
                             <div id="nav"></div>
                             
-                            <div>
-                                <h5>Room filter
-                                    <div style="display: inline-block" class="float-end"><select class="form-select" id="filter">
-                                        <option value="0">All</option>
-                                        <option value="1">Single</option>
-                                        <option value="2">Double</option>
-                                        <option value="4">Family</option>
-                                    </select></div>
-                                </h5>
+                            <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+                                <div>
+                                    <h5 class="toolbar-label">Lọc phòng</h5>
+                                    <div class="toolbar-hint">Theo sức chứa</div>
+                                </div>
+                                <div class="d-flex align-items-center ms-auto">
+                                    <select class="form-select form-select-sm" id="filter">
+                                        <option value="0">Tất cả</option>
+                                        <option value="1">1 người</option>
+                                        <option value="2">2 người</option>
+                                        <option value="4">4 người (gia đình)</option>
+                                    </select>
+                                </div>
                                 <!--<label for="autocellwidth"><input type="checkbox" id="autocellwidth" checked>Auto Cell Width</label>-->
                             </div>
                             <div id="dp"></div>
@@ -155,7 +477,6 @@
                 filter: document.querySelector("#filter"),
                 timerange: document.querySelector("#timerange"),
                 //autocellwidth: document.querySelector("#autocellwidth"),
-                addroom: document.querySelector("#addroom"),
             },
             loadTimeline(date) {
                 const timeline = [];
@@ -174,6 +495,42 @@
                 dp.update({resources: data});
             },
             addEventHandlers() {
+                const addRoomHandler = async (ev) => {
+                    ev.preventDefault();
+
+                    const capacities = [
+                        {name: "1", id: 1},
+                        {name: "2", id: 2},
+                        {name: "4", id: 4},
+                    ];
+
+                    const form = [
+                        {name: "Tên phòng (VD: Phòng 101)", id: "name"},
+                        {name: "Sức chứa", id: "capacity", type: "select", options: capacities},
+                        {name: "Giá phòng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice}
+                    ];
+
+                    const data = {
+                        capacity: 2,
+                        price: 600000
+                    };
+
+                    const modal = await openRoomForm(form, data);
+                    if (modal.canceled) {
+                        return;
+                    }
+
+                    const room = modal.result;
+                    room.price = Math.max(0, parseLocaleNumber(room.price));
+                    const {data: result} = await DayPilot.Http.post("backend_room_create.php", room);
+
+                    room.id = result.id;
+                    room.status = result.status;
+                    room.price = result.price;
+                    dp.resources.push(room);
+                    dp.update();
+                };
+
                 app.elements.filter.addEventListener("change", (e) => {
                     app.loadRooms();
                 });
@@ -197,37 +554,12 @@
                 //     dp.cellWidthSpec = app.elements.autocellwidth.checked ? "Auto" : "Fixed";
                 //     dp.update();
                 // });
-                app.elements.addroom.addEventListener("click", async (ev) => {
-                    ev.preventDefault();
-    
-                    const capacities = [
-                        {name: "1", id: 1},
-                        {name: "2", id: 2},
-                        {name: "4", id: 4},
-                    ];
-    
-                    const form = [
-                        {name: "Room Name", id: "name"},
-                        {name: "Capacity", id: "capacity", type: "select", options: capacities}
-                    ];
-    
-                    const data = {
-                        capacity: 2
-                    };
-    
-                    const modal = await DayPilot.Modal.form(form, data);
-                    if (modal.canceled) {
+                document.addEventListener("click", (ev) => {
+                    const btn = ev.target.closest("#addroom");
+                    if (!btn) {
                         return;
                     }
-    
-                    const room = modal.result;
-                    const {data: result} = await DayPilot.Http.post("backend_room_create.php", room);
-    
-                    room.id = result.id;
-                    room.status = result.status;
-                    dp.resources.push(room);
-                    dp.update();
-    
+                    addRoomHandler(ev);
                 });
             },
             init() {
@@ -236,11 +568,205 @@
                 app.addEventHandlers();
             }
         };
+
+        const roomStatusLabels = {
+            Ready: "Sẵn sàng",
+            Cleanup: "Cần dọn",
+            Dirty: "Bẩn",
+        };
+
+        const reservationStatusLabels = {
+            New: "Mới",
+            Confirmed: "Đã xác nhận",
+            Arrived: "Đã đến",
+            CheckedOut: "Đã trả phòng",
+        };
+
+        const getRoomStatusLabel = (status) => roomStatusLabels[status] || status;
+        const getReservationStatusLabel = (status) => reservationStatusLabels[status] || status;
+        const formatCurrency = (value) => `${Number(value || 0).toLocaleString("vi-VN")} đ`;
+        const parseLocaleNumber = (value) => {
+            if (value === null || value === undefined) {
+                return 0;
+            }
+            if (typeof value === "number") {
+                return Number.isFinite(value) ? value : 0;
+            }
+            const normalized = String(value).replace(/[^\d.,-]/g, "").replace(/\./g, "").replace(",", ".");
+            const parsed = parseFloat(normalized);
+            return Number.isFinite(parsed) ? parsed : 0;
+        };
+        const sanitizeNumericInput = (value) => {
+            if (value === null || value === undefined) {
+                return "";
+            }
+            return String(value).replace(/[^\d.,-]/g, "");
+        };
+        const normalizeNumericInput = (value) => {
+            const sanitized = sanitizeNumericInput(value);
+            if (sanitized === "") {
+                return "";
+            }
+            return String(Math.max(0, parseLocaleNumber(sanitized)));
+        };
+        const bindNumericFilterToModalInput = (fieldId) => {
+            const selectors = [
+                `.modal_default_main input[name='${fieldId}']`,
+                `.modal_default_main input[id='${fieldId}']`
+            ];
+            const input = document.querySelector(selectors.join(","));
+            if (!input) {
+                return;
+            }
+            input.setAttribute("inputmode", "decimal");
+            input.setAttribute("pattern", "[0-9.,]*");
+            input.addEventListener("input", (ev) => {
+                const target = ev.target;
+                const cursor = target.selectionStart || 0;
+                const next = sanitizeNumericInput(target.value);
+                if (next !== target.value) {
+                    target.value = next;
+                    const pos = Math.max(0, cursor - 1);
+                    target.setSelectionRange(pos, pos);
+                }
+            });
+        };
+        const getRoomPriceById = (roomId) => {
+            const room = dp.resources.find((item) => String(item.id) === String(roomId));
+            return room ? Number(room.price || 0) : 0;
+        };
+        const calculateFinalPrice = (roomPrice, discountType, discountValue) => {
+            const base = Number(roomPrice || 0);
+                const discount = parseLocaleNumber(discountValue);
+            let final = base;
+            if (discountType === "percent") {
+                final = base - (base * discount / 100);
+            }
+            else {
+                final = base - discount;
+            }
+            return Math.max(0, final);
+        };
+        const validateDiscountValue = (args) => {
+            const value = args.value;
+            const numeric = parseLocaleNumber(value);
+
+            if (value !== null && value !== undefined && String(value).trim() !== "") {
+                const cleaned = String(value).trim().replace(/[^\d.,-]/g, "");
+                if (cleaned.length === 0 || !Number.isFinite(numeric)) {
+                    args.valid = false;
+                    args.message = "Giá trị discount chỉ được nhập số.";
+                    return;
+                }
+            }
+
+            if (numeric < 0) {
+                args.valid = false;
+                args.message = "Giá trị discount không được âm.";
+                return;
+            }
+
+            const discountType = args.result && args.result.discountType ? args.result.discountType : "fixed";
+            if (discountType === "percent" && numeric > 100) {
+                args.valid = false;
+                args.message = "Discount phần trăm tối đa là 100.";
+            }
+        };
+        const validateRoomPrice = (args) => {
+            const value = args.value;
+            const numeric = parseLocaleNumber(value);
+            if (value === null || value === undefined || String(value).trim() === "") {
+                args.valid = false;
+                args.message = "Giá phòng là bắt buộc.";
+                return;
+            }
+            const cleaned = String(value).trim().replace(/[^\d.,-]/g, "");
+            if (cleaned.length === 0 || !Number.isFinite(numeric)) {
+                args.valid = false;
+                args.message = "Giá phòng chỉ được nhập số.";
+                return;
+            }
+            if (numeric < 0) {
+                args.valid = false;
+                args.message = "Giá phòng không được âm.";
+            }
+        };
+        const openRoomForm = async (form, data) => {
+            const options = {
+                onShow: () => {
+                    bindNumericFilterToModalInput("price");
+                },
+                onChange: (args) => {
+                    // Remove non-numeric chars immediately while typing.
+                    args.result.price = normalizeNumericInput(args.result.price);
+                }
+            };
+            return await DayPilot.Modal.form(form, data, options);
+        };
+        const openReservationForm = async (form, data) => {
+            const options = {
+                onShow: () => {
+                    bindNumericFilterToModalInput("discountValue");
+                },
+                onChange: (args) => {
+                    const resource = args.result.resource;
+                    const roomPrice = getRoomPriceById(resource);
+                    const discountType = args.result.discountType || "fixed";
+                    args.result.discountValue = normalizeNumericInput(args.result.discountValue);
+                    let discountValue = parseLocaleNumber(args.result.discountValue);
+                    if (discountType === "percent") {
+                        discountValue = Math.min(100, discountValue);
+                    }
+                    const finalPrice = calculateFinalPrice(roomPrice, discountType, discountValue);
+                    args.result.roomPrice = roomPrice;
+                    args.result.discountValue = discountValue;
+                    args.result.finalPrice = finalPrice;
+                }
+            };
+            return await DayPilot.Modal.form(form, data, options);
+        };
+        const notify = async (text) => {
+            if (dp && typeof dp.message === "function") {
+                dp.message(text);
+                return;
+            }
+            if (DayPilot && DayPilot.Modal && typeof DayPilot.Modal.alert === "function") {
+                await DayPilot.Modal.alert(text);
+                return;
+            }
+            console.log(text);
+        };
+        const isMobileRoomHeader = () => window.matchMedia("(max-width: 767px)").matches;
+        const applySchedulerResponsiveLayout = () => {
+            if (isMobileRoomHeader()) {
+                const viewportWidth = window.innerWidth || 360;
+                const proportionalWidth = Math.floor(viewportWidth * 0.34);
+                const mobileRowHeaderWidth = Math.max(120, Math.min(165, proportionalWidth));
+                dp.update({
+                    rowHeaderWidth: mobileRowHeaderWidth,
+                    cellWidthSpec: "Fixed",
+                    cellWidth: 44,
+                    cellWidthMin: 32,
+                    eventHeight: 64
+                });
+                return;
+            }
+
+            dp.update({
+                rowHeaderWidth: 365,
+                cellWidthSpec: "Auto",
+                cellWidth: 80,
+                cellWidthMin: 60,
+                eventHeight: 80
+            });
+        };
     
         const dp = new DayPilot.Scheduler("dp", {
             allowEventOverlap: false,
-            scale: "Manual",
-            timeline: app.loadTimeline(DayPilot.Date.today().firstDayOfMonth()),
+            scale: "Day",
+            cellDuration: 1440,
+            startDate: DayPilot.Date.today().firstDayOfMonth().getDatePart(),
+            days: app.days,
             //eventDeleteHandling: "Update",
             //eventDeleteHandling: "Disabled",
             timeHeaders: [
@@ -252,10 +778,11 @@
             cellWidthMin: 60,
             cellWidthSpec: "Auto",
             rowHeaderColumns: [
-                {title: "Room", display: "name", sort: "name"},
-                {title: "Capacity", display: "capacity", sort: "capacity"},
-                {title: "Status", sort: "status"}
+                {name: "Phòng | Sức chứa | Trạng thái", display: "name", width: 365}
             ],
+            rowHeaderColumnsMode: "Legacy",
+            rowHeaderWidth: 365,
+            cornerHtml: "<div class='corner-toolbar'><span>Danh sách phòng</span><button id='addroom' class='corner-add-btn' title='Thêm phòng'><i class='fas fa-plus-circle'></i> <span class='corner-add-text'>Thêm phòng</span></button></div>",
             separators: [
                 { location: DayPilot.Date.now(), color: "#cc000066" }
             ],
@@ -264,7 +791,7 @@
             //contextMenu: new DayPilot.Menu({items:[{text: "Delete..."}]}),
             contextMenuResource: new DayPilot.Menu({
                 items: [
-                    { text: "Edit...", onClick: async (args) => {
+                    { text: "Chỉnh sửa...", onClick: async (args) => {
                             const capacities = [
                                 {name: "1", id: 1},
                                 {name: "2", id: 2},
@@ -272,29 +799,31 @@
                             ];
     
                             const statuses = [
-                                {name: "Ready", id: "Ready"},
-                                {name: "Cleanup", id: "Cleanup"},
-                                {name: "Dirty", id: "Dirty"},
+                                {name: "Sẵn sàng", id: "Ready"},
+                                {name: "Cần dọn", id: "Cleanup"},
+                                {name: "Bẩn", id: "Dirty"},
                             ];
     
                             const form = [
-                                {name: "Room Name", id: "name"},
-                                {name: "Capacity", id: "capacity", type: "select", options: capacities},
-                                {name: "Status", id: "status", type: "select", options: statuses}
+                                {name: "Tên phòng (VD: Phòng 101)", id: "name"},
+                                {name: "Sức chứa", id: "capacity", type: "select", options: capacities},
+                                {name: "Trạng thái", id: "status", type: "select", options: statuses},
+                                {name: "Giá phòng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice}
                             ];
     
                             const data = args.source.data;
     
-                            const modal = await DayPilot.Modal.form(form, data);
+                            const modal = await openRoomForm(form, data);
                             if (modal.canceled) {
                                 return;
                             }
     
                             const room = modal.result;
+                            room.price = Math.max(0, parseLocaleNumber(room.price));
                             await DayPilot.Http.post("backend_room_update.php", room);
                             dp.rows.update(room);
                         }},
-                    { text: "Delete", onClick: async (args) => {
+                    { text: "Xóa", onClick: async (args) => {
                             const id = args.source.id;
     
                             await DayPilot.Http.post("backend_room_delete.php", {id: id});
@@ -304,39 +833,74 @@
                 ]
             }),
             onBeforeRowHeaderRender: (args) => {
-                const beds = (count) => {
-                    return `${count} bed${count > 1 ? "s" : ""}`;
-                };
-    
-                args.row.columns[1].html = beds(args.row.data.capacity);
-    
-                args.row.columns[0].areas = [
-                    {right: 3, top: 3, width: 16, height: 16, cssClass: "area-menu", action: "ContextMenu", visibility: "TouchVisible"}
+                args.row.areas = [
+                    {
+                        right: 3,
+                        top: 3,
+                        width: 18,
+                        height: 18,
+                        cssClass: "area-menu",
+                        symbol: "icons/daypilot.svg#minichevron-down-2",
+                        fontColor: "#6b7280",
+                        padding: 2,
+                        visibility: "Visible",
+                        onClick: (areaArgs) => {
+                            if (dp.contextMenuResource && typeof dp.contextMenuResource.show === "function") {
+                                dp.contextMenuResource.show(areaArgs.source);
+                            }
+                        }
+                    }
                 ];
-    
-                args.row.columns[2].areas = [
-                    {left: "calc(50% - 10px)", top: 20, width: 20, height: 20, fontColor: "#ffffff", padding: 2, style: "border-radius: 50%;" },
-                    // status text
-                    {left: 0, top: 45, right: 0, bottom: 0, html: args.row.data.status, style: "text-align: center;"},
-                ];
-    
-                const icon = args.row.columns[2].areas[0];
-    
+                let iconColor = "#6bbf45";
+                let iconText = "✓";
+
                 switch (args.row.data.status) {
-                    case "Ready":
-                        icon.symbol = "icons/daypilot.svg#checkmark-2";
-                        icon.backColor = "#6bbf45";
-                        break;
                     case "Cleanup":
-                        icon.symbol = "icons/daypilot.svg#figure";
-                        icon.backColor = "#f5c447";
+                        iconColor = "#f5c447";
+                        iconText = "!";
                         break;
                     case "Dirty":
-                        icon.symbol = "icons/daypilot.svg#x-2";
-                        icon.backColor = "#fa3f3f";
+                        iconColor = "#fa3f3f";
+                        iconText = "×";
                         break;
                 }
-    
+
+                const statusLabel = getRoomStatusLabel(args.row.data.status);
+                const capacityLabel = `${args.row.data.capacity} giường`;
+                const priceLabel = formatCurrency(args.row.data.price || 0);
+                
+                if (isMobileRoomHeader()) {
+                    args.row.html = `
+                        <div style="display:flex; flex-direction:column; gap:3px; padding:2px 18px 2px 0;">
+                            <div style="font-weight:600; font-size:12px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${args.row.data.name}
+                            </div>
+                            <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:#475569; line-height:1.2;">
+                                <span style="display:inline-flex; width:16px; height:16px; border-radius:50%; background:${iconColor}; color:#fff; align-items:center; justify-content:center;">
+                                    <span style="font-size:11px; line-height:1; font-weight:700;">${iconText}</span>
+                                </span>
+                                <span style="white-space:nowrap;">${statusLabel}</span>
+                                <span style="color:#94a3b8;">|</span>
+                                <span style="white-space:nowrap;">${capacityLabel}</span>
+                            </div>
+                            <div style="font-size:11px; color:#64748b; line-height:1.2;">${priceLabel}</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                args.row.html = `
+                    <div style="display:grid; grid-template-columns: 150px 95px 1fr; align-items:center; gap:0; padding-right:20px;">
+                        <div style="font-weight:600; padding-right:8px;">${args.row.data.name}</div>
+                        <div style="font-size:12px; color:#4b5563;">${capacityLabel}<br /><span style="color:#64748b">${priceLabel}</span></div>
+                        <div style="display:flex; align-items:center; gap:6px; font-size:12px;">
+                            <span style="display:inline-flex; width:16px; height:16px; border-radius:50%; background:${iconColor}; color:#fff; align-items:center; justify-content:center;">
+                                <span style="font-size:11px; line-height:1; font-weight:700;">${iconText}</span>
+                            </span>
+                            <span>${statusLabel}</span>
+                        </div>
+                    </div>
+                `;
             },
             // onEventMove: async (args) => {
             //     args.async = true;
@@ -355,7 +919,7 @@
                 };
     
                 const {data} = await DayPilot.Http.post("backend_reservation_move.php", params);
-                dp.message(data.message);
+                await notify(data.message);
     
             },
             onEventResized: async (args) => {
@@ -366,7 +930,7 @@
                 };
     
                 const {data} = await DayPilot.Http.post("backend_reservation_resize.php", params);
-                dp.message("Resized");
+                await notify("Resized");
     
             },
             onEventDelete: async (args) => {
@@ -393,79 +957,127 @@
     
                 const rooms = dp.resources.map((item) => {
                     return {
-                        name: item.name,
+                        name: `${item.name} (${formatCurrency(item.price)})`,
                         id: item.id
                     };
                 });
-    
-                const form = [
-                    {name: "Text", id: "text"},
-                    {name: "Start", id: "start", dateFormat: "MM/dd/yyyy HH:mm tt"},
-                    {name: "End", id: "end", dateFormat: "MM/dd/yyyy HH:mm tt"},
-                    {name: "Room", id: "resource", options: rooms},
+
+                const discountTypes = [
+                    {name: "Cố định", id: "fixed"},
+                    {name: "Phần trăm", id: "percent"}
                 ];
     
+                const form = [
+                    {name: "Nội dung (VD: Khách Nguyễn Văn A)", id: "text"},
+                    {name: "Bắt đầu", id: "start", dateFormat: "MM/dd/yyyy HH:mm tt"},
+                    {name: "Kết thúc", id: "end", dateFormat: "MM/dd/yyyy HH:mm tt"},
+                    {name: "Phòng", id: "resource", options: rooms},
+                    {name: "Giá tham chiếu (tự động theo phòng)", id: "roomPrice", disabled: true},
+                    {name: "Loại discount", id: "discountType", type: "select", options: discountTypes},
+                    {name: "Giá trị discount (VD: 50000 hoặc 10%)", id: "discountValue", type: "number", onValidate: validateDiscountValue},
+                    {name: "Giá còn lại (tự động tính)", id: "finalPrice", disabled: true},
+                ];
+    
+                const roomPrice = getRoomPriceById(args.resource);
                 const data = {
                     start: args.start,
                     end: args.end,
-                    resource: args.resource
+                    resource: args.resource,
+                    roomPrice: roomPrice,
+                    discountType: "fixed",
+                    discountValue: 0,
+                    finalPrice: roomPrice
                 };
     
-                const modal = await DayPilot.Modal.form(form, data);
+                const modal = await openReservationForm(form, data);
     
                 dp.clearSelection();
                 if (modal.canceled) {
                     return;
                 }
                 const e = modal.result;
+                e.roomPrice = getRoomPriceById(e.resource);
+                e.discountType = e.discountType || "fixed";
+                e.discountValue = Math.max(0, parseLocaleNumber(e.discountValue));
+                if (e.discountType === "percent") {
+                    e.discountValue = Math.min(100, e.discountValue);
+                }
+                e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue);
     
                 const {data: result} = await DayPilot.Http.post("backend_reservation_create.php", e);
     
                 e.id = result.id;
                 e.paid = result.paid;
                 e.status = result.status;
+                e.roomPrice = result.roomPrice;
+                e.discountType = result.discountType;
+                e.discountValue = result.discountValue;
+                e.finalPrice = result.finalPrice;
                 dp.events.add(e);
     
             },
             onEventClick: async (args) => {
                 const rooms = dp.resources.map((item) => {
                     return {
-                        name: item.name,
+                        name: `${item.name} (${formatCurrency(item.price)})`,
                         id: item.id
                     };
                 });
     
                 const statuses = [
-                    {name: "New", id: "New"},
-                    {name: "Confirmed", id: "Confirmed"},
-                    {name: "Arrived", id: "Arrived"},
-                    {name: "CheckedOut", id: "CheckedOut"}
+                    {name: "Mới", id: "New"},
+                    {name: "Đã xác nhận", id: "Confirmed"},
+                    {name: "Đã đến", id: "Arrived"},
+                    {name: "Đã trả phòng", id: "CheckedOut"}
                 ];
     
                 const paidoptions = [
                     {name: "0%", id: 0},
                     {name: "50%", id: 50},
                     {name: "100%", id: 100},
-                ]
+                ];
+
+                const discountTypes = [
+                    {name: "Cố định", id: "fixed"},
+                    {name: "Phần trăm", id: "percent"}
+                ];
     
                 const form = [
-                    {name: "Text", id: "text"},
-                    {name: "Start", id: "start", dateFormat: "MM/dd/yyyy h:mm tt"},
-                    {name: "End", id: "end", dateFormat: "MM/dd/yyyy h:mm tt"},
-                    {name: "Room", id: "resource", options: rooms},
-                    {name: "Status", id: "status", type: "select", options: statuses},
-                    {name: "Paid", id: "paid", type: "select", options: paidoptions},
+                    {name: "Nội dung (VD: Khách Nguyễn Văn A)", id: "text"},
+                    {name: "Bắt đầu", id: "start", dateFormat: "MM/dd/yyyy h:mm tt"},
+                    {name: "Kết thúc", id: "end", dateFormat: "MM/dd/yyyy h:mm tt"},
+                    {name: "Phòng", id: "resource", options: rooms},
+                    {name: "Trạng thái", id: "status", type: "select", options: statuses},
+                    {name: "Thanh toán", id: "paid", type: "select", options: paidoptions},
+                    {name: "Giá tham chiếu (tự động theo phòng)", id: "roomPrice", disabled: true},
+                    {name: "Loại discount", id: "discountType", type: "select", options: discountTypes},
+                    {name: "Giá trị discount (VD: 50000 hoặc 10%)", id: "discountValue", type: "number", onValidate: validateDiscountValue},
+                    {name: "Giá còn lại (tự động tính)", id: "finalPrice", disabled: true},
                 ];
     
                 const data = args.e.data;
+                data.roomPrice = parseLocaleNumber(data.roomPrice || getRoomPriceById(data.resource));
+                data.discountType = data.discountType || "fixed";
+                data.discountValue = Math.max(0, parseLocaleNumber(data.discountValue || 0));
+                if (data.discountType === "percent") {
+                    data.discountValue = Math.min(100, data.discountValue);
+                }
+                data.finalPrice = parseLocaleNumber(data.finalPrice || calculateFinalPrice(data.roomPrice, data.discountType, data.discountValue));
     
-                const modal = await DayPilot.Modal.form(form, data);
+                const modal = await openReservationForm(form, data);
     
                 dp.clearSelection();
                 if (modal.canceled) {
                     return;
                 }
                 const e = modal.result;
+                e.roomPrice = getRoomPriceById(e.resource);
+                e.discountType = e.discountType || "fixed";
+                e.discountValue = Math.max(0, parseLocaleNumber(e.discountValue));
+                if (e.discountType === "percent") {
+                    e.discountValue = Math.min(100, e.discountValue);
+                }
+                e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue);
                 await DayPilot.Http.post("backend_reservation_update.php", e);
                 dp.events.update(e);
             },
@@ -485,11 +1097,11 @@
     
                         if (start < in2days) {
                             args.data.barColor = "#cc0000";
-                            args.data.toolTip = "Expired (not confirmed in time)";
+                            args.data.toolTip = "Hết hạn (chưa xác nhận kịp thời gian)";
                         }
                         else {
                             args.data.barColor = '#e69138';
-                            args.data.toolTip = "New";
+                            args.data.toolTip = "Mới";
                         }
                         break;
                     case "Confirmed":
@@ -497,11 +1109,11 @@
     
                         if (start < today || (start.getDatePart() === today.getDatePart() && now > arrivalDeadline)) { // must arrive before 6 pm
                             args.data.barColor = "#cc4125";  // red
-                            args.data.toolTip = "Late arrival";
+                            args.data.toolTip = "Đến muộn";
                         }
                         else {
                             args.data.barColor = "#38761d";
-                            args.data.toolTip = "Confirmed";
+                            args.data.toolTip = "Đã xác nhận";
                         }
                         break;
                     case 'Arrived': // arrived
@@ -509,24 +1121,32 @@
     
                         if (end < today || (end.getDatePart() === today.getDatePart() && now > checkoutDeadline)) { // must checkout before 10 am
                             args.data.barColor = "#cc4125";  // red
-                            args.data.toolTip = "Late checkout";
+                            args.data.toolTip = "Trả phòng muộn";
                         }
                         else
                         {
                             args.data.barColor = "#1691f4";  // blue
-                            args.data.toolTip = "Arrived";
+                            args.data.toolTip = "Đã đến";
                         }
                         break;
                     case 'CheckedOut': // checked out
                         args.data.barColor = "gray";
-                        args.data.toolTip = "Checked out";
+                        args.data.toolTip = "Đã trả phòng";
                         break;
                     default:
-                        args.data.toolTip = "Unexpected state";
+                        args.data.toolTip = "Trạng thái không hợp lệ";
                         break;
                 }
     
-                args.data.html = `<div>${args.data.html}<br /><span style='color:gray'>${args.data.toolTip}</span></div>`;
+                const statusLabel = getReservationStatusLabel(args.data.status);
+                const finalPriceText = formatCurrency(args.data.finalPrice || 0);
+                const discountTypeText = args.data.discountType === "percent" ? "%" : "đ";
+                const discountValueText = `${Number(args.data.discountValue || 0).toLocaleString("vi-VN")}${discountTypeText}`;
+                if (isMobileRoomHeader()) {
+                    args.data.html = `<div style="line-height:1.25;"><div style="font-weight:600; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div><div style="font-size:11px; color:#64748b;">${statusLabel}</div><div style="font-size:11px; color:#334155;">Còn lại: ${finalPriceText}</div></div>`;
+                } else {
+                    args.data.html = `<div>${args.data.html}<br /><span style='color:gray'>${args.data.toolTip} - Trạng thái: ${statusLabel}</span><br /><span style='color:#334155'>Giảm: ${discountValueText} | Còn lại: ${finalPriceText}</span></div>`;
+                }
     
                 const paid = args.data.paid;
                 const paidColor = "#aaaaaa";
@@ -540,7 +1160,7 @@
                         cssClass: "scheduler_default_event_delete",
                         //cssClass: "event_action_delete",
                         action: "None",
-                        visibility: "TouchVisible",
+                        visibility: isMobileRoomHeader() ? "Visible" : "TouchVisible",
                         onClick: async args => {
                             //bug action None not working
                             args.originalEvent.preventDefault();
@@ -548,7 +1168,7 @@
                             //end bug
                             args.preventDefault();
                             //args.source.stopPropagation();
-                            if (!confirm("Do you really want to delete this event?")) {
+                            if (!confirm("Bạn có chắc chắn muốn xóa đặt phòng này không?")) {
                                 //args.preventDefault();
                                 return false;
                             }
@@ -557,12 +1177,12 @@
                             await DayPilot.Http.post("backend_reservation_delete.php", { id: args.source.id() });
                             //DayPilot.Http.post("backend_reservation_delete.php", { id: args.source.id()});
                             dp.events.remove(args.source);
-                            dp.message("Deleted.");
+                            await notify("Đã xóa.");
                             return false;
                         }
                     },
-                    { bottom: 10, right: 4, html: `<div style='color:${paidColor}; font-size: 8pt;'>Paid: ${paid}%</div>`, v: "Visible"},
-                    { left: 4, bottom: 8, right: 4, height: 2, html: `<div style='background-color:${paidColor}; height: 100%; width:${paid}%'></div>`, v: "Visible"}
+                    { bottom: 10, right: 4, html: `<div style='color:${paidColor}; font-size: 8pt;'>Đã thanh toán: ${paid}%</div>`, v: isMobileRoomHeader() ? "Hidden" : "Visible"},
+                    { left: 4, bottom: 8, right: 4, height: 2, html: `<div style='background-color:${paidColor}; height: 100%; width:${paid}%'></div>`, v: isMobileRoomHeader() ? "Hidden" : "Visible"}
                 ];
     
             }
@@ -576,12 +1196,15 @@
             skipMonths: 1,
             selectMode: "Month",
             onTimeRangeSelected: (args) => {
-                dp.timeline = app.loadTimeline(args.start);
+                dp.startDate = args.start;
+                dp.days = app.days;
                 dp.update();
                 app.loadReservations();
             }
         });
         nav.init();
+        applySchedulerResponsiveLayout();
+        window.addEventListener("resize", applySchedulerResponsiveLayout);
     
         app.init();
     

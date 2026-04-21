@@ -4,7 +4,7 @@ require_once '_db.php';
 $start = $_GET['start'];
 $end = $_GET['end'];
 
-$stmt = $db->prepare("SELECT * FROM reservations WHERE NOT ((end <= :start) OR (start >= :end))");
+$stmt = $db->prepare("SELECT * FROM reservations WHERE NOT ((`end` <= :start) OR (start >= :end))");
 $stmt->bindParam(':start', $start);
 $stmt->bindParam(':end', $end);
 $stmt->execute();
@@ -30,6 +30,10 @@ foreach($result as $row) {
     // additional properties
     $e->status = $row['status'];
     $e->paid = intval($row['paid']);
+    $e->roomPrice = floatval($row['room_price']);
+    $e->discountType = isset($row['discount_type']) ? $row['discount_type'] : 'fixed';
+    $e->discountValue = floatval($row['discount_value']);
+    $e->finalPrice = floatval($row['final_price']);
     $events[] = $e;
 }
 

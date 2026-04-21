@@ -4,16 +4,21 @@ require_once '_db.php';
 $json = file_get_contents('php://input');
 $params = json_decode($json);
 
-$stmt = $db->prepare("UPDATE rooms SET name = :name, capacity = :capacity, status = :status WHERE id = :id");
-$stmt->bindParam(':id', $params->id);
-$stmt->bindParam(':name', $params->name);
-$stmt->bindParam(':capacity', $params->capacity);
-$stmt->bindParam(':status', $params->status);
+$id = $params->id;
+$name = $params->name;
+$capacity = $params->capacity;
+$status = $params->status;
+$price = isset($params->price) ? floatval($params->price) : 0;
+
+$stmt = $db->prepare("UPDATE rooms SET name = :name, capacity = :capacity, status = :status, price = :price WHERE id = :id");
+$stmt->bindValue(':id', $id);
+$stmt->bindValue(':name', $name);
+$stmt->bindValue(':capacity', $capacity);
+$stmt->bindValue(':status', $status);
+$stmt->bindValue(':price', $price);
 $stmt->execute();
 
-class Result {}
-
-$response = new Result();
+$response = new stdClass();
 $response->result = 'OK';
 $response->message = 'Update successful';
 
