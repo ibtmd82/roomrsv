@@ -50,11 +50,6 @@
             margin-bottom: 0;
             white-space: nowrap;
         }
-        .toolbar-hint {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
         h3, h5 { color: var(--text-primary); font-weight: 700; }
         .form-select {
             border-color: #cbd5e1;
@@ -89,11 +84,50 @@
         }
         .corner-toolbar {
             display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 4px;
+            width: 100%;
+            font-weight: 700;
+        }
+        .corner-title {
+            font-size: 12px;
+            line-height: 1.25;
+            color: #0f172a;
+            font-weight: 700;
+            background: #eef2ff;
+            border: 1px solid #dbeafe;
+            border-radius: 6px;
+            padding: 3px 6px;
+            text-align: center;
+        }
+        .corner-actions {
+            display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 6px;
-            width: 100%;
-            font-weight: 700;
+        }
+        .corner-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+        .corner-filter-label {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .corner-filter {
+            min-width: 110px;
+            height: 24px;
+            font-size: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #fff;
+            color: #334155;
+            padding: 0 4px;
         }
         .corner-add-btn {
             border: 1px solid #2563eb;
@@ -243,31 +277,13 @@
                 width: 100%;
                 justify-content: space-between;
             }
-            .page-title .d-flex.align-items-center.ms-auto {
-                width: auto;
-                margin-left: auto !important;
-            }
             #addroom {
                 width: auto;
                 padding: 0.22rem 0.48rem;
                 font-size: 12px;
             }
-            .box-body > .d-flex.align-items-start.justify-content-between {
-                background: transparent;
-                border: 0;
-                border-radius: 0;
-                padding: 2px 0;
-                margin: 2px 0 6px;
-            }
-            .box-body > .d-flex.align-items-start.justify-content-between > .d-flex.align-items-center.ms-auto {
-                width: auto;
-                margin-left: auto !important;
-            }
             .toolbar-label {
                 font-size: 13px;
-            }
-            .toolbar-hint {
-                display: none;
             }
             #nav {
                 margin-bottom: 8px;
@@ -283,21 +299,33 @@
             .corner-add-btn .corner-add-text {
                 display: none;
             }
+            .corner-filter {
+                min-width: 92px;
+                font-size: 10px;
+                height: 22px;
+            }
+            .corner-title {
+                font-size: 11px;
+                padding: 2px 5px;
+            }
+            .corner-filter-label {
+                display: none;
+            }
             .modal_default_main {
                 position: fixed !important;
-                width: min(92vw, 420px) !important;
-                max-width: min(92vw, 420px) !important;
-                max-height: 92vh !important;
+                width: min(96vw, 440px) !important;
+                max-width: min(96vw, 440px) !important;
+                max-height: calc(100vh - 8px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
                 left: 50% !important;
                 right: auto !important;
-                top: 48% !important;
-                transform: translate(-50%, -48%) !important;
+                top: calc(4px + env(safe-area-inset-top, 0px)) !important;
+                transform: translateX(-50%) !important;
                 margin: 0 !important;
                 border-radius: 12px;
                 overflow: hidden;
             }
             .modal_default_content {
-                max-height: calc(92vh - 20px);
+                max-height: calc(100vh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
                 overflow-y: auto;
                 padding: 12px;
                 -webkit-overflow-scrolling: touch;
@@ -316,11 +344,13 @@
                 background: #ffffff;
                 border-top: 1px solid #e2e8f0;
                 padding-top: 8px;
-                padding-bottom: env(safe-area-inset-bottom, 0px);
+                padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+                z-index: 5;
             }
             .modal_default_buttons input {
-                min-width: 92px;
-                padding: 0.32rem 0.6rem;
+                min-width: 0;
+                flex: 1 1 0;
+                padding: 0.42rem 0.6rem;
                 font-size: 13px;
             }
             .scheduler_default_event {
@@ -356,7 +386,7 @@
             </div>
             <ul class="list-unstyled components text-secondary">
                 <li>
-                    <a href="dashboard.html"><i class="fas fa-chart-line"></i>Tổng quan</a>
+                    <a href="dashboard.html"><i class="fas fa-chart-line"></i>Thống kê</a>
                 </li>
                 <li>
                     <a href="index.html"><i class="fas fa-calendar-check"></i>Đặt/Thuê phòng</a>
@@ -448,21 +478,6 @@
                         <div class="box-body">
                             <div id="nav"></div>
                             
-                            <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
-                                <div>
-                                    <h5 class="toolbar-label">Lọc phòng</h5>
-                                    <div class="toolbar-hint">Theo sức chứa</div>
-                                </div>
-                                <div class="d-flex align-items-center ms-auto">
-                                    <select class="form-select form-select-sm" id="filter">
-                                        <option value="0">Tất cả</option>
-                                        <option value="1">1 người</option>
-                                        <option value="2">2 người</option>
-                                        <option value="4">4 người (gia đình)</option>
-                                    </select>
-                                </div>
-                                <!--<label for="autocellwidth"><input type="checkbox" id="autocellwidth" checked>Auto Cell Width</label>-->
-                            </div>
                             <div id="dp"></div>
                         </div>
                     </div>
@@ -474,7 +489,6 @@
         const app = {
             days: DayPilot.Date.today().daysInMonth(),
             elements: {
-                filter: document.querySelector("#filter"),
                 timerange: document.querySelector("#timerange"),
                 //autocellwidth: document.querySelector("#autocellwidth"),
             },
@@ -491,7 +505,9 @@
                 dp.events.load("backend_reservations.php");
             },
             async loadRooms() {
-                const {data} = await DayPilot.Http.post("backend_rooms.php", { capacity: app.elements.filter.value });
+                const filterEl = document.querySelector("#filter");
+                const capacity = filterEl ? filterEl.value : "0";
+                const {data} = await DayPilot.Http.post("backend_rooms.php", { capacity });
                 dp.update({resources: data});
             },
             addEventHandlers() {
@@ -531,8 +547,10 @@
                     dp.update();
                 };
 
-                app.elements.filter.addEventListener("change", (e) => {
-                    app.loadRooms();
+                document.addEventListener("change", (e) => {
+                    if (e.target && e.target.id === "filter") {
+                        app.loadRooms();
+                    }
                 });
     
                 app.elements.timerange.addEventListener("change", () => {
@@ -782,7 +800,7 @@
             ],
             rowHeaderColumnsMode: "Legacy",
             rowHeaderWidth: 365,
-            cornerHtml: "<div class='corner-toolbar'><span>Danh sách phòng</span><button id='addroom' class='corner-add-btn' title='Thêm phòng'><i class='fas fa-plus-circle'></i> <span class='corner-add-text'>Thêm phòng</span></button></div>",
+            cornerHtml: "<div class='corner-toolbar'><div class='corner-title'>Danh sách phòng</div><div class='corner-actions'><div class='corner-toolbar-left'><span class='corner-filter-label'>Lọc</span><select id='filter' class='corner-filter' title='Lọc phòng'><option value='0'>Tất cả</option><option value='1'>1 người</option><option value='2'>2 người</option><option value='4'>4 người</option></select></div><button id='addroom' class='corner-add-btn' title='Thêm phòng'><i class='fas fa-plus-circle'></i> <span class='corner-add-text'>Thêm</span></button></div></div>",
             separators: [
                 { location: DayPilot.Date.now(), color: "#cc000066" }
             ],
