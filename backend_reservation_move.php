@@ -3,13 +3,16 @@ require_once '_db.php';
 
 $json = file_get_contents('php://input');
 $params = json_decode($json);
+$tenantContext = resolveTenantContext();
+$tenantId = $tenantContext['tenant_id'];
 
 $newStart = $params->newStart;
 $newEnd = $params->newEnd;
 $id = $params->id;
 $newResource = $params->newResource;
 
-$stmt = $db->prepare("SELECT * FROM reservations WHERE NOT ((`end` <= :start) OR (start >= :end)) AND id <> :id AND room_id = :resource");
+$stmt = $db->prepare("SELECT * FROM reservations WHERE tenant_id = :tenant_id AND NOT ((`end` <= :start) OR (start >= :end)) AND id <> :id AND room_id = :resource");
+$stmt->bindValue(':tenant_id', $tenantId);
 $stmt->bindValue(':start', $newStart);
 $stmt->bindValue(':end', $newEnd);
 $stmt->bindValue(':id', $id);
@@ -27,7 +30,8 @@ if ($overlaps) {
     exit;
 }
 
-$stmt = $db->prepare("UPDATE reservations SET start = :start, `end` = :end, room_id = :resource WHERE id = :id");
+$stmt = $db->prepare("UPDATE reservations SET start = :start, `end` = :end, room_id = :resource WHERE id = :id AND tenant_id = :tenant_id");
+$stmt->bindValue(':tenant_id', $tenantId);
 $stmt->bindValue(':start', $newStart);
 $stmt->bindValue(':end', $newEnd);
 $stmt->bindValue(':id', $id);

@@ -130,8 +130,8 @@
             padding: 0 4px;
         }
         .corner-add-btn {
-            border: 1px solid #2563eb;
-            background: #2563eb;
+            border: 1px solid #1d4ed8;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             color: #fff;
             border-radius: 6px;
             font-size: 11px;
@@ -140,6 +140,317 @@
             white-space: nowrap;
             cursor: pointer;
         }
+        .corner-add-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+            border-color: #1e3a8a;
+        }
+        .status-icon-btn {
+            border: 1px solid rgba(148, 163, 184, 0.8);
+            border-radius: 999px;
+            min-width: 20px;
+            min-height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 1px 8px 1px 6px;
+            background: #ffffff;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all .16s ease;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        .status-icon-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(30, 41, 59, 0.14);
+        }
+        .status-icon-btn:active {
+            transform: scale(0.98);
+        }
+        .status-icon-btn.is-loading {
+            opacity: .6;
+            pointer-events: none;
+        }
+        .status-icon-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            line-height: 1;
+            font-weight: 700;
+            background: rgba(255,255,255,.22);
+            border: 1px solid rgba(255,255,255,.35);
+        }
+        .service-fee-toggle-wrap {
+            margin: 6px 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .service-fee-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .service-fee-add-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border: 1px solid #93c5fd;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 16px;
+            line-height: 1;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .service-fee-table {
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            background: #f8fbff;
+            padding: 8px;
+            display: grid;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .service-fee-row {
+            display: grid;
+            gap: 6px;
+            align-items: start;
+            grid-template-columns: 72px repeat(5, minmax(86px, 1fr));
+        }
+        .service-fee-row.other {
+            grid-template-columns: 72px repeat(6, minmax(86px, 1fr));
+        }
+        .service-fee-row-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            padding-top: 8px;
+        }
+        .service-fee-cell .modal_default_form_item {
+            margin: 0 !important;
+            padding: 6px !important;
+            min-height: 68px;
+        }
+        .service-fee-cell .modal_default_form_item_label {
+            font-size: 11px !important;
+            margin-bottom: 4px !important;
+            color: #64748b !important;
+        }
+        @media (max-width: 576px) {
+            .service-fee-table {
+                overflow-x: auto;
+                padding: 6px;
+            }
+            .service-fee-row,
+            .service-fee-row.other {
+                min-width: 720px;
+            }
+        }
+        .reservation-form-sections {
+            display: grid;
+            gap: 10px;
+        }
+        .reservation-form-section {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            background: #f8fbff;
+            padding: 8px;
+        }
+        .reservation-form-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin: 0 0 8px;
+            padding: 0 2px 6px;
+            border-bottom: 1px dashed #bfdbfe;
+        }
+        .modal_form_section_divider {
+            margin: 10px 0 8px;
+            padding: 7px 10px;
+            border-radius: 10px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e3a8a;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .reservation-native-section {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            background: #f8fbff;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .reservation-native-section h6 {
+            margin: 0 0 8px;
+            color: #1e3a8a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .native-modal .modal-content {
+            border: 1px solid #dbe3ef;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28);
+        }
+        .native-modal .modal-header {
+            background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+            border-bottom: 1px solid #dbeafe;
+            padding: 10px 12px;
+        }
+        .native-modal .modal-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+        .native-modal .modal-body {
+            background: #ffffff;
+            padding: 12px;
+        }
+        .native-modal .modal-footer {
+            border-top: 1px solid #dbeafe;
+            background: #f8fbff;
+            padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+            position: sticky;
+            bottom: 0;
+            z-index: 5;
+        }
+        .native-modal .modal-footer .btn {
+            min-width: 92px;
+            font-weight: 600;
+        }
+        .native-modal .modal-footer .btn.btn-primary {
+            border-color: #1d4ed8;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: #ffffff;
+        }
+        .native-modal .modal-footer .btn.btn-primary:hover {
+            border-color: #1e3a8a;
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+        }
+        .native-modal .modal-footer .btn.btn-secondary {
+            border-color: #64748b;
+            background: #64748b;
+            color: #ffffff;
+        }
+        .native-modal .modal-footer .btn.btn-secondary:hover {
+            border-color: #475569;
+            background: #475569;
+        }
+        .reservation-native-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .reservation-native-grid-3 {
+            display: grid;
+            grid-template-columns: 90px repeat(6, minmax(86px, 1fr));
+            gap: 6px;
+            align-items: start;
+        }
+        .reservation-native-grid-3 .row-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            padding-top: 8px;
+        }
+        .reservation-native-cell label {
+            display: block;
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        .reservation-native-collapse-btn {
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+        .reservation-native-add-btn {
+            border: 1px solid #93c5fd;
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 999px;
+            width: 28px;
+            height: 28px;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+        }
+        @media (max-width: 576px) {
+            .native-modal .modal-dialog {
+                margin: 6px;
+            }
+            .native-modal .modal-content {
+                border-radius: 12px;
+                max-height: calc(100dvh - 12px);
+            }
+            .native-modal .modal-body {
+                padding: 10px;
+            }
+            .native-modal .modal-footer .btn {
+                flex: 1 1 0;
+                min-width: 0;
+            }
+            .reservation-native-grid {
+                grid-template-columns: 1fr;
+            }
+            .reservation-native-grid-3 {
+                overflow-x: auto;
+                grid-template-columns: 78px repeat(6, minmax(110px, 1fr));
+            }
+        }
+        .app-toast {
+            position: fixed;
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            z-index: 9999;
+            min-width: 220px;
+            max-width: min(90vw, 360px);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #fff;
+            background: #0f172a;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.28);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all .2s ease;
+            pointer-events: none;
+        }
+        .app-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .app-toast.success { background: #166534; }
+        .app-toast.error { background: #b91c1c; }
         /* DayPilot Scheduler/Navigator corporate muted theme */
         .scheduler_default_timeheadercol,
         .scheduler_default_timeheadergroup {
@@ -206,19 +517,31 @@
         }
         /* DayPilot Modal (create/edit room/reservation) */
         .modal_default_main {
-            border-radius: 10px;
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+            border-radius: 14px;
+            border: 1px solid #dbe3ef;
+            box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28);
             overflow: hidden;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
         }
         .modal_default_content {
-            padding: 16px;
-            background: #ffffff;
+            padding: 14px;
+            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 24%);
+            overflow-y: auto;
+            max-height: min(78vh, 720px);
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
         }
         .modal_default_form_item {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #ffffff;
         }
         .modal_default_form_item_label {
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             color: #374151;
             font-weight: 600;
             font-size: 13px;
@@ -227,36 +550,46 @@
         .modal_default_form_item select,
         .modal_default_form_item textarea {
             width: 100%;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            padding: 0.375rem 0.625rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0.42rem 0.62rem;
             font-size: 14px;
             line-height: 1.4;
+            background: #f8fafc;
         }
         .modal_default_form_item input:focus,
         .modal_default_form_item select:focus,
         .modal_default_form_item textarea:focus {
             outline: 0;
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 0.18rem rgba(59, 130, 246, 0.22);
+            background: #ffffff;
         }
         .modal_default_buttons {
             display: flex;
             justify-content: flex-end;
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 10px;
+            position: sticky;
+            bottom: 0;
+            z-index: 8;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 10px 2px calc(8px + env(safe-area-inset-bottom, 0px)) 2px;
         }
         .modal_default_buttons input {
-            border-radius: 0.375rem;
-            border: 1px solid #0d6efd;
-            background: #0d6efd;
+            border-radius: 8px;
+            border: 1px solid #1d4ed8;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             color: #fff;
-            padding: 0.35rem 0.75rem;
+            padding: 0.42rem 0.85rem;
             font-size: 14px;
+            font-weight: 600;
+            min-width: 108px;
         }
         .modal_default_cancel {
-            border-color: #6c757d !important;
-            background: #6c757d !important;
+            border-color: #94a3b8 !important;
+            background: #94a3b8 !important;
         }
         @media (max-width: 576px) {
             .content .container {
@@ -315,7 +648,7 @@
                 position: fixed !important;
                 width: min(96vw, 440px) !important;
                 max-width: min(96vw, 440px) !important;
-                max-height: calc(100vh - 8px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                max-height: calc(100dvh - 8px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
                 left: 50% !important;
                 right: auto !important;
                 top: calc(4px + env(safe-area-inset-top, 0px)) !important;
@@ -325,32 +658,35 @@
                 overflow: hidden;
             }
             .modal_default_content {
-                max-height: calc(100vh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+                max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
                 overflow-y: auto;
-                padding: 12px;
+                padding: 10px;
                 -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                padding-bottom: 6px;
             }
             .modal_default_form_item {
-                margin-bottom: 8px;
+                margin-bottom: 7px;
+                padding: 7px 8px;
             }
             .modal_default_form_item_label {
                 font-size: 12px;
             }
             .modal_default_buttons {
-                margin-top: 10px;
+                margin-top: 8px;
                 gap: 6px;
                 position: sticky;
                 bottom: 0;
                 background: #ffffff;
                 border-top: 1px solid #e2e8f0;
                 padding-top: 8px;
-                padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-                z-index: 5;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+                z-index: 10;
             }
             .modal_default_buttons input {
                 min-width: 0;
                 flex: 1 1 0;
-                padding: 0.42rem 0.6rem;
+                padding: 0.46rem 0.62rem;
                 font-size: 13px;
             }
             .scheduler_default_event {
@@ -485,6 +821,98 @@
             </div>
         </div>
     </div>
+    <div class="modal fade native-modal" id="statusNativeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sn_title"><i class="fas fa-toggle-on"></i> Chọn trạng thái</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <select id="sn_status" class="form-select form-select-sm"></select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="sn_saveBtn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade native-modal" id="roomNativeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rm_title"><i class="fas fa-door-open"></i> Thông tin phòng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="reservation-native-section mb-0">
+                        <h6>Thông tin phòng</h6>
+                        <div class="reservation-native-grid">
+                            <div><label class="form-label mb-1">Tên phòng</label><input id="rm_name" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Sức chứa</label><select id="rm_capacity" class="form-select form-select-sm"><option value="1">1</option><option value="2">2</option><option value="4">4</option></select></div>
+                            <div><label class="form-label mb-1">Trạng thái</label><select id="rm_status" class="form-select form-select-sm"><option value="Ready">Sẵn sàng</option><option value="Cleanup">Cần dọn</option><option value="Dirty">Bẩn</option></select></div>
+                            <div><label class="form-label mb-1">Giá phòng</label><input id="rm_price" class="form-control form-control-sm" /></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="rm_saveBtn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade native-modal" id="reservationNativeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Thông tin reservation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="reservationNativeBody">
+                    <div class="reservation-native-section">
+                        <h6>Thông tin reservation</h6>
+                        <div class="reservation-native-grid">
+                            <div><label class="form-label mb-1">Nội dung</label><input id="rn_text" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Phòng</label><select id="rn_resource" class="form-select form-select-sm"></select></div>
+                            <div><label class="form-label mb-1">Bắt đầu</label><input id="rn_start" type="datetime-local" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Kết thúc</label><input id="rn_end" type="datetime-local" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Trạng thái</label><select id="rn_status" class="form-select form-select-sm"><option value="New">Mới</option><option value="Confirmed">Đã xác nhận</option><option value="Arrived">Đã đến</option><option value="CheckedOut">Đã trả phòng</option></select></div>
+                            <div><label class="form-label mb-1">Thanh toán</label><select id="rn_paid" class="form-select form-select-sm"><option value="0">0%</option><option value="50">50%</option><option value="100">100%</option></select></div>
+                            <div><label class="form-label mb-1">Giá phòng</label><input id="rn_roomPrice" class="form-control form-control-sm" readonly /></div>
+                            <div><label class="form-label mb-1">Loại discount</label><select id="rn_discountType" class="form-select form-select-sm"><option value="fixed">Cố định</option><option value="percent">Phần trăm</option></select></div>
+                            <div><label class="form-label mb-1">Giá trị discount</label><input id="rn_discountValue" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Tổng chi phí</label><input id="rn_finalPrice" class="form-control form-control-sm" readonly /></div>
+                        </div>
+                    </div>
+                    <div class="reservation-native-section">
+                        <h6>Thông tin khách hàng</h6>
+                        <div class="reservation-native-grid">
+                            <div><label class="form-label mb-1">Họ tên</label><input id="rn_customerFullName" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Loại giấy tờ</label><select id="rn_customerIdType" class="form-select form-select-sm"><option value="CCCD">CCCD</option><option value="Passport">Hộ chiếu</option></select></div>
+                            <div><label class="form-label mb-1">Số giấy tờ</label><input id="rn_customerIdNumber" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Số điện thoại</label><input id="rn_customerPhoneNumber" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Ngày sinh</label><input id="rn_customerBirthday" type="date" class="form-control form-control-sm" /></div>
+                        </div>
+                    </div>
+                    <div class="reservation-native-section">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <h6 class="mb-0">Chi phí dịch vụ</h6>
+                            <button type="button" class="reservation-native-collapse-btn" id="rn_toggleFees">▾ Thu gọn chi phí dịch vụ</button>
+                            <button type="button" class="reservation-native-add-btn" id="rn_addFee">+</button>
+                        </div>
+                        <div id="rn_feesWrap"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="rn_saveBtn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/backend-clientid.js"></script>
     <script>
         const app = {
             days: DayPilot.Date.today().daysInMonth(),
@@ -502,7 +930,7 @@
                 return timeline;
             },
             loadReservations() {
-                dp.events.load("backend_reservations.php");
+                return dp.events.load("backend_reservations.php");
             },
             async loadRooms() {
                 const filterEl = document.querySelector("#filter");
@@ -573,6 +1001,56 @@
                 //     dp.update();
                 // });
                 document.addEventListener("click", (ev) => {
+                    const statusBtn = ev.target && ev.target.closest(".status-icon-btn");
+                    if (statusBtn) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        const statusType = statusBtn.getAttribute("data-status-type");
+                        if (statusType !== "room") {
+                            return;
+                        }
+                        const id = statusBtn.getAttribute("data-id");
+                        const current = statusBtn.getAttribute("data-status");
+
+                        statusBtn.classList.add("is-loading");
+
+                        (async () => {
+                            let updated = false;
+                            let selectedStatus = current;
+                            try {
+                                const picked = await chooseStatus(statusType, current);
+                                if (!picked || picked === current) {
+                                    return;
+                                }
+                                selectedStatus = picked;
+                                if (statusType === "room") {
+                                    await DayPilot.Http.post("backend_room_status_update.php", {id, status: selectedStatus});
+                                    const room = dp.resources.find((item) => String(item.id) === String(id));
+                                    if (room) {
+                                        room.status = selectedStatus;
+                                        dp.update({resources: dp.resources});
+                                    }
+                                    updated = true;
+                                    await notify("Đã cập nhật trạng thái phòng.", "success");
+                                } else if (statusType === "reservation") {
+                                    await DayPilot.Http.post("backend_reservation_status_update.php", {id, status: selectedStatus});
+                                    const event = dp.events.find(id);
+                                    if (event && event.data) {
+                                        event.data.status = selectedStatus;
+                                        dp.events.update(event.data);
+                                    }
+                                    updated = true;
+                                    await notify("Đã cập nhật trạng thái reservation.", "success");
+                                }
+                            } catch (err) {
+                                console.error(err);
+                                await notify("Không thể cập nhật trạng thái. Vui lòng thử lại.", "error");
+                            } finally {
+                                statusBtn.classList.remove("is-loading");
+                            }
+                        })();
+                        return;
+                    }
                     const btn = ev.target.closest("#addroom");
                     if (!btn) {
                         return;
@@ -592,6 +1070,7 @@
             Cleanup: "Cần dọn",
             Dirty: "Bẩn",
         };
+        const roomStatusOptions = ["Ready", "Cleanup", "Dirty"];
 
         const reservationStatusLabels = {
             New: "Mới",
@@ -599,9 +1078,46 @@
             Arrived: "Đã đến",
             CheckedOut: "Đã trả phòng",
         };
+        const reservationStatusOptions = ["New", "Confirmed", "Arrived", "CheckedOut"];
 
         const getRoomStatusLabel = (status) => roomStatusLabels[status] || status;
         const getReservationStatusLabel = (status) => reservationStatusLabels[status] || status;
+        const buildStatusIconButtonHtml = (type, id, value, iconMarkup, iconColor, statusLabel, compact = false) => {
+            const selectedValue = String(value || "");
+            const safeStatus = DayPilot.Util.escapeHtml(statusLabel || selectedValue);
+            if (compact) {
+                return `<button type="button" class="status-icon-btn" data-status-type="${type}" data-id="${id}" data-status="${selectedValue}" title="Nhấn để chọn trạng thái" style="background:${iconColor};border-color:${iconColor};padding:0;width:20px;height:20px;min-width:20px;"><span class="status-icon-dot">${iconMarkup}</span></button>`;
+            }
+            return `<button type="button" class="status-icon-btn" data-status-type="${type}" data-id="${id}" data-status="${selectedValue}" title="Nhấn để chọn trạng thái" style="background:${iconColor};border-color:${iconColor};"><span class="status-icon-dot">${iconMarkup}</span><span>${safeStatus}</span></button>`;
+        };
+        const chooseStatus = async (statusType, currentStatus) => {
+            const options = statusType === "room" ? roomStatusOptions : reservationStatusOptions;
+            const labels = statusType === "room" ? roomStatusLabels : reservationStatusLabels;
+            const modalEl = document.getElementById("statusNativeModal");
+            const selectEl = document.getElementById("sn_status");
+            const saveBtn = document.getElementById("sn_saveBtn");
+            const titleEl = document.getElementById("sn_title");
+            const bsModal = new bootstrap.Modal(modalEl, {backdrop: "static"});
+
+            titleEl.textContent = statusType === "room" ? "Chọn trạng thái phòng" : "Chọn trạng thái reservation";
+            selectEl.innerHTML = options.map((s) => `<option value="${s}">${labels[s] || s}</option>`).join("");
+            selectEl.value = currentStatus || options[0];
+
+            return await new Promise((resolve) => {
+                const onHidden = () => {
+                    modalEl.removeEventListener("hidden.bs.modal", onHidden);
+                    resolve(null);
+                };
+                modalEl.addEventListener("hidden.bs.modal", onHidden, {once: true});
+                saveBtn.onclick = () => {
+                    const val = selectEl.value;
+                    modalEl.removeEventListener("hidden.bs.modal", onHidden);
+                    bsModal.hide();
+                    resolve(val || null);
+                };
+                bsModal.show();
+            });
+        };
         const formatCurrency = (value) => `${Number(value || 0).toLocaleString("vi-VN")} đ`;
         const parseLocaleNumber = (value) => {
             if (value === null || value === undefined) {
@@ -613,6 +1129,30 @@
             const normalized = String(value).replace(/[^\d.,-]/g, "").replace(/\./g, "").replace(",", ".");
             const parsed = parseFloat(normalized);
             return Number.isFinite(parsed) ? parsed : 0;
+        };
+        const toDayPilotDateSafe = (value, fallback) => {
+            try {
+                if (value instanceof DayPilot.Date) {
+                    return value;
+                }
+                if (value !== null && value !== undefined && String(value).trim() !== "") {
+                    return new DayPilot.Date(value);
+                }
+            } catch (e) {
+                // ignore and fallback
+            }
+            if (fallback instanceof DayPilot.Date) {
+                return fallback;
+            }
+            try {
+                return new DayPilot.Date(fallback);
+            } catch (e) {
+                return DayPilot.Date.today();
+            }
+        };
+        const toBackendDateTime = (value, fallback) => {
+            const d = toDayPilotDateSafe(value, fallback);
+            return d.toString("yyyy-MM-dd HH:mm:ss");
         };
         const sanitizeNumericInput = (value) => {
             if (value === null || value === undefined) {
@@ -665,6 +1205,13 @@
             }
             return Math.max(0, final);
         };
+        const calculateServiceFeesTotalFromResult = (result) => {
+            const fields = [
+                "electricAmount", "waterAmount", "otherAmount",
+                "otherExtra1Amount", "otherExtra2Amount"
+            ];
+            return fields.reduce((sum, field) => sum + Math.max(0, parseLocaleNumber(result[field] || 0)), 0);
+        };
         const validateDiscountValue = (args) => {
             const value = args.value;
             const numeric = parseLocaleNumber(value);
@@ -710,49 +1257,426 @@
             }
         };
         const openRoomForm = async (form, data) => {
-            const options = {
-                onShow: () => {
-                    bindNumericFilterToModalInput("price");
-                },
-                onChange: (args) => {
-                    // Remove non-numeric chars immediately while typing.
-                    args.result.price = normalizeNumericInput(args.result.price);
-                }
+            const modalEl = document.getElementById("roomNativeModal");
+            const bsModal = new bootstrap.Modal(modalEl, {backdrop: "static"});
+            const byId = (id) => document.getElementById(id);
+            const titleEl = document.getElementById("rm_title");
+            const saveBtn = document.getElementById("rm_saveBtn");
+
+            byId("rm_name").value = data && data.name ? data.name : "";
+            byId("rm_capacity").value = data && data.capacity ? String(data.capacity) : "2";
+            byId("rm_status").value = data && data.status ? data.status : "Ready";
+            byId("rm_price").value = normalizeNumericInput(data && data.price !== undefined ? data.price : 0);
+            byId("rm_price").oninput = (ev) => {
+                ev.target.value = normalizeNumericInput(ev.target.value);
             };
-            return await DayPilot.Modal.form(form, data, options);
+            titleEl.textContent = data && data.id ? "Chỉnh sửa phòng" : "Thêm phòng";
+
+            return await new Promise((resolve) => {
+                const onHidden = () => {
+                    modalEl.removeEventListener("hidden.bs.modal", onHidden);
+                    resolve({canceled: true});
+                };
+                modalEl.addEventListener("hidden.bs.modal", onHidden, {once: true});
+                saveBtn.onclick = () => {
+                    const result = {
+                        id: data && data.id ? data.id : undefined,
+                        name: byId("rm_name").value || "",
+                        capacity: parseInt(byId("rm_capacity").value || "2", 10),
+                        status: byId("rm_status").value || "Ready",
+                        price: parseLocaleNumber(byId("rm_price").value || 0)
+                    };
+                    modalEl.removeEventListener("hidden.bs.modal", onHidden);
+                    bsModal.hide();
+                    resolve({canceled: false, result});
+                };
+                bsModal.show();
+            });
         };
         const openReservationForm = async (form, data) => {
-            const options = {
-                onShow: () => {
-                    bindNumericFilterToModalInput("discountValue");
-                },
-                onChange: (args) => {
-                    const resource = args.result.resource;
-                    const roomPrice = getRoomPriceById(resource);
-                    const discountType = args.result.discountType || "fixed";
-                    args.result.discountValue = normalizeNumericInput(args.result.discountValue);
-                    let discountValue = parseLocaleNumber(args.result.discountValue);
-                    if (discountType === "percent") {
-                        discountValue = Math.min(100, discountValue);
+            const modalEl = document.getElementById("reservationNativeModal");
+            const feesWrap = document.getElementById("rn_feesWrap");
+            const bsModal = new bootstrap.Modal(modalEl, {backdrop: "static"});
+            const byId = (id) => document.getElementById(id);
+            const roomSelect = byId("rn_resource");
+
+            const rooms = dp.resources || [];
+            roomSelect.innerHTML = rooms.map((r) => `<option value="${r.id}">${r.name} (${formatCurrency(r.price)})</option>`).join("");
+
+            const toDatetimeLocal = (value) => {
+                if (!value) return "";
+                const d = new DayPilot.Date(value);
+                return d.toString("yyyy-MM-ddTHH:mm");
+            };
+            const toDateOnly = (value) => {
+                if (!value) return "";
+                const d = new DayPilot.Date(value);
+                return d.toString("yyyy-MM-dd");
+            };
+            const getPeriod = () => {
+                const start = byId("rn_start").value;
+                const end = byId("rn_end").value;
+                return {start: (start || "").slice(0, 10), end: (end || "").slice(0, 10)};
+            };
+
+            const mapped = Object.assign({}, data);
+            mapped.customerFullName = mapped.customer && mapped.customer.fullName ? mapped.customer.fullName : (mapped.customerFullName || "");
+            mapped.customerIdType = mapped.customer && mapped.customer.idType ? mapped.customer.idType : (mapped.customerIdType || "CCCD");
+            mapped.customerIdNumber = mapped.customer && mapped.customer.idNumber ? mapped.customer.idNumber : (mapped.customerIdNumber || "");
+            mapped.customerPhoneNumber = mapped.customer && mapped.customer.phoneNumber ? mapped.customer.phoneNumber : (mapped.customerPhoneNumber || "");
+            mapped.customerBirthday = mapped.customer && mapped.customer.birthday ? mapped.customer.birthday : (mapped.customerBirthday || "");
+
+            byId("rn_text").value = mapped.text || "";
+            byId("rn_resource").value = mapped.resource || (rooms[0] ? rooms[0].id : "");
+            byId("rn_start").value = toDatetimeLocal(mapped.start);
+            byId("rn_end").value = toDatetimeLocal(mapped.end);
+            byId("rn_status").value = mapped.status || "New";
+            byId("rn_paid").value = String(mapped.paid ?? 0);
+            byId("rn_discountType").value = mapped.discountType || "fixed";
+            byId("rn_discountValue").value = parseLocaleNumber(mapped.discountValue || 0);
+            byId("rn_customerFullName").value = mapped.customerFullName || "";
+            byId("rn_customerIdType").value = mapped.customerIdType || "CCCD";
+            byId("rn_customerIdNumber").value = mapped.customerIdNumber || "";
+            byId("rn_customerPhoneNumber").value = mapped.customerPhoneNumber || "";
+            byId("rn_customerBirthday").value = mapped.customerBirthday || "";
+
+            const defaultFees = (mapped.serviceFees || []).filter((f) => f.feeType === "other");
+            const extraRows = Math.max(0, Math.min(6, defaultFees.length > 0 ? defaultFees.length - 1 : 0));
+            let extraOtherRowsVisible = extraRows;
+            let expanded = hasServiceFeeData(mapped);
+
+            const renderFeeRows = () => {
+                const period = getPeriod();
+                const otherAll = (mapped.serviceFees || []).filter((f) => f.feeType === "other");
+                const getOtherAt = (idx) => otherAll[idx] || {};
+                const baseRows = [
+                    {key: "electric", label: "Điện", fee: (mapped.serviceFees || []).find((f) => f.feeType === "electricity") || {}},
+                    {key: "water", label: "Nước", fee: (mapped.serviceFees || []).find((f) => f.feeType === "water") || {}},
+                    {key: "other0", label: "Khác", fee: getOtherAt(0), isOther: true}
+                ];
+                for (let i = 1; i <= extraOtherRowsVisible; i++) {
+                    baseRows.push({key: `other${i}`, label: "Khác+", fee: getOtherAt(i), isOther: true});
+                }
+                feesWrap.innerHTML = baseRows.map((row) => `
+                    <div class="reservation-native-grid-3 mb-2" data-fee-row="${row.key}">
+                        <div class="row-label d-flex align-items-center justify-content-between gap-2">
+                            <span>${row.label}</span>
+                            ${row.isOther ? `<button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 fee-row-remove" data-fee-remove="${row.key}" title="Xóa dòng phí"><i class="fas fa-times"></i></button>` : ""}
+                        </div>
+                        <div class="reservation-native-cell"><label>Số đầu</label><input data-fee="${row.key}" data-col="meterStart" class="form-control form-control-sm fee-input" value="${parseLocaleNumber(row.fee.meterStart || 0)}"></div>
+                        <div class="reservation-native-cell"><label>Số cuối</label><input data-fee="${row.key}" data-col="meterEnd" class="form-control form-control-sm fee-input" value="${parseLocaleNumber(row.fee.meterEnd || 0)}"></div>
+                        ${row.isOther ? `<div class="reservation-native-cell"><label>Mô tả</label><input data-fee="${row.key}" data-col="description" class="form-control form-control-sm fee-input" value="${row.fee.description || ""}"></div>` : `<div class="reservation-native-cell"><label>&nbsp;</label><input class="form-control form-control-sm" disabled value=""></div>`}
+                        <div class="reservation-native-cell"><label>Từ ngày</label><input data-fee="${row.key}" data-col="periodStart" class="form-control form-control-sm fee-input" value="${row.fee.periodStart || period.start}" readonly></div>
+                        <div class="reservation-native-cell"><label>Đến ngày</label><input data-fee="${row.key}" data-col="periodEnd" class="form-control form-control-sm fee-input" value="${row.fee.periodEnd || period.end}" readonly></div>
+                        <div class="reservation-native-cell"><label>Số tiền</label><input data-fee="${row.key}" data-col="amount" class="form-control form-control-sm fee-input" value="${parseLocaleNumber(row.fee.amount || 0)}"></div>
+                    </div>
+                `).join("");
+                feesWrap.style.display = expanded ? "" : "none";
+            };
+
+            const syncMappedServiceFeesFromDom = () => {
+                const grouped = {};
+                feesWrap.querySelectorAll(".fee-input").forEach((el) => {
+                    const key = el.getAttribute("data-fee");
+                    const col = el.getAttribute("data-col");
+                    grouped[key] = grouped[key] || {};
+                    grouped[key][col] = el.value;
+                });
+
+                const toServiceFee = (key, feeType) => {
+                    const g = grouped[key] || {};
+                    return {
+                        feeType,
+                        meterStart: parseLocaleNumber(g.meterStart || 0),
+                        meterEnd: parseLocaleNumber(g.meterEnd || 0),
+                        description: g.description || "",
+                        periodStart: g.periodStart || "",
+                        periodEnd: g.periodEnd || "",
+                        amount: parseLocaleNumber(g.amount || 0)
+                    };
+                };
+
+                const nextFees = [];
+                if (grouped.electric) {
+                    nextFees.push(toServiceFee("electric", "electricity"));
+                }
+                if (grouped.water) {
+                    nextFees.push(toServiceFee("water", "water"));
+                }
+
+                Object.keys(grouped)
+                    .filter((key) => key.startsWith("other"))
+                    .sort((a, b) => {
+                        const ai = a === "other0" ? 0 : parseInt(a.replace("other", ""), 10) || 0;
+                        const bi = b === "other0" ? 0 : parseInt(b.replace("other", ""), 10) || 0;
+                        return ai - bi;
+                    })
+                    .forEach((key) => {
+                        nextFees.push(toServiceFee(key, "other"));
+                    });
+
+                mapped.serviceFees = nextFees;
+                const otherCount = nextFees.filter((f) => f.feeType === "other").length;
+                extraOtherRowsVisible = Math.max(0, otherCount - 1);
+            };
+
+            const rebuildFinalPrice = () => {
+                const roomPrice = getRoomPriceById(byId("rn_resource").value);
+                const discountType = byId("rn_discountType").value || "fixed";
+                let discountValue = parseLocaleNumber(byId("rn_discountValue").value || 0);
+                if (discountType === "percent") {
+                    discountValue = Math.min(100, discountValue);
+                }
+                byId("rn_discountValue").value = discountValue;
+                byId("rn_roomPrice").value = roomPrice;
+                let totalService = 0;
+                feesWrap.querySelectorAll("input[data-col='amount']").forEach((el) => {
+                    totalService += Math.max(0, parseLocaleNumber(el.value || 0));
+                });
+                byId("rn_finalPrice").value = calculateFinalPrice(roomPrice, discountType, discountValue) + totalService;
+            };
+
+            const syncPeriodToFees = () => {
+                const period = getPeriod();
+                feesWrap.querySelectorAll("input[data-col='periodStart']").forEach((el) => el.value = period.start);
+                feesWrap.querySelectorAll("input[data-col='periodEnd']").forEach((el) => el.value = period.end);
+            };
+
+            renderFeeRows();
+            syncPeriodToFees();
+            rebuildFinalPrice();
+
+            byId("rn_toggleFees").onclick = () => {
+                expanded = !expanded;
+                byId("rn_toggleFees").textContent = expanded ? "▾ Thu gọn chi phí dịch vụ" : "▸ Mở rộng chi phí dịch vụ";
+                feesWrap.style.display = expanded ? "" : "none";
+            };
+            byId("rn_addFee").onclick = () => {
+                syncMappedServiceFeesFromDom();
+                extraOtherRowsVisible += 1;
+                renderFeeRows();
+                syncPeriodToFees();
+                rebuildFinalPrice();
+            };
+
+            const watchedIds = ["rn_resource", "rn_discountType", "rn_discountValue", "rn_start", "rn_end"];
+            watchedIds.forEach((id) => byId(id).addEventListener("change", () => {
+                syncPeriodToFees();
+                rebuildFinalPrice();
+            }));
+            feesWrap.addEventListener("input", (e) => {
+                if (e.target && e.target.classList.contains("fee-input")) {
+                    if (["meterStart", "meterEnd", "amount"].includes(e.target.getAttribute("data-col"))) {
+                        e.target.value = normalizeNumericInput(e.target.value);
                     }
-                    const finalPrice = calculateFinalPrice(roomPrice, discountType, discountValue);
-                    args.result.roomPrice = roomPrice;
-                    args.result.discountValue = discountValue;
-                    args.result.finalPrice = finalPrice;
+                    rebuildFinalPrice();
+                }
+            });
+            feesWrap.addEventListener("click", (e) => {
+                const removeBtn = e.target.closest(".fee-row-remove");
+                if (!removeBtn) {
+                    return;
+                }
+                const rowKey = removeBtn.getAttribute("data-fee-remove");
+                const rowEl = feesWrap.querySelector(`[data-fee-row="${rowKey}"]`);
+                if (!rowEl) {
+                    return;
+                }
+                rowEl.remove();
+                syncMappedServiceFeesFromDom();
+                renderFeeRows();
+                syncPeriodToFees();
+                rebuildFinalPrice();
+            });
+
+            return await new Promise((resolve) => {
+                const saveBtn = byId("rn_saveBtn");
+                const dismissButtons = modalEl.querySelectorAll("[data-bs-dismiss='modal']");
+                const focusGuard = () => {
+                    if (modalEl.contains(document.activeElement)) {
+                        document.activeElement.blur();
+                    }
+                };
+                const hideHandler = () => {
+                    modalEl.removeEventListener("hide.bs.modal", focusGuard);
+                    modalEl.removeEventListener("hidden.bs.modal", hideHandler);
+                    resolve({canceled: true});
+                };
+                modalEl.addEventListener("hide.bs.modal", focusGuard, {once: true});
+                modalEl.addEventListener("hidden.bs.modal", hideHandler, {once: true});
+
+                saveBtn.onclick = () => {
+                    const serviceFees = [];
+                    const grouped = {};
+                    feesWrap.querySelectorAll(".fee-input").forEach((el) => {
+                        const key = el.getAttribute("data-fee");
+                        const col = el.getAttribute("data-col");
+                        grouped[key] = grouped[key] || {};
+                        grouped[key][col] = el.value;
+                    });
+                    Object.keys(grouped).forEach((key) => {
+                        const g = grouped[key];
+                        const feeType = key === "electric" ? "electricity" : (key === "water" ? "water" : "other");
+                        serviceFees.push({
+                            feeType,
+                            meterStart: parseLocaleNumber(g.meterStart || 0),
+                            meterEnd: parseLocaleNumber(g.meterEnd || 0),
+                            description: g.description || "",
+                            periodStart: g.periodStart || "",
+                            periodEnd: g.periodEnd || "",
+                            amount: parseLocaleNumber(g.amount || 0)
+                        });
+                    });
+                    const result = Object.assign({}, data, {
+                        text: byId("rn_text").value || "",
+                        resource: byId("rn_resource").value,
+                        start: byId("rn_start").value ? byId("rn_start").value.replace("T", " ") + ":00" : null,
+                        end: byId("rn_end").value ? byId("rn_end").value.replace("T", " ") + ":00" : null,
+                        status: byId("rn_status").value,
+                        paid: parseInt(byId("rn_paid").value || "0", 10),
+                        roomPrice: parseLocaleNumber(byId("rn_roomPrice").value || 0),
+                        discountType: byId("rn_discountType").value,
+                        discountValue: parseLocaleNumber(byId("rn_discountValue").value || 0),
+                        finalPrice: parseLocaleNumber(byId("rn_finalPrice").value || 0),
+                        customerFullName: byId("rn_customerFullName").value || "",
+                        customerIdType: byId("rn_customerIdType").value || "CCCD",
+                        customerIdNumber: byId("rn_customerIdNumber").value || "",
+                        customerPhoneNumber: byId("rn_customerPhoneNumber").value || "",
+                        customerBirthday: byId("rn_customerBirthday").value || null,
+                        showServiceFees: expanded ? "1" : "0",
+                        serviceFees
+                    });
+                    if (modalEl.contains(document.activeElement)) {
+                        document.activeElement.blur();
+                    }
+                    bsModal.hide();
+                    modalEl.removeEventListener("hide.bs.modal", focusGuard);
+                    modalEl.removeEventListener("hidden.bs.modal", hideHandler);
+                    resolve({canceled: false, result});
+                };
+
+                dismissButtons.forEach((btn) => {
+                    btn.onclick = () => {};
+                });
+                bsModal.show();
+            });
+        };
+        const buildServiceFeesPayload = (source) => {
+            const toNumber = (value) => Math.max(0, parseLocaleNumber(value || 0));
+            const fees = [
+                {
+                    feeType: "electricity",
+                    meterStart: toNumber(source.electricMeterStart),
+                    meterEnd: toNumber(source.electricMeterEnd),
+                    periodStart: source.electricPeriodStart,
+                    periodEnd: source.electricPeriodEnd,
+                    amount: toNumber(source.electricAmount)
+                },
+                {
+                    feeType: "water",
+                    meterStart: toNumber(source.waterMeterStart),
+                    meterEnd: toNumber(source.waterMeterEnd),
+                    periodStart: source.waterPeriodStart,
+                    periodEnd: source.waterPeriodEnd,
+                    amount: toNumber(source.waterAmount)
+                }
+            ];
+            const pushOther = (prefix) => {
+                const meterStart = toNumber(source[`${prefix}MeterStart`]);
+                const meterEnd = toNumber(source[`${prefix}MeterEnd`]);
+                const amount = toNumber(source[`${prefix}Amount`]);
+                const description = String(source[`${prefix}Description`] || "").trim();
+                if (meterStart > 0 || meterEnd > 0 || amount > 0 || description !== "") {
+                    fees.push({
+                        feeType: "other",
+                        description,
+                        meterStart,
+                        meterEnd,
+                        periodStart: source[`${prefix}PeriodStart`],
+                        periodEnd: source[`${prefix}PeriodEnd`],
+                        amount
+                    });
                 }
             };
-            return await DayPilot.Modal.form(form, data, options);
+            pushOther("other");
+            pushOther("otherExtra1");
+            pushOther("otherExtra2");
+            return fees;
         };
-        const notify = async (text) => {
-            if (dp && typeof dp.message === "function") {
-                dp.message(text);
-                return;
-            }
-            if (DayPilot && DayPilot.Modal && typeof DayPilot.Modal.alert === "function") {
-                await DayPilot.Modal.alert(text);
-                return;
-            }
-            console.log(text);
+        const applyServiceFeeFieldsFromArray = (data, serviceFees) => {
+            const byType = {};
+            const otherFees = [];
+            (serviceFees || []).forEach((item) => {
+                if (item.feeType === "other") {
+                    otherFees.push(item);
+                } else {
+                    byType[item.feeType] = item;
+                }
+            });
+            const mapType = (type, prefix) => {
+                const fee = byType[type] || {};
+                data[`${prefix}MeterStart`] = fee.meterStart || 0;
+                data[`${prefix}MeterEnd`] = fee.meterEnd || 0;
+                data[`${prefix}PeriodStart`] = fee.periodStart || "";
+                data[`${prefix}PeriodEnd`] = fee.periodEnd || "";
+                data[`${prefix}Amount`] = fee.amount || 0;
+            };
+            mapType("electricity", "electric");
+            mapType("water", "water");
+            const mainOther = otherFees[0] || {};
+            data.otherMeterStart = mainOther.meterStart || 0;
+            data.otherMeterEnd = mainOther.meterEnd || 0;
+            data.otherPeriodStart = mainOther.periodStart || "";
+            data.otherPeriodEnd = mainOther.periodEnd || "";
+            data.otherAmount = mainOther.amount || 0;
+            data.otherDescription = mainOther.description || "";
+
+            const extra1 = otherFees[1] || {};
+            data.otherExtra1MeterStart = extra1.meterStart || 0;
+            data.otherExtra1MeterEnd = extra1.meterEnd || 0;
+            data.otherExtra1PeriodStart = extra1.periodStart || "";
+            data.otherExtra1PeriodEnd = extra1.periodEnd || "";
+            data.otherExtra1Amount = extra1.amount || 0;
+            data.otherExtra1Description = extra1.description || "";
+
+            const extra2 = otherFees[2] || {};
+            data.otherExtra2MeterStart = extra2.meterStart || 0;
+            data.otherExtra2MeterEnd = extra2.meterEnd || 0;
+            data.otherExtra2PeriodStart = extra2.periodStart || "";
+            data.otherExtra2PeriodEnd = extra2.periodEnd || "";
+            data.otherExtra2Amount = extra2.amount || 0;
+            data.otherExtra2Description = extra2.description || "";
+
+            data.extraOtherRowsVisible = Math.max(0, Math.min(2, otherFees.length - 1));
+        };
+        const hasServiceFeeData = (data) => {
+            const fields = [
+                "electricMeterStart", "electricMeterEnd", "electricAmount",
+                "waterMeterStart", "waterMeterEnd", "waterAmount",
+                "otherMeterStart", "otherMeterEnd", "otherAmount",
+                "otherExtra1MeterStart", "otherExtra1MeterEnd", "otherExtra1Amount",
+                "otherExtra2MeterStart", "otherExtra2MeterEnd", "otherExtra2Amount"
+            ];
+            const hasNumber = fields.some((field) => parseLocaleNumber(data[field] || 0) > 0);
+            return hasNumber ||
+                !!(data.otherDescription && String(data.otherDescription).trim() !== "") ||
+                !!(data.otherExtra1Description && String(data.otherExtra1Description).trim() !== "") ||
+                !!(data.otherExtra2Description && String(data.otherExtra2Description).trim() !== "");
+        };
+        const notify = async (text, type = "success") => {
+            const toast = document.createElement("div");
+            toast.className = `app-toast ${type === "error" ? "error" : "success"}`;
+            toast.textContent = text;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add("show"));
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 220);
+            }, 2200);
         };
         const isMobileRoomHeader = () => window.matchMedia("(max-width: 767px)").matches;
         const applySchedulerResponsiveLayout = () => {
@@ -886,6 +1810,8 @@
                 const statusLabel = getRoomStatusLabel(args.row.data.status);
                 const capacityLabel = `${args.row.data.capacity} giường`;
                 const priceLabel = formatCurrency(args.row.data.price || 0);
+                const roomIconMarkup = `<span style="font-size:10px;line-height:1;font-weight:700;">${DayPilot.Util.escapeHtml(iconText)}</span>`;
+                const roomStatusButton = buildStatusIconButtonHtml("room", args.row.data.id, args.row.data.status, roomIconMarkup, iconColor, statusLabel);
                 
                 if (isMobileRoomHeader()) {
                     args.row.html = `
@@ -894,10 +1820,7 @@
                                 ${args.row.data.name}
                             </div>
                             <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:#475569; line-height:1.2;">
-                                <span style="display:inline-flex; width:16px; height:16px; border-radius:50%; background:${iconColor}; color:#fff; align-items:center; justify-content:center;">
-                                    <span style="font-size:11px; line-height:1; font-weight:700;">${iconText}</span>
-                                </span>
-                                <span style="white-space:nowrap;">${statusLabel}</span>
+                                ${roomStatusButton}
                                 <span style="color:#94a3b8;">|</span>
                                 <span style="white-space:nowrap;">${capacityLabel}</span>
                             </div>
@@ -911,11 +1834,10 @@
                     <div style="display:grid; grid-template-columns: 150px 95px 1fr; align-items:center; gap:0; padding-right:20px;">
                         <div style="font-weight:600; padding-right:8px;">${args.row.data.name}</div>
                         <div style="font-size:12px; color:#4b5563;">${capacityLabel}<br /><span style="color:#64748b">${priceLabel}</span></div>
-                        <div style="display:flex; align-items:center; gap:6px; font-size:12px;">
-                            <span style="display:inline-flex; width:16px; height:16px; border-radius:50%; background:${iconColor}; color:#fff; align-items:center; justify-content:center;">
-                                <span style="font-size:11px; line-height:1; font-weight:700;">${iconText}</span>
-                            </span>
-                            <span>${statusLabel}</span>
+                        <div style="display:flex; flex-direction:column; align-items:flex-start; gap:4px; font-size:12px;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                ${roomStatusButton}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -990,21 +1912,88 @@
                     {name: "Bắt đầu", id: "start", dateFormat: "MM/dd/yyyy HH:mm tt"},
                     {name: "Kết thúc", id: "end", dateFormat: "MM/dd/yyyy HH:mm tt"},
                     {name: "Phòng", id: "resource", options: rooms},
+                    {name: "Họ tên khách hàng", id: "customerFullName"},
+                    {name: "Loại giấy tờ", id: "customerIdType", type: "select", options: [{name: "CCCD", id: "CCCD"}, {name: "Hộ chiếu", id: "Passport"}]},
+                    {name: "Số giấy tờ", id: "customerIdNumber"},
+                    {name: "Số điện thoại", id: "customerPhoneNumber"},
+                    {name: "Ngày sinh", id: "customerBirthday", type: "date"},
                     {name: "Giá tham chiếu (tự động theo phòng)", id: "roomPrice", disabled: true},
                     {name: "Loại discount", id: "discountType", type: "select", options: discountTypes},
                     {name: "Giá trị discount (VD: 50000 hoặc 10%)", id: "discountValue", type: "number", onValidate: validateDiscountValue},
                     {name: "Giá còn lại (tự động tính)", id: "finalPrice", disabled: true},
+                    {name: "Điện - Số bắt đầu", id: "electricMeterStart", type: "number"},
+                    {name: "Điện - Số kết thúc", id: "electricMeterEnd", type: "number"},
+                    {name: "Điện - Ngày bắt đầu", id: "electricPeriodStart", disabled: true},
+                    {name: "Điện - Ngày kết thúc", id: "electricPeriodEnd", disabled: true},
+                    {name: "Điện - Số tiền", id: "electricAmount", type: "number"},
+                    {name: "Nước - Số bắt đầu", id: "waterMeterStart", type: "number"},
+                    {name: "Nước - Số kết thúc", id: "waterMeterEnd", type: "number"},
+                    {name: "Nước - Ngày bắt đầu", id: "waterPeriodStart", disabled: true},
+                    {name: "Nước - Ngày kết thúc", id: "waterPeriodEnd", disabled: true},
+                    {name: "Nước - Số tiền", id: "waterAmount", type: "number"},
+                    {name: "Phí khác - Số bắt đầu", id: "otherMeterStart", type: "number"},
+                    {name: "Phí khác - Số kết thúc", id: "otherMeterEnd", type: "number"},
+                    {name: "Phí khác - Mô tả", id: "otherDescription"},
+                    {name: "Phí khác - Ngày bắt đầu", id: "otherPeriodStart", disabled: true},
+                    {name: "Phí khác - Ngày kết thúc", id: "otherPeriodEnd", disabled: true},
+                    {name: "Phí khác - Số tiền", id: "otherAmount", type: "number"},
+                    {name: "Phí khác+ - Số bắt đầu", id: "otherExtra1MeterStart", type: "number"},
+                    {name: "Phí khác+ - Số kết thúc", id: "otherExtra1MeterEnd", type: "number"},
+                    {name: "Phí khác+ - Mô tả", id: "otherExtra1Description"},
+                    {name: "Phí khác+ - Ngày bắt đầu", id: "otherExtra1PeriodStart", disabled: true},
+                    {name: "Phí khác+ - Ngày kết thúc", id: "otherExtra1PeriodEnd", disabled: true},
+                    {name: "Phí khác+ - Số tiền", id: "otherExtra1Amount", type: "number"},
+                    {name: "Phí khác++ - Số bắt đầu", id: "otherExtra2MeterStart", type: "number"},
+                    {name: "Phí khác++ - Số kết thúc", id: "otherExtra2MeterEnd", type: "number"},
+                    {name: "Phí khác++ - Mô tả", id: "otherExtra2Description"},
+                    {name: "Phí khác++ - Ngày bắt đầu", id: "otherExtra2PeriodStart", disabled: true},
+                    {name: "Phí khác++ - Ngày kết thúc", id: "otherExtra2PeriodEnd", disabled: true},
+                    {name: "Phí khác++ - Số tiền", id: "otherExtra2Amount", type: "number"},
                 ];
     
+                const periodStart = args.start.toString("yyyy-MM-dd");
+                const periodEnd = args.end.toString("yyyy-MM-dd");
                 const roomPrice = getRoomPriceById(args.resource);
                 const data = {
                     start: args.start,
                     end: args.end,
                     resource: args.resource,
+                    customerIdType: "CCCD",
+                    customerBirthday: null,
                     roomPrice: roomPrice,
                     discountType: "fixed",
                     discountValue: 0,
-                    finalPrice: roomPrice
+                    finalPrice: roomPrice,
+                    showServiceFees: "0",
+                    electricMeterStart: 0,
+                    electricMeterEnd: 0,
+                    electricPeriodStart: periodStart,
+                    electricPeriodEnd: periodEnd,
+                    electricAmount: 0,
+                    waterMeterStart: 0,
+                    waterMeterEnd: 0,
+                    waterPeriodStart: periodStart,
+                    waterPeriodEnd: periodEnd,
+                    waterAmount: 0,
+                    otherMeterStart: 0,
+                    otherMeterEnd: 0,
+                    otherDescription: "",
+                    otherPeriodStart: periodStart,
+                    otherPeriodEnd: periodEnd,
+                    otherAmount: 0,
+                    otherExtra1MeterStart: 0,
+                    otherExtra1MeterEnd: 0,
+                    otherExtra1Description: "",
+                    otherExtra1PeriodStart: periodStart,
+                    otherExtra1PeriodEnd: periodEnd,
+                    otherExtra1Amount: 0,
+                    otherExtra2MeterStart: 0,
+                    otherExtra2MeterEnd: 0,
+                    otherExtra2Description: "",
+                    otherExtra2PeriodStart: periodStart,
+                    otherExtra2PeriodEnd: periodEnd,
+                    otherExtra2Amount: 0,
+                    extraOtherRowsVisible: 0
                 };
     
                 const modal = await openReservationForm(form, data);
@@ -1013,14 +2002,30 @@
                 if (modal.canceled) {
                     return;
                 }
+                const previous = Object.assign({}, args.e.data);
                 const e = modal.result;
+                e.id = e.id || previous.id;
+                e.start = e.start || previous.start;
+                e.end = e.end || previous.end;
+                e.text = e.text || previous.text;
+                e.status = e.status || previous.status || "New";
+                e.paid = e.paid !== undefined && e.paid !== null ? e.paid : (previous.paid || 0);
                 e.roomPrice = getRoomPriceById(e.resource);
                 e.discountType = e.discountType || "fixed";
                 e.discountValue = Math.max(0, parseLocaleNumber(e.discountValue));
                 if (e.discountType === "percent") {
                     e.discountValue = Math.min(100, e.discountValue);
                 }
-                e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue);
+                e.customer = {
+                    fullName: e.customerFullName || "",
+                    idType: e.customerIdType || "CCCD",
+                    idNumber: e.customerIdNumber || "",
+                    phoneNumber: e.customerPhoneNumber || "",
+                    birthday: e.customerBirthday || null
+                };
+                e.serviceFees = buildServiceFeesPayload(e);
+                const serviceFeesTotal = e.serviceFees.reduce((sum, fee) => sum + Math.max(0, parseLocaleNumber(fee.amount || 0)), 0);
+                e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue) + serviceFeesTotal;
     
                 const {data: result} = await DayPilot.Http.post("backend_reservation_create.php", e);
     
@@ -1031,10 +2036,13 @@
                 e.discountType = result.discountType;
                 e.discountValue = result.discountValue;
                 e.finalPrice = result.finalPrice;
+                e.customer = result.customer || e.customer;
+                e.serviceFees = result.serviceFees || e.serviceFees;
                 dp.events.add(e);
     
             },
             onEventClick: async (args) => {
+                const previous = Object.assign({}, args.e.data);
                 const rooms = dp.resources.map((item) => {
                     return {
                         name: `${item.name} (${formatCurrency(item.price)})`,
@@ -1065,12 +2073,45 @@
                     {name: "Bắt đầu", id: "start", dateFormat: "MM/dd/yyyy h:mm tt"},
                     {name: "Kết thúc", id: "end", dateFormat: "MM/dd/yyyy h:mm tt"},
                     {name: "Phòng", id: "resource", options: rooms},
+                    {name: "Họ tên khách hàng", id: "customerFullName"},
+                    {name: "Loại giấy tờ", id: "customerIdType", type: "select", options: [{name: "CCCD", id: "CCCD"}, {name: "Hộ chiếu", id: "Passport"}]},
+                    {name: "Số giấy tờ", id: "customerIdNumber"},
+                    {name: "Số điện thoại", id: "customerPhoneNumber"},
+                    {name: "Ngày sinh", id: "customerBirthday", type: "date"},
                     {name: "Trạng thái", id: "status", type: "select", options: statuses},
                     {name: "Thanh toán", id: "paid", type: "select", options: paidoptions},
                     {name: "Giá tham chiếu (tự động theo phòng)", id: "roomPrice", disabled: true},
                     {name: "Loại discount", id: "discountType", type: "select", options: discountTypes},
                     {name: "Giá trị discount (VD: 50000 hoặc 10%)", id: "discountValue", type: "number", onValidate: validateDiscountValue},
                     {name: "Giá còn lại (tự động tính)", id: "finalPrice", disabled: true},
+                    {name: "Điện - Số bắt đầu", id: "electricMeterStart", type: "number"},
+                    {name: "Điện - Số kết thúc", id: "electricMeterEnd", type: "number"},
+                    {name: "Điện - Ngày bắt đầu", id: "electricPeriodStart", disabled: true},
+                    {name: "Điện - Ngày kết thúc", id: "electricPeriodEnd", disabled: true},
+                    {name: "Điện - Số tiền", id: "electricAmount", type: "number"},
+                    {name: "Nước - Số bắt đầu", id: "waterMeterStart", type: "number"},
+                    {name: "Nước - Số kết thúc", id: "waterMeterEnd", type: "number"},
+                    {name: "Nước - Ngày bắt đầu", id: "waterPeriodStart", disabled: true},
+                    {name: "Nước - Ngày kết thúc", id: "waterPeriodEnd", disabled: true},
+                    {name: "Nước - Số tiền", id: "waterAmount", type: "number"},
+                    {name: "Phí khác - Số bắt đầu", id: "otherMeterStart", type: "number"},
+                    {name: "Phí khác - Số kết thúc", id: "otherMeterEnd", type: "number"},
+                    {name: "Phí khác - Mô tả", id: "otherDescription"},
+                    {name: "Phí khác - Ngày bắt đầu", id: "otherPeriodStart", disabled: true},
+                    {name: "Phí khác - Ngày kết thúc", id: "otherPeriodEnd", disabled: true},
+                    {name: "Phí khác - Số tiền", id: "otherAmount", type: "number"},
+                    {name: "Phí khác+ - Số bắt đầu", id: "otherExtra1MeterStart", type: "number"},
+                    {name: "Phí khác+ - Số kết thúc", id: "otherExtra1MeterEnd", type: "number"},
+                    {name: "Phí khác+ - Mô tả", id: "otherExtra1Description"},
+                    {name: "Phí khác+ - Ngày bắt đầu", id: "otherExtra1PeriodStart", disabled: true},
+                    {name: "Phí khác+ - Ngày kết thúc", id: "otherExtra1PeriodEnd", disabled: true},
+                    {name: "Phí khác+ - Số tiền", id: "otherExtra1Amount", type: "number"},
+                    {name: "Phí khác++ - Số bắt đầu", id: "otherExtra2MeterStart", type: "number"},
+                    {name: "Phí khác++ - Số kết thúc", id: "otherExtra2MeterEnd", type: "number"},
+                    {name: "Phí khác++ - Mô tả", id: "otherExtra2Description"},
+                    {name: "Phí khác++ - Ngày bắt đầu", id: "otherExtra2PeriodStart", disabled: true},
+                    {name: "Phí khác++ - Ngày kết thúc", id: "otherExtra2PeriodEnd", disabled: true},
+                    {name: "Phí khác++ - Số tiền", id: "otherExtra2Amount", type: "number"},
                 ];
     
                 const data = args.e.data;
@@ -1081,6 +2122,13 @@
                     data.discountValue = Math.min(100, data.discountValue);
                 }
                 data.finalPrice = parseLocaleNumber(data.finalPrice || calculateFinalPrice(data.roomPrice, data.discountType, data.discountValue));
+                data.customerFullName = data.customer && data.customer.fullName ? data.customer.fullName : "";
+                data.customerIdType = data.customer && data.customer.idType ? data.customer.idType : "CCCD";
+                data.customerIdNumber = data.customer && data.customer.idNumber ? data.customer.idNumber : "";
+                data.customerPhoneNumber = data.customer && data.customer.phoneNumber ? data.customer.phoneNumber : "";
+                data.customerBirthday = data.customer && data.customer.birthday ? data.customer.birthday : null;
+                applyServiceFeeFieldsFromArray(data, data.serviceFees || []);
+                data.showServiceFees = hasServiceFeeData(data) ? "1" : "0";
     
                 const modal = await openReservationForm(form, data);
     
@@ -1089,15 +2137,55 @@
                     return;
                 }
                 const e = modal.result;
+                const previousData = Object.assign({}, args.e.data || {});
+                const startDp = toDayPilotDateSafe(e.start, previousData.start);
+                const endDp = toDayPilotDateSafe(e.end, previousData.end);
                 e.roomPrice = getRoomPriceById(e.resource);
                 e.discountType = e.discountType || "fixed";
                 e.discountValue = Math.max(0, parseLocaleNumber(e.discountValue));
                 if (e.discountType === "percent") {
                     e.discountValue = Math.min(100, e.discountValue);
                 }
-                e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue);
-                await DayPilot.Http.post("backend_reservation_update.php", e);
-                dp.events.update(e);
+                e.customer = {
+                    fullName: e.customerFullName || "",
+                    idType: e.customerIdType || "CCCD",
+                    idNumber: e.customerIdNumber || "",
+                    phoneNumber: e.customerPhoneNumber || "",
+                    birthday: e.customerBirthday || null
+                };
+                e.serviceFees = buildServiceFeesPayload(e);
+                const serviceFeesTotal = e.serviceFees.reduce((sum, fee) => sum + Math.max(0, parseLocaleNumber(fee.amount || 0)), 0);
+                e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue) + serviceFeesTotal;
+                const payload = Object.assign({}, e, {
+                    start: toBackendDateTime(startDp, previousData.start),
+                    end: toBackendDateTime(endDp, previousData.end)
+                });
+                const {data: result} = await DayPilot.Http.post("backend_reservation_update.php", payload);
+                const currentData = args.e.data || {};
+                const normalizedResource = (typeof previousData.resource === "number")
+                    ? parseInt(e.resource, 10)
+                    : String(e.resource);
+                currentData.id = currentData.id || previousData.id;
+                currentData.text = e.text || currentData.text || previousData.text || "Reservation";
+                currentData.resource = Number.isNaN(normalizedResource) ? (currentData.resource || previousData.resource) : normalizedResource;
+                currentData.start = startDp;
+                currentData.end = endDp;
+                currentData.status = (result && result.status) ? result.status : (e.status || currentData.status || previousData.status || "New");
+                currentData.paid = (result && result.paid !== undefined) ? result.paid : (e.paid ?? currentData.paid ?? previousData.paid ?? 0);
+                currentData.roomPrice = (result && result.roomPrice !== undefined) ? result.roomPrice : e.roomPrice;
+                currentData.discountType = (result && result.discountType) ? result.discountType : e.discountType;
+                currentData.discountValue = (result && result.discountValue !== undefined) ? result.discountValue : e.discountValue;
+                currentData.finalPrice = (result && result.finalPrice !== undefined) ? result.finalPrice : e.finalPrice;
+                currentData.customer = (result && result.customer) ? result.customer : (e.customer || previousData.customer || currentData.customer);
+                currentData.serviceFees = (result && result.serviceFees) ? result.serviceFees : (e.serviceFees || previousData.serviceFees || currentData.serviceFees || []);
+
+                if (!currentData.resource || !currentData.start || !currentData.end) {
+                    console.warn("Skip event update due to invalid scheduler fields", currentData);
+                    await notify("Đã lưu nhưng dữ liệu hiển thị chưa hợp lệ.", "error");
+                    return;
+                }
+                dp.events.update(args.e);
+                await notify("Đã cập nhật reservation.", "success");
             },
             
             onBeforeEventRender: (args) => {
@@ -1155,21 +2243,112 @@
                         args.data.toolTip = "Trạng thái không hợp lệ";
                         break;
                 }
+
+                let reservationIconMarkup = `<i class="fas fa-clock" style="font-size:9px;"></i>`;
+                let reservationIconColor = "#6b7280";
+                switch (args.data.status) {
+                    case "New":
+                        reservationIconMarkup = `<i class="fas fa-clock" style="font-size:9px;"></i>`;
+                        reservationIconColor = "#e69138";
+                        break;
+                    case "Confirmed":
+                        reservationIconMarkup = `<i class="fas fa-check-circle" style="font-size:9px;"></i>`;
+                        reservationIconColor = "#38761d";
+                        break;
+                    case "Arrived":
+                        reservationIconMarkup = `<i class="fas fa-sign-in-alt" style="font-size:9px;"></i>`;
+                        reservationIconColor = "#1691f4";
+                        break;
+                    case "CheckedOut":
+                        reservationIconMarkup = `<i class="fas fa-sign-out-alt" style="font-size:9px;"></i>`;
+                        reservationIconColor = "#6b7280";
+                        break;
+                }
     
                 const statusLabel = getReservationStatusLabel(args.data.status);
+                const compactReservationStatus = isMobileRoomHeader();
+                const reservationStatusButton = buildStatusIconButtonHtml("reservation", args.data.id, args.data.status, reservationIconMarkup, reservationIconColor, statusLabel, compactReservationStatus);
                 const finalPriceText = formatCurrency(args.data.finalPrice || 0);
                 const discountTypeText = args.data.discountType === "percent" ? "%" : "đ";
                 const discountValueText = `${Number(args.data.discountValue || 0).toLocaleString("vi-VN")}${discountTypeText}`;
+                const dateRangeText = `${start.toString("d/M")} - ${end.toString(start.getYear() !== end.getYear() ? "d/M/yy" : "d/M")}`;
+                const paidText = `${Number(args.data.paid || 0)}%`;
+                const reservationDurationMs = end.toDate().getTime() - start.toDate().getTime();
+                const isShortReservation = reservationDurationMs < (2 * 24 * 60 * 60 * 1000);
                 if (isMobileRoomHeader()) {
-                    args.data.html = `<div style="line-height:1.25;"><div style="font-weight:600; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div><div style="font-size:11px; color:#64748b;">${statusLabel}</div><div style="font-size:11px; color:#334155;">Còn lại: ${finalPriceText}</div></div>`;
+                    if (isShortReservation) {
+                        args.data.html = `
+                            <div style="line-height:1.25; display:flex; flex-direction:column; gap:3px; padding-bottom:24px;">
+                                <div style="font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div>
+                                <div style="font-size:11px; color:#64748b;">${dateRangeText}</div>
+                                <div style="font-size:11px; color:#334155;">TT: <strong>${paidText}</strong></div>
+                            </div>
+                        `;
+                    } else {
+                    args.data.html = `
+                        <div style="line-height:1.25; display:flex; flex-direction:column; gap:2px; padding-bottom:24px;">
+                            <div style="font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div>
+                            <div style="font-size:11px; color:#64748b;">${dateRangeText}</div>
+                            <div style="display:flex; justify-content:space-between; gap:8px; font-size:11px;">
+                                <span style="color:#334155;">TT: ${paidText}</span>
+                                <span style="color:#334155; font-weight:600;">${finalPriceText}</span>
+                            </div>
+                        </div>
+                    `;
+                    }
                 } else {
-                    args.data.html = `<div>${args.data.html}<br /><span style='color:gray'>${args.data.toolTip} - Trạng thái: ${statusLabel}</span><br /><span style='color:#334155'>Giảm: ${discountValueText} | Còn lại: ${finalPriceText}</span></div>`;
+                    if (isShortReservation) {
+                        args.data.html = `
+                            <div style="line-height:1.35; display:flex; flex-direction:column; gap:3px; padding-bottom:26px;">
+                                <div style="font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div>
+                                <div style="font-size:11px; color:#64748b;">${dateRangeText}</div>
+                                <div style="font-size:11px; color:#334155;">TT: <strong>${paidText}</strong></div>
+                            </div>
+                        `;
+                    } else {
+                    args.data.html = `
+                        <div style="line-height:1.35; display:flex; flex-direction:column; gap:2px; padding-bottom:26px;">
+                            <div style="font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div>
+                            <div style="font-size:11px; color:#64748b;">${dateRangeText}</div>
+                            <div style="font-size:11px; color:#334155;">Giảm: ${discountValueText} • Còn lại: <strong>${finalPriceText}</strong> • TT: ${paidText}</div>
+                        </div>
+                    `;
+                    }
                 }
     
                 const paid = args.data.paid;
                 const paidColor = "#aaaaaa";
 
                 args.data.areas = [
+                    {
+                        left: 5,
+                        bottom: 4,
+                        width: compactReservationStatus ? 20 : 110,
+                        height: 20,
+                        html: reservationStatusButton,
+                        action: "None",
+                        visibility: "Visible",
+                        onClick: async args => {
+                            args.originalEvent.preventDefault();
+                            args.originalEvent.stopPropagation();
+                            args.preventDefault();
+                            const current = args.source.data.status;
+                            const picked = await chooseStatus("reservation", current);
+                            if (!picked || picked === current) {
+                                return false;
+                            }
+                            try {
+                                await DayPilot.Http.post("backend_reservation_status_update.php", {id: args.source.id(), status: picked});
+                                const updated = Object.assign({}, args.source.data, {status: picked});
+                                dp.events.update(updated);
+                                await notify("Đã cập nhật trạng thái reservation.", "success");
+                            } catch (err) {
+                                console.error(err);
+                                await notify("Không thể cập nhật trạng thái. Vui lòng thử lại.", "error");
+                            }
+                            return false;
+                        }
+                    },
                     {
                         right: 5,
                         top: 5,
@@ -1199,8 +2378,8 @@
                             return false;
                         }
                     },
-                    { bottom: 10, right: 4, html: `<div style='color:${paidColor}; font-size: 8pt;'>Đã thanh toán: ${paid}%</div>`, v: isMobileRoomHeader() ? "Hidden" : "Visible"},
-                    { left: 4, bottom: 8, right: 4, height: 2, html: `<div style='background-color:${paidColor}; height: 100%; width:${paid}%'></div>`, v: isMobileRoomHeader() ? "Hidden" : "Visible"}
+                    { top: 5, right: 24, html: `<div style='color:${paidColor}; font-size: 8pt;'>TT: ${paid}%</div>`, v: isMobileRoomHeader() ? "Hidden" : "Visible"},
+                    { left: compactReservationStatus ? 4 : 120, bottom: 8, right: 4, height: 2, html: `<div style='background-color:${paidColor}; height: 100%; width:${paid}%'></div>`, v: isMobileRoomHeader() ? "Hidden" : "Visible"}
                 ];
     
             }

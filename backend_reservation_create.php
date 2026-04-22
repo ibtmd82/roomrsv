@@ -3,6 +3,8 @@ require_once '_db.php';
 
 $json = file_get_contents('php://input');
 $params = json_decode($json);
+$tenantContext = resolveTenantContext();
+$tenantId = $tenantContext['tenant_id'];
 
 $start = $params->start;
 $end = $params->end;
@@ -10,12 +12,15 @@ $name = $params->text;
 $room = $params->resource;
 $discountType = isset($params->discountType) ? $params->discountType : 'fixed';
 $discountValue = isset($params->discountValue) ? floatval($params->discountValue) : 0;
+$customerPayload = extractCustomerPayload($params);
+$serviceFees = extractServiceFeesPayload($params);
 if ($discountValue < 0) {
     $discountValue = 0;
 }
 
-$priceStmt = $db->prepare("SELECT price FROM rooms WHERE id = :id");
+$priceStmt = $db->prepare("SELECT price FROM rooms WHERE id = :id AND tenant_id = :tenant_id");
 $priceStmt->bindValue(':id', $room);
+$priceStmt->bindValue(':tenant_id', $tenantId);
 $priceStmt->execute();
 $roomData = $priceStmt->fetch(PDO::FETCH_ASSOC);
 $roomPrice = $roomData ? floatval($roomData['price']) : 0;
@@ -34,7 +39,14 @@ if ($finalPrice < 0) {
     $finalPrice = 0;
 }
 
-$stmt = $db->prepare("INSERT INTO reservations (name, start, `end`, room_id, status, paid, room_price, discount_type, discount_value, final_price) VALUES (:name, :start, :end, :room, 'New', 0, :room_price, :discount_type, :discount_value, :final_price)");
+$serviceFeesTotal = calculateServiceFeesTotalAmount($serviceFees);
+$finalPrice = $finalPrice + $serviceFeesTotal;
+
+$customerId = upsertReservationCustomer($db, $tenantId, $customerPayload);
+
+$stmt = $db->prepare("INSERT INTO reservations (tenant_id, customer_id, name, start, `end`, room_id, status, paid, room_price, discount_type, discount_value, final_price) VALUES (:tenant_id, :customer_id, :name, :start, :end, :room, 'New', 0, :room_price, :discount_type, :discount_value, :final_price)");
+$stmt->bindValue(':tenant_id', $tenantId);
+$stmt->bindValue(':customer_id', $customerId);
 $stmt->bindValue(':start', $start);
 $stmt->bindValue(':end', $end);
 $stmt->bindValue(':name', $name);
@@ -46,17 +58,23 @@ $stmt->bindValue(':final_price', $finalPrice);
 $stmt->execute();
 
 $newId = $db->lastInsertId();
+replaceReservationServiceFees($db, $tenantId, $newId, $serviceFees);
 
 $response = new stdClass();
 $response->result = 'OK';
 $response->message = 'Created with id: '.$newId;
 $response->id = $newId;
+$response->tenantId = $tenantId;
 $response->status = "New";
 $response->paid = 0;
 $response->roomPrice = $roomPrice;
 $response->discountType = $discountType;
 $response->discountValue = $discountValue;
 $response->finalPrice = $finalPrice;
+$response->serviceFeesTotal = $serviceFeesTotal;
+$response->customerId = $customerId;
+$response->customer = $customerPayload;
+$response->serviceFees = $serviceFees;
 
 header('Content-Type: application/json');
 echo json_encode($response);

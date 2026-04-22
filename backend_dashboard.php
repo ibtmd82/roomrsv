@@ -2,11 +2,18 @@
 require_once '_db.php';
 
 $result = new stdClass();
+$tenantContext = resolveTenantContext();
+$tenantId = $tenantContext['tenant_id'];
 
-$roomsTotal = $db->query("SELECT COUNT(*) AS count FROM rooms")->fetch(PDO::FETCH_ASSOC);
+$roomsTotalStmt = $db->prepare("SELECT COUNT(*) AS count FROM rooms WHERE tenant_id = :tenant_id");
+$roomsTotalStmt->bindValue(':tenant_id', $tenantId);
+$roomsTotalStmt->execute();
+$roomsTotal = $roomsTotalStmt->fetch(PDO::FETCH_ASSOC);
 $result->roomsTotal = intval($roomsTotal['count']);
 
-$roomsByStatusStmt = $db->query("SELECT status, COUNT(*) AS count FROM rooms GROUP BY status");
+$roomsByStatusStmt = $db->prepare("SELECT status, COUNT(*) AS count FROM rooms WHERE tenant_id = :tenant_id GROUP BY status");
+$roomsByStatusStmt->bindValue(':tenant_id', $tenantId);
+$roomsByStatusStmt->execute();
 $roomsByStatusRows = $roomsByStatusStmt->fetchAll(PDO::FETCH_ASSOC);
 $roomsByStatus = new stdClass();
 foreach ($roomsByStatusRows as $row) {
@@ -14,10 +21,15 @@ foreach ($roomsByStatusRows as $row) {
 }
 $result->roomsByStatus = $roomsByStatus;
 
-$reservationsTotal = $db->query("SELECT COUNT(*) AS count FROM reservations")->fetch(PDO::FETCH_ASSOC);
+$reservationsTotalStmt = $db->prepare("SELECT COUNT(*) AS count FROM reservations WHERE tenant_id = :tenant_id");
+$reservationsTotalStmt->bindValue(':tenant_id', $tenantId);
+$reservationsTotalStmt->execute();
+$reservationsTotal = $reservationsTotalStmt->fetch(PDO::FETCH_ASSOC);
 $result->reservationsTotal = intval($reservationsTotal['count']);
 
-$reservationsByStatusStmt = $db->query("SELECT status, COUNT(*) AS count FROM reservations GROUP BY status");
+$reservationsByStatusStmt = $db->prepare("SELECT status, COUNT(*) AS count FROM reservations WHERE tenant_id = :tenant_id GROUP BY status");
+$reservationsByStatusStmt->bindValue(':tenant_id', $tenantId);
+$reservationsByStatusStmt->execute();
 $reservationsByStatusRows = $reservationsByStatusStmt->fetchAll(PDO::FETCH_ASSOC);
 $reservationsByStatus = new stdClass();
 foreach ($reservationsByStatusRows as $row) {
@@ -25,12 +37,16 @@ foreach ($reservationsByStatusRows as $row) {
 }
 $result->reservationsByStatus = $reservationsByStatus;
 
-$revenueStmt = $db->query("SELECT COALESCE(SUM(final_price), 0) AS total, COALESCE(AVG(final_price), 0) AS average FROM reservations");
+$revenueStmt = $db->prepare("SELECT COALESCE(SUM(final_price), 0) AS total, COALESCE(AVG(final_price), 0) AS average FROM reservations WHERE tenant_id = :tenant_id");
+$revenueStmt->bindValue(':tenant_id', $tenantId);
+$revenueStmt->execute();
 $revenue = $revenueStmt->fetch(PDO::FETCH_ASSOC);
 $result->totalFinalPrice = floatval($revenue['total']);
 $result->averageFinalPrice = floatval($revenue['average']);
 
-$latestStmt = $db->query("SELECT id, name, start, `end`, status, final_price FROM reservations ORDER BY id DESC LIMIT 5");
+$latestStmt = $db->prepare("SELECT id, name, start, `end`, status, final_price FROM reservations WHERE tenant_id = :tenant_id ORDER BY id DESC LIMIT 5");
+$latestStmt->bindValue(':tenant_id', $tenantId);
+$latestStmt->execute();
 $latestRows = $latestStmt->fetchAll(PDO::FETCH_ASSOC);
 $latest = [];
 foreach ($latestRows as $row) {

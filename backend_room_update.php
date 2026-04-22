@@ -3,6 +3,8 @@ require_once '_db.php';
 
 $json = file_get_contents('php://input');
 $params = json_decode($json);
+$tenantContext = resolveTenantContext();
+$tenantId = $tenantContext['tenant_id'];
 
 $id = $params->id;
 $name = $params->name;
@@ -10,8 +12,9 @@ $capacity = $params->capacity;
 $status = $params->status;
 $price = isset($params->price) ? floatval($params->price) : 0;
 
-$stmt = $db->prepare("UPDATE rooms SET name = :name, capacity = :capacity, status = :status, price = :price WHERE id = :id");
+$stmt = $db->prepare("UPDATE rooms SET name = :name, capacity = :capacity, status = :status, price = :price WHERE id = :id AND tenant_id = :tenant_id");
 $stmt->bindValue(':id', $id);
+$stmt->bindValue(':tenant_id', $tenantId);
 $stmt->bindValue(':name', $name);
 $stmt->bindValue(':capacity', $capacity);
 $stmt->bindValue(':status', $status);
