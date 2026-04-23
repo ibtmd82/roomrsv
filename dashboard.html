@@ -152,6 +152,17 @@
 <script src="assets/js/backend-clientid.js"></script>
 <script>
     const toCurrency = (v) => `${Number(v || 0).toLocaleString("vi-VN")} đ`;
+    const roomStatusLabels = {
+        Ready: "Sẵn sàng",
+        Cleanup: "Cần dọn",
+        Dirty: "Bẩn"
+    };
+    const reservationStatusLabels = {
+        New: "Mới",
+        Confirmed: "Đã xác nhận",
+        Arrived: "Đã đến",
+        CheckedOut: "Đã trả phòng"
+    };
 
     const fillStatus = (targetId, data) => {
         const target = document.getElementById(targetId);
@@ -162,9 +173,11 @@
             return;
         }
         keys.forEach((key) => {
+            const labelMap = targetId === "roomsByStatus" ? roomStatusLabels : reservationStatusLabels;
+            const displayLabel = labelMap[key] || key;
             const li = document.createElement("li");
             li.className = "list-group-item d-flex justify-content-between";
-            li.innerHTML = `<span>${key}</span><strong>${data[key]}</strong>`;
+            li.innerHTML = `<span>${displayLabel}</span><strong>${data[key]}</strong>`;
             target.appendChild(li);
         });
     };
@@ -177,12 +190,13 @@
             return;
         }
         rows.forEach((r) => {
+            const displayStatus = reservationStatusLabels[r.status] || r.status;
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${r.id}</td>
                 <td>${r.name}</td>
                 <td>${r.start} - ${r.end}</td>
-                <td>${r.status}</td>
+                <td>${displayStatus}</td>
                 <td class="text-end">${toCurrency(r.finalPrice)}</td>
             `;
             body.appendChild(tr);
