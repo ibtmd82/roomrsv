@@ -14,6 +14,7 @@ $discountType = isset($params->discountType) ? $params->discountType : 'fixed';
 $discountValue = isset($params->discountValue) ? floatval($params->discountValue) : 0;
 $customerPayload = extractCustomerPayload($params);
 $serviceFees = extractServiceFeesPayload($params);
+$serviceFees = applyAutoChargeModeByDuration($serviceFees, $start, $end);
 if ($discountValue < 0) {
     $discountValue = 0;
 }
@@ -32,15 +33,16 @@ if ($discountType === 'percent') {
     $finalPrice = $roomPrice - ($roomPrice * $discountValue / 100);
 } else {
     $discountType = 'fixed';
-    $finalPrice = $roomPrice - $discountValue;
+$finalPrice = $roomPrice - $discountValue;
 }
 
 if ($finalPrice < 0) {
     $finalPrice = 0;
 }
 
-$serviceFeesTotal = calculateServiceFeesTotalAmount($serviceFees);
-$finalPrice = $finalPrice + $serviceFeesTotal;
+$monthlyNetAmount = calculateRoomMonthlyAmount($roomPrice, $discountType, $discountValue);
+$invoicePlans = buildReservationInvoices($start, $end, $monthlyNetAmount, $serviceFees);
+$finalPrice = calculateReservationTotalFromInvoices($invoicePlans);
 
 $customerId = upsertReservationCustomer($db, $tenantId, $customerPayload);
 
@@ -59,6 +61,10 @@ $stmt->execute();
 
 $newId = $db->lastInsertId();
 replaceReservationServiceFees($db, $tenantId, $newId, $serviceFees);
+$invoices = replaceReservationInvoices($db, $tenantId, $newId, $invoicePlans);
+reseedReservationInvoiceServiceFees($db, $tenantId, $newId, $invoices, $serviceFees);
+recomputeReservationInvoicesFromServiceFees($db, $tenantId, $newId);
+$invoices = fetchReservationInvoices($db, $tenantId, $newId);
 
 $response = new stdClass();
 $response->result = 'OK';
@@ -70,11 +76,16 @@ $response->paid = 0;
 $response->roomPrice = $roomPrice;
 $response->discountType = $discountType;
 $response->discountValue = $discountValue;
-$response->finalPrice = $finalPrice;
-$response->serviceFeesTotal = $serviceFeesTotal;
+$response->finalPrice = calculateReservationTotalFromInvoices(array_map(function ($item) {
+    return [
+        'total_amount' => isset($item['totalAmount']) ? $item['totalAmount'] : 0
+    ];
+}, $invoices));
+$response->serviceFeesTotal = calculateServiceFeesTotalAmount($serviceFees);
 $response->customerId = $customerId;
 $response->customer = $customerPayload;
 $response->serviceFees = $serviceFees;
+$response->invoices = $invoices;
 
 header('Content-Type: application/json');
 echo json_encode($response);

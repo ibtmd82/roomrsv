@@ -73,13 +73,34 @@ if (!$exists) {
                         id INTEGER PRIMARY KEY AUTO_INCREMENT,
                         tenant_id INTEGER DEFAULT 1,
                         reservation_id INTEGER NOT NULL,
+                        invoice_id INTEGER NULL,
                         fee_type VARCHAR(30),
+                        charge_mode VARCHAR(20) DEFAULT 'one_time',
                         description VARCHAR(255),
                         meter_start DECIMAL(10,2) DEFAULT 0,
                         meter_end DECIMAL(10,2) DEFAULT 0,
                         period_start DATE NULL,
                         period_end DATE NULL,
                         amount DECIMAL(10,2) DEFAULT 0)");
+
+    $db->exec("CREATE TABLE IF NOT EXISTS reservation_invoices (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        reservation_id INTEGER NOT NULL,
+                        cycle_index INTEGER DEFAULT 1,
+                        period_start DATE NOT NULL,
+                        period_end DATE NOT NULL,
+                        occupied_days INTEGER DEFAULT 0,
+                        month_days INTEGER DEFAULT 0,
+                        room_amount DECIMAL(10,2) DEFAULT 0,
+                        service_amount DECIMAL(10,2) DEFAULT 0,
+                        total_amount DECIMAL(10,2) DEFAULT 0,
+                        payment_status VARCHAR(20) DEFAULT 'unpaid',
+                        payment_method VARCHAR(30) NULL,
+                        paid_amount DECIMAL(10,2) DEFAULT 0,
+                        paid_at DATETIME NULL,
+                        payment_ref VARCHAR(100) NULL,
+                        payment_note VARCHAR(255) NULL)");
 
     $rooms = array(
                     array('name' => 'Room 1',
@@ -184,7 +205,9 @@ if (!tableExists($db, "reservation_service_fees")) {
                         id INTEGER PRIMARY KEY AUTO_INCREMENT,
                         tenant_id INTEGER DEFAULT 1,
                         reservation_id INTEGER NOT NULL,
+                        invoice_id INTEGER NULL,
                         fee_type VARCHAR(30),
+                        charge_mode VARCHAR(20) DEFAULT 'one_time',
                         description VARCHAR(255),
                         meter_start DECIMAL(10,2) DEFAULT 0,
                         meter_end DECIMAL(10,2) DEFAULT 0,
@@ -195,4 +218,33 @@ if (!tableExists($db, "reservation_service_fees")) {
 
 if (!columnExists($db, "reservation_service_fees", "description")) {
     $db->exec("ALTER TABLE reservation_service_fees ADD COLUMN description VARCHAR(255)");
+}
+
+if (!columnExists($db, "reservation_service_fees", "invoice_id")) {
+    $db->exec("ALTER TABLE reservation_service_fees ADD COLUMN invoice_id INTEGER NULL");
+}
+
+if (!columnExists($db, "reservation_service_fees", "charge_mode")) {
+    $db->exec("ALTER TABLE reservation_service_fees ADD COLUMN charge_mode VARCHAR(20) DEFAULT 'one_time'");
+}
+
+if (!tableExists($db, "reservation_invoices")) {
+    $db->exec("CREATE TABLE IF NOT EXISTS reservation_invoices (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        reservation_id INTEGER NOT NULL,
+                        cycle_index INTEGER DEFAULT 1,
+                        period_start DATE NOT NULL,
+                        period_end DATE NOT NULL,
+                        occupied_days INTEGER DEFAULT 0,
+                        month_days INTEGER DEFAULT 0,
+                        room_amount DECIMAL(10,2) DEFAULT 0,
+                        service_amount DECIMAL(10,2) DEFAULT 0,
+                        total_amount DECIMAL(10,2) DEFAULT 0,
+                        payment_status VARCHAR(20) DEFAULT 'unpaid',
+                        payment_method VARCHAR(30) NULL,
+                        paid_amount DECIMAL(10,2) DEFAULT 0,
+                        paid_at DATETIME NULL,
+                        payment_ref VARCHAR(100) NULL,
+                        payment_note VARCHAR(255) NULL)");
 }

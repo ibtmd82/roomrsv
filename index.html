@@ -867,19 +867,18 @@
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Thông tin reservation</h5>
+                    <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Thông tin đặt/thuê phòng</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="reservationNativeBody">
                     <div class="reservation-native-section">
-                        <h6>Thông tin reservation</h6>
+                        <h6>Thông tin đặt/thuê phòng</h6>
                         <div class="reservation-native-grid">
                             <div><label class="form-label mb-1">Nội dung</label><input id="rn_text" class="form-control form-control-sm" /></div>
                             <div><label class="form-label mb-1">Phòng</label><select id="rn_resource" class="form-select form-select-sm"></select></div>
                             <div><label class="form-label mb-1">Bắt đầu</label><input id="rn_start" type="datetime-local" class="form-control form-control-sm" /></div>
                             <div><label class="form-label mb-1">Kết thúc</label><input id="rn_end" type="datetime-local" class="form-control form-control-sm" /></div>
                             <div><label class="form-label mb-1">Trạng thái</label><select id="rn_status" class="form-select form-select-sm"><option value="New">Mới</option><option value="Confirmed">Đã xác nhận</option><option value="Arrived">Đã đến</option><option value="CheckedOut">Đã trả phòng</option></select></div>
-                            <div><label class="form-label mb-1">Thanh toán</label><select id="rn_paid" class="form-select form-select-sm"><option value="0">0%</option><option value="50">50%</option><option value="100">100%</option></select></div>
                             <div><label class="form-label mb-1">Giá phòng</label><input id="rn_roomPrice" class="form-control form-control-sm" readonly /></div>
                             <div><label class="form-label mb-1">Loại discount</label><select id="rn_discountType" class="form-select form-select-sm"><option value="fixed">Cố định</option><option value="percent">Phần trăm</option></select></div>
                             <div><label class="form-label mb-1">Giá trị discount</label><input id="rn_discountValue" class="form-control form-control-sm" /></div>
@@ -896,13 +895,21 @@
                             <div><label class="form-label mb-1">Ngày sinh</label><input id="rn_customerBirthday" type="date" class="form-control form-control-sm" /></div>
                         </div>
                     </div>
-                    <div class="reservation-native-section">
+                    <div class="reservation-native-section" id="rn_legacyServiceFeeSection" style="display:none;">
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <h6 class="mb-0">Chi phí dịch vụ</h6>
                             <button type="button" class="reservation-native-collapse-btn" id="rn_toggleFees">▾ Thu gọn chi phí dịch vụ</button>
                             <button type="button" class="reservation-native-add-btn" id="rn_addFee">+</button>
                         </div>
+                        <div class="small text-muted mb-2">Hệ thống tự động xác định cách thu: thời gian thuê từ 1 tháng trở lên sẽ thu theo chu kỳ tháng; dưới 1 tháng sẽ thu 1 lần.</div>
                         <div id="rn_feesWrap"></div>
+                    </div>
+                    <div class="reservation-native-section">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <h6 class="mb-0">Kỳ thanh toán</h6>
+                            <button type="button" class="reservation-native-collapse-btn" id="rn_toggleInvoiceFees">▾ Thu gọn chi phí theo kỳ</button>
+                        </div>
+                        <div id="rn_invoicesWrap" class="small"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1040,7 +1047,7 @@
                                         dp.events.update(event);
                                     }
                                     updated = true;
-                                    await notify("Đã cập nhật trạng thái reservation.", "success");
+                                    await notify("Đã cập nhật trạng thái đặt/thuê phòng.", "success");
                                 }
                             } catch (err) {
                                 console.error(err);
@@ -1099,7 +1106,7 @@
             const titleEl = document.getElementById("sn_title");
             const bsModal = new bootstrap.Modal(modalEl, {backdrop: "static"});
 
-            titleEl.textContent = statusType === "room" ? "Chọn trạng thái phòng" : "Chọn trạng thái reservation";
+            titleEl.textContent = statusType === "room" ? "Chọn trạng thái phòng" : "Chọn trạng thái đặt/thuê phòng";
             selectEl.innerHTML = options.map((s) => `<option value="${s}">${labels[s] || s}</option>`).join("");
             selectEl.value = currentStatus || options[0];
 
@@ -1296,6 +1303,7 @@
         const openReservationForm = async (form, data) => {
             const modalEl = document.getElementById("reservationNativeModal");
             const feesWrap = document.getElementById("rn_feesWrap");
+            const invoicesWrap = document.getElementById("rn_invoicesWrap");
             const bsModal = new bootstrap.Modal(modalEl, {backdrop: "static"});
             const byId = (id) => document.getElementById(id);
             const roomSelect = byId("rn_resource");
@@ -1318,6 +1326,21 @@
                 const end = byId("rn_end").value;
                 return {start: (start || "").slice(0, 10), end: (end || "").slice(0, 10)};
             };
+            const isMonthlyCycleRange = () => {
+                const startValue = byId("rn_start").value;
+                const endValue = byId("rn_end").value;
+                if (!startValue || !endValue) {
+                    return false;
+                }
+                const startDate = new Date(startValue);
+                const endDate = new Date(endValue);
+                if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate <= startDate) {
+                    return false;
+                }
+                const oneMonthAfterStart = new Date(startDate.getTime());
+                oneMonthAfterStart.setMonth(oneMonthAfterStart.getMonth() + 1);
+                return endDate >= oneMonthAfterStart;
+            };
 
             const mapped = Object.assign({}, data);
             mapped.customerFullName = mapped.customer && mapped.customer.fullName ? mapped.customer.fullName : (mapped.customerFullName || "");
@@ -1331,7 +1354,6 @@
             byId("rn_start").value = toDatetimeLocal(mapped.start);
             byId("rn_end").value = toDatetimeLocal(mapped.end);
             byId("rn_status").value = mapped.status || "New";
-            byId("rn_paid").value = String(mapped.paid ?? 0);
             byId("rn_discountType").value = mapped.discountType || "fixed";
             byId("rn_discountValue").value = parseLocaleNumber(mapped.discountValue || 0);
             byId("rn_customerFullName").value = mapped.customerFullName || "";
@@ -1344,6 +1366,170 @@
             const extraRows = Math.max(0, Math.min(6, defaultFees.length > 0 ? defaultFees.length - 1 : 0));
             let extraOtherRowsVisible = extraRows;
             let expanded = hasServiceFeeData(mapped);
+            let invoiceFeesExpanded = true;
+            const mappedInvoices = Array.isArray(mapped.invoices) ? mapped.invoices.map((inv) => Object.assign({}, inv)) : [];
+            const ensureInvoiceServiceFees = () => {
+                const monthlyMode = isMonthlyCycleRange();
+                mappedInvoices.forEach((inv) => {
+                    inv.serviceFees = Array.isArray(inv.serviceFees) ? inv.serviceFees : [];
+                    if (!monthlyMode) {
+                        return;
+                    }
+                    if (!inv.serviceFees.some((f) => f.feeType === "electricity")) {
+                        inv.serviceFees.push({feeType: "electricity", meterStart: 0, meterEnd: 0, amount: 0, description: "", chargeMode: "per_cycle"});
+                    }
+                    if (!inv.serviceFees.some((f) => f.feeType === "water")) {
+                        inv.serviceFees.push({feeType: "water", meterStart: 0, meterEnd: 0, amount: 0, description: "", chargeMode: "per_cycle"});
+                    }
+                });
+            };
+
+            const renderInvoices = () => {
+                if (!Array.isArray(mappedInvoices) || mappedInvoices.length === 0) {
+                    invoicesWrap.innerHTML = "<div class='text-muted'>Đặt/thuê phòng này chưa có kỳ thanh toán (sẽ tạo khi lưu).</div>";
+                    return;
+                }
+                ensureInvoiceServiceFees();
+                const rows = mappedInvoices.map((inv) => {
+                    const monthlyMode = isMonthlyCycleRange();
+                    const serviceFees = Array.isArray(inv.serviceFees) ? inv.serviceFees : [];
+                    const electricFee = serviceFees.find((f) => f.feeType === "electricity") || {};
+                    const waterFee = serviceFees.find((f) => f.feeType === "water") || {};
+                    const otherFees = serviceFees.filter((f) => f.feeType === "other");
+                    const statusBadge = inv.paymentStatus === "paid"
+                        ? `<span class="badge bg-success">Đã thanh toán</span>`
+                        : `<span class="badge bg-secondary">Chưa thanh toán</span>`;
+                    const serviceSum = serviceFees.reduce((sum, fee) => sum + Math.max(0, parseLocaleNumber(fee.amount || 0)), 0);
+                    const invoiceTotal = Math.max(0, parseLocaleNumber(inv.roomAmount || 0)) + serviceSum;
+                    inv.serviceAmount = serviceSum;
+                    inv.totalAmount = invoiceTotal;
+                    const otherMarkup = otherFees.map((fee, idx) => `
+                        <div class="row g-2 mt-1">
+                            <div class="col-12 col-md-3">
+                                <label class="form-label mb-1">Tiền phí khác</label>
+                                <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="other" data-fee-index="${idx}" data-col="amount" value="${parseLocaleNumber(fee.amount || 0)}">
+                            </div>
+                            <div class="col-12 col-md-7">
+                                <label class="form-label mb-1">Mô tả phí khác</label>
+                                <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="other" data-fee-index="${idx}" data-col="description" value="${fee.description || ""}">
+                            </div>
+                            <div class="col-12 col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-sm btn-outline-danger w-100 invoice-other-remove-btn" data-invoice-id="${inv.id}" data-fee-index="${idx}">Xóa</button>
+                            </div>
+                        </div>
+                    `).join("");
+                    return `
+                        <div class="border rounded p-2 mb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div><strong>Kỳ ${inv.cycleIndex}</strong> (${inv.periodStart} - ${inv.periodEnd})</div>
+                                ${statusBadge}
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-12 col-md-3"><small>Tiền phòng: <strong>${formatCurrency(inv.roomAmount || 0)}</strong></small></div>
+                                <div class="col-12 col-md-3"><small>Dịch vụ: <strong>${formatCurrency(serviceSum || 0)}</strong></small></div>
+                                <div class="col-12 col-md-3"><small>Tổng: <strong>${formatCurrency(invoiceTotal || 0)}</strong></small></div>
+                                <div class="col-12 col-md-3"><small>Đã thu: <strong>${formatCurrency(inv.paidAmount || 0)}</strong></small></div>
+                            </div>
+                            <div class="row g-2 mt-1">
+                                <div class="col-12 col-md-4"><small>Phương thức: <strong>${inv.paymentMethod || "--"}</strong></small></div>
+                                <div class="col-12 col-md-4"><small>Thu lúc: <strong>${inv.paidAt || "--"}</strong></small></div>
+                                <div class="col-12 col-md-4"><small>Mã GD: <strong>${inv.paymentRef || "--"}</strong></small></div>
+                            </div>
+                            <div class="row g-2 mt-2 invoice-fee-detail" style="display:${invoiceFeesExpanded ? "" : "none"};">
+                                <div class="col-12"><small class="text-muted"><strong>Nhập chi phí kỳ này</strong></small></div>
+                                ${monthlyMode ? `
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label mb-1">Điện số đầu</label>
+                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="electricity" data-col="meterStart" value="${parseLocaleNumber(electricFee.meterStart || 0)}" readonly>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label mb-1">Điện số cuối</label>
+                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="electricity" data-col="meterEnd" value="${parseLocaleNumber(electricFee.meterEnd || electricFee.meterStart || 0)}">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label mb-1">Tiền điện</label>
+                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="electricity" data-col="amount" value="${parseLocaleNumber(electricFee.amount || 0)}">
+                                </div>
+                                <div class="col-12 col-md-3"></div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label mb-1">Nước số đầu</label>
+                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="water" data-col="meterStart" value="${parseLocaleNumber(waterFee.meterStart || 0)}" readonly>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label mb-1">Nước số cuối</label>
+                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="water" data-col="meterEnd" value="${parseLocaleNumber(waterFee.meterEnd || waterFee.meterStart || 0)}">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label mb-1">Tiền nước</label>
+                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="water" data-col="amount" value="${parseLocaleNumber(waterFee.amount || 0)}">
+                                </div>
+                                <div class="col-12 col-md-3"></div>
+                                ` : ""}
+                                <div class="col-12 col-md-3">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-4 invoice-other-add-btn" data-invoice-id="${inv.id}">+ Thêm phí khác</button>
+                                </div>
+                                <div class="col-12 col-md-9"></div>
+                                ${otherMarkup}
+                            </div>
+                            <div class="row g-2 mt-2">
+                                <div class="col-12 col-md-4">
+                                    <select class="form-select form-select-sm invoice-method-input" data-invoice-id="${inv.id}">
+                                        <option value="cash">Tiền mặt</option>
+                                        <option value="bank_transfer">Chuyển khoản</option>
+                                        <option value="card_international">Thẻ quốc tế</option>
+                                        <option value="card_domestic_atm">Thẻ nội địa ATM</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <input class="form-control form-control-sm invoice-ref-input" data-invoice-id="${inv.id}" placeholder="Mã giao dịch (tùy chọn)">
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <button type="button" class="btn btn-sm btn-outline-primary w-100 invoice-pay-btn" data-invoice-id="${inv.id}" data-next-status="${inv.paymentStatus === "paid" ? "unpaid" : "paid"}">
+                                        ${inv.paymentStatus === "paid" ? "Hủy đã thanh toán" : "Ghi nhận đã thanh toán"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+                invoicesWrap.innerHTML = rows;
+                mappedInvoices.forEach((inv) => {
+                    const methodInput = invoicesWrap.querySelector(`.invoice-method-input[data-invoice-id="${inv.id}"]`);
+                    const refInput = invoicesWrap.querySelector(`.invoice-ref-input[data-invoice-id="${inv.id}"]`);
+                    if (methodInput) {
+                        methodInput.value = inv.paymentMethod || "cash";
+                    }
+                    if (refInput) {
+                        refInput.value = inv.paymentRef || "";
+                    }
+                });
+                const reservationTotal = mappedInvoices.reduce((sum, inv) => sum + Math.max(0, parseLocaleNumber(inv.totalAmount || 0)), 0);
+                byId("rn_finalPrice").value = reservationTotal;
+            };
+            const updateMeterCarryInMemory = () => {
+                const sorted = [...mappedInvoices].sort((a, b) => Number(a.cycleIndex || 0) - Number(b.cycleIndex || 0));
+                const syncType = (feeType) => {
+                    let carry = null;
+                    sorted.forEach((inv) => {
+                        const fee = (inv.serviceFees || []).find((f) => f.feeType === feeType);
+                        if (!fee) {
+                            return;
+                        }
+                        if (carry === null) {
+                            carry = Math.max(0, parseLocaleNumber(fee.meterStart || 0));
+                            fee.meterStart = carry;
+                            fee.meterEnd = Math.max(carry, parseLocaleNumber(fee.meterEnd || carry));
+                            carry = fee.meterEnd;
+                            return;
+                        }
+                        fee.meterStart = carry;
+                        fee.meterEnd = Math.max(carry, parseLocaleNumber(fee.meterEnd || carry));
+                        carry = fee.meterEnd;
+                    });
+                };
+                syncType("electricity");
+                syncType("water");
+            };
 
             const renderFeeRows = () => {
                 const period = getPeriod();
@@ -1385,10 +1571,12 @@
 
                 const toServiceFee = (key, feeType) => {
                     const g = grouped[key] || {};
+                    const autoChargeMode = isMonthlyCycleRange() ? "per_cycle" : "one_time";
                     return {
                         feeType,
                         meterStart: parseLocaleNumber(g.meterStart || 0),
                         meterEnd: parseLocaleNumber(g.meterEnd || 0),
+                        chargeMode: autoChargeMode,
                         description: g.description || "",
                         periodStart: g.periodStart || "",
                         periodEnd: g.periodEnd || "",
@@ -1445,6 +1633,17 @@
             renderFeeRows();
             syncPeriodToFees();
             rebuildFinalPrice();
+            invoiceFeesExpanded = isMonthlyCycleRange();
+            renderInvoices();
+
+            if (byId("rn_toggleInvoiceFees")) {
+                byId("rn_toggleInvoiceFees").onclick = () => {
+                    invoiceFeesExpanded = !invoiceFeesExpanded;
+                    byId("rn_toggleInvoiceFees").textContent = invoiceFeesExpanded ? "▾ Thu gọn chi phí theo kỳ" : "▸ Mở rộng chi phí theo kỳ";
+                    renderInvoices();
+                };
+                byId("rn_toggleInvoiceFees").textContent = invoiceFeesExpanded ? "▾ Thu gọn chi phí theo kỳ" : "▸ Mở rộng chi phí theo kỳ";
+            }
 
             byId("rn_toggleFees").onclick = () => {
                 expanded = !expanded;
@@ -1463,6 +1662,13 @@
             watchedIds.forEach((id) => byId(id).addEventListener("change", () => {
                 syncPeriodToFees();
                 rebuildFinalPrice();
+                if (!isMonthlyCycleRange()) {
+                    invoiceFeesExpanded = false;
+                    if (byId("rn_toggleInvoiceFees")) {
+                        byId("rn_toggleInvoiceFees").textContent = "▸ Mở rộng chi phí theo kỳ";
+                    }
+                }
+                renderInvoices();
             }));
             feesWrap.addEventListener("input", (e) => {
                 if (e.target && e.target.classList.contains("fee-input")) {
@@ -1488,6 +1694,112 @@
                 syncPeriodToFees();
                 rebuildFinalPrice();
             });
+            invoicesWrap.addEventListener("click", async (e) => {
+                const addOtherBtn = e.target && e.target.closest(".invoice-other-add-btn");
+                if (addOtherBtn) {
+                    const invoiceId = parseInt(addOtherBtn.getAttribute("data-invoice-id"), 10);
+                    const invoice = mappedInvoices.find((item) => Number(item.id) === invoiceId);
+                    if (!invoice) {
+                        return;
+                    }
+                    invoice.serviceFees = Array.isArray(invoice.serviceFees) ? invoice.serviceFees : [];
+                    invoice.serviceFees.push({feeType: "other", amount: 0, description: "", meterStart: 0, meterEnd: 0, chargeMode: "per_cycle"});
+                    renderInvoices();
+                    return;
+                }
+                const removeOtherBtn = e.target && e.target.closest(".invoice-other-remove-btn");
+                if (removeOtherBtn) {
+                    const invoiceId = parseInt(removeOtherBtn.getAttribute("data-invoice-id"), 10);
+                    const feeIndex = parseInt(removeOtherBtn.getAttribute("data-fee-index"), 10);
+                    const invoice = mappedInvoices.find((item) => Number(item.id) === invoiceId);
+                    if (!invoice || !Array.isArray(invoice.serviceFees)) {
+                        return;
+                    }
+                    const otherFees = invoice.serviceFees.filter((f) => f.feeType === "other");
+                    const target = otherFees[feeIndex];
+                    if (!target) {
+                        return;
+                    }
+                    const targetIndex = invoice.serviceFees.indexOf(target);
+                    if (targetIndex >= 0) {
+                        invoice.serviceFees.splice(targetIndex, 1);
+                    }
+                    renderInvoices();
+                    return;
+                }
+                const payBtn = e.target && e.target.closest(".invoice-pay-btn");
+                if (!payBtn) {
+                    return;
+                }
+                const invoiceId = parseInt(payBtn.getAttribute("data-invoice-id"), 10);
+                const nextStatus = payBtn.getAttribute("data-next-status");
+                const methodInput = invoicesWrap.querySelector(`.invoice-method-input[data-invoice-id="${invoiceId}"]`);
+                const refInput = invoicesWrap.querySelector(`.invoice-ref-input[data-invoice-id="${invoiceId}"]`);
+                const paymentMethod = methodInput ? methodInput.value : "cash";
+                const paymentRef = refInput ? refInput.value : "";
+                try {
+                    await DayPilot.Http.post("backend_invoice_payment_update.php", {
+                        invoiceId,
+                        paymentStatus: nextStatus,
+                        paymentMethod,
+                        paymentRef
+                    });
+                    const invoice = mappedInvoices.find((item) => Number(item.id) === invoiceId);
+                    if (invoice) {
+                        invoice.paymentStatus = nextStatus;
+                        if (nextStatus === "paid") {
+                            invoice.paymentMethod = paymentMethod;
+                            invoice.paymentRef = paymentRef;
+                            invoice.paidAmount = Number(invoice.totalAmount || 0);
+                            invoice.paidAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+                        } else {
+                            invoice.paymentMethod = null;
+                            invoice.paymentRef = null;
+                            invoice.paidAmount = 0;
+                            invoice.paidAt = null;
+                        }
+                    }
+                    renderInvoices();
+                    await notify("Đã cập nhật trạng thái thanh toán kỳ.", "success");
+                } catch (err) {
+                    console.error(err);
+                    await notify("Không thể cập nhật thanh toán kỳ.", "error");
+                }
+            });
+            invoicesWrap.addEventListener("input", (e) => {
+                const serviceInput = e.target && e.target.closest(".invoice-svc-input");
+                if (!serviceInput) {
+                    return;
+                }
+                const invoiceId = parseInt(serviceInput.getAttribute("data-invoice-id"), 10);
+                const feeType = serviceInput.getAttribute("data-fee-type");
+                const feeIndex = parseInt(serviceInput.getAttribute("data-fee-index") || "0", 10);
+                const col = serviceInput.getAttribute("data-col");
+                if (!invoiceId || !feeType || !col) {
+                    return;
+                }
+                const invoice = mappedInvoices.find((item) => Number(item.id) === invoiceId);
+                if (!invoice) {
+                    return;
+                }
+                invoice.serviceFees = Array.isArray(invoice.serviceFees) ? invoice.serviceFees : [];
+                const feeTarget = feeType === "other"
+                    ? (invoice.serviceFees.filter((f) => f.feeType === "other")[feeIndex] || null)
+                    : (invoice.serviceFees.find((f) => f.feeType === feeType) || null);
+                if (!feeTarget) {
+                    return;
+                }
+                if (["meterEnd", "amount"].includes(col)) {
+                    serviceInput.value = normalizeNumericInput(serviceInput.value);
+                    feeTarget[col] = parseLocaleNumber(serviceInput.value || 0);
+                } else {
+                    feeTarget[col] = serviceInput.value;
+                }
+                if (feeType === "electricity" || feeType === "water") {
+                    updateMeterCarryInMemory();
+                    renderInvoices();
+                }
+            });
 
             return await new Promise((resolve) => {
                 const saveBtn = byId("rn_saveBtn");
@@ -1507,33 +1819,31 @@
 
                 saveBtn.onclick = () => {
                     const serviceFees = [];
-                    const grouped = {};
-                    feesWrap.querySelectorAll(".fee-input").forEach((el) => {
-                        const key = el.getAttribute("data-fee");
-                        const col = el.getAttribute("data-col");
-                        grouped[key] = grouped[key] || {};
-                        grouped[key][col] = el.value;
-                    });
-                    Object.keys(grouped).forEach((key) => {
-                        const g = grouped[key];
-                        const feeType = key === "electric" ? "electricity" : (key === "water" ? "water" : "other");
-                        serviceFees.push({
-                            feeType,
-                            meterStart: parseLocaleNumber(g.meterStart || 0),
-                            meterEnd: parseLocaleNumber(g.meterEnd || 0),
-                            description: g.description || "",
-                            periodStart: g.periodStart || "",
-                            periodEnd: g.periodEnd || "",
-                            amount: parseLocaleNumber(g.amount || 0)
+                    const autoChargeMode = isMonthlyCycleRange() ? "per_cycle" : "one_time";
+                    if (mappedInvoices.length > 0) {
+                        const firstInvoiceFees = Array.isArray(mappedInvoices[0].serviceFees) ? mappedInvoices[0].serviceFees : [];
+                        firstInvoiceFees.forEach((fee) => {
+                            if (!fee || !fee.feeType) {
+                                return;
+                            }
+                            serviceFees.push({
+                                feeType: fee.feeType,
+                                meterStart: parseLocaleNumber(fee.meterStart || 0),
+                                meterEnd: parseLocaleNumber(fee.meterEnd || 0),
+                                chargeMode: autoChargeMode,
+                                description: fee.description || "",
+                                periodStart: mappedInvoices[0].periodStart || "",
+                                periodEnd: mappedInvoices[0].periodEnd || "",
+                                amount: parseLocaleNumber(fee.amount || 0)
+                            });
                         });
-                    });
+                    }
                     const result = Object.assign({}, data, {
                         text: byId("rn_text").value || "",
                         resource: byId("rn_resource").value,
                         start: byId("rn_start").value ? byId("rn_start").value.replace("T", " ") + ":00" : null,
                         end: byId("rn_end").value ? byId("rn_end").value.replace("T", " ") + ":00" : null,
                         status: byId("rn_status").value,
-                        paid: parseInt(byId("rn_paid").value || "0", 10),
                         roomPrice: parseLocaleNumber(byId("rn_roomPrice").value || 0),
                         discountType: byId("rn_discountType").value,
                         discountValue: parseLocaleNumber(byId("rn_discountValue").value || 0),
@@ -1544,7 +1854,21 @@
                         customerPhoneNumber: byId("rn_customerPhoneNumber").value || "",
                         customerBirthday: byId("rn_customerBirthday").value || null,
                         showServiceFees: expanded ? "1" : "0",
-                        serviceFees
+                        serviceFees,
+                        invoices: mappedInvoices,
+                        invoiceServiceFees: mappedInvoices.map((inv) => {
+                            const fees = Array.isArray(inv.serviceFees) ? inv.serviceFees : [];
+                            return {
+                                invoiceId: inv.id,
+                                fees: fees.map((fee) => ({
+                                    feeType: fee.feeType,
+                                    amount: parseLocaleNumber(fee.amount || 0),
+                                    description: fee.description || "",
+                                    meterStart: parseLocaleNumber(fee.meterStart || 0),
+                                    meterEnd: parseLocaleNumber(fee.meterEnd || 0)
+                                }))
+                            };
+                        })
                     });
                     if (modalEl.contains(document.activeElement)) {
                         document.activeElement.blur();
@@ -1563,11 +1887,24 @@
         };
         const buildServiceFeesPayload = (source) => {
             const toNumber = (value) => Math.max(0, parseLocaleNumber(value || 0));
+            let autoChargeMode = "one_time";
+            try {
+                const startDate = source && source.start ? new Date(source.start) : null;
+                const endDate = source && source.end ? new Date(source.end) : null;
+                if (startDate && endDate && !Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime()) && endDate > startDate) {
+                    const oneMonthAfterStart = new Date(startDate.getTime());
+                    oneMonthAfterStart.setMonth(oneMonthAfterStart.getMonth() + 1);
+                    autoChargeMode = endDate >= oneMonthAfterStart ? "per_cycle" : "one_time";
+                }
+            } catch (e) {
+                autoChargeMode = "one_time";
+            }
             const fees = [
                 {
                     feeType: "electricity",
                     meterStart: toNumber(source.electricMeterStart),
                     meterEnd: toNumber(source.electricMeterEnd),
+                    chargeMode: autoChargeMode,
                     periodStart: source.electricPeriodStart,
                     periodEnd: source.electricPeriodEnd,
                     amount: toNumber(source.electricAmount)
@@ -1576,6 +1913,7 @@
                     feeType: "water",
                     meterStart: toNumber(source.waterMeterStart),
                     meterEnd: toNumber(source.waterMeterEnd),
+                    chargeMode: autoChargeMode,
                     periodStart: source.waterPeriodStart,
                     periodEnd: source.waterPeriodEnd,
                     amount: toNumber(source.waterAmount)
@@ -1592,6 +1930,7 @@
                         description,
                         meterStart,
                         meterEnd,
+                        chargeMode: autoChargeMode,
                         periodStart: source[`${prefix}PeriodStart`],
                         periodEnd: source[`${prefix}PeriodEnd`],
                         amount
@@ -1620,6 +1959,7 @@
                 data[`${prefix}PeriodStart`] = fee.periodStart || "";
                 data[`${prefix}PeriodEnd`] = fee.periodEnd || "";
                 data[`${prefix}Amount`] = fee.amount || 0;
+                data[`${prefix}ChargeMode`] = fee.chargeMode || "one_time";
             };
             mapType("electricity", "electric");
             mapType("water", "water");
@@ -1630,6 +1970,7 @@
             data.otherPeriodEnd = mainOther.periodEnd || "";
             data.otherAmount = mainOther.amount || 0;
             data.otherDescription = mainOther.description || "";
+            data.otherChargeMode = mainOther.chargeMode || "one_time";
 
             const extra1 = otherFees[1] || {};
             data.otherExtra1MeterStart = extra1.meterStart || 0;
@@ -1638,6 +1979,7 @@
             data.otherExtra1PeriodEnd = extra1.periodEnd || "";
             data.otherExtra1Amount = extra1.amount || 0;
             data.otherExtra1Description = extra1.description || "";
+            data.otherExtra1ChargeMode = extra1.chargeMode || "one_time";
 
             const extra2 = otherFees[2] || {};
             data.otherExtra2MeterStart = extra2.meterStart || 0;
@@ -1646,6 +1988,7 @@
             data.otherExtra2PeriodEnd = extra2.periodEnd || "";
             data.otherExtra2Amount = extra2.amount || 0;
             data.otherExtra2Description = extra2.description || "";
+            data.otherExtra2ChargeMode = extra2.chargeMode || "one_time";
 
             data.extraOtherRowsVisible = Math.max(0, Math.min(2, otherFees.length - 1));
         };
@@ -1870,7 +2213,7 @@
                 };
     
                 const {data} = await DayPilot.Http.post("backend_reservation_resize.php", params);
-                await notify("Resized");
+                await notify("Đã thay đổi thời lượng.");
     
             },
             onEventDelete: async (args) => {
@@ -1970,29 +2313,34 @@
                     electricPeriodStart: periodStart,
                     electricPeriodEnd: periodEnd,
                     electricAmount: 0,
+                    electricChargeMode: "per_cycle",
                     waterMeterStart: 0,
                     waterMeterEnd: 0,
                     waterPeriodStart: periodStart,
                     waterPeriodEnd: periodEnd,
                     waterAmount: 0,
+                    waterChargeMode: "per_cycle",
                     otherMeterStart: 0,
                     otherMeterEnd: 0,
                     otherDescription: "",
                     otherPeriodStart: periodStart,
                     otherPeriodEnd: periodEnd,
                     otherAmount: 0,
+                    otherChargeMode: "one_time",
                     otherExtra1MeterStart: 0,
                     otherExtra1MeterEnd: 0,
                     otherExtra1Description: "",
                     otherExtra1PeriodStart: periodStart,
                     otherExtra1PeriodEnd: periodEnd,
                     otherExtra1Amount: 0,
+                    otherExtra1ChargeMode: "one_time",
                     otherExtra2MeterStart: 0,
                     otherExtra2MeterEnd: 0,
                     otherExtra2Description: "",
                     otherExtra2PeriodStart: periodStart,
                     otherExtra2PeriodEnd: periodEnd,
                     otherExtra2Amount: 0,
+                    otherExtra2ChargeMode: "one_time",
                     extraOtherRowsVisible: 0
                 };
     
@@ -2005,7 +2353,7 @@
                 const e = modal.result;
                 e.start = e.start || args.start;
                 e.end = e.end || args.end;
-                e.text = e.text || "Reservation";
+                e.text = e.text || "Đặt/thuê phòng";
                 e.status = e.status || "New";
                 e.paid = e.paid !== undefined && e.paid !== null ? e.paid : 0;
                 e.roomPrice = getRoomPriceById(e.resource);
@@ -2021,7 +2369,7 @@
                     phoneNumber: e.customerPhoneNumber || "",
                     birthday: e.customerBirthday || null
                 };
-                e.serviceFees = buildServiceFeesPayload(e);
+                e.serviceFees = Array.isArray(e.serviceFees) ? e.serviceFees : buildServiceFeesPayload(e);
                 const serviceFeesTotal = e.serviceFees.reduce((sum, fee) => sum + Math.max(0, parseLocaleNumber(fee.amount || 0)), 0);
                 e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue) + serviceFeesTotal;
     
@@ -2036,6 +2384,7 @@
                 e.finalPrice = result.finalPrice;
                 e.customer = result.customer || e.customer;
                 e.serviceFees = result.serviceFees || e.serviceFees;
+                e.invoices = result.invoices || [];
                 dp.events.add(e);
     
             },
@@ -2055,12 +2404,6 @@
                     {name: "Đã trả phòng", id: "CheckedOut"}
                 ];
     
-                const paidoptions = [
-                    {name: "0%", id: 0},
-                    {name: "50%", id: 50},
-                    {name: "100%", id: 100},
-                ];
-
                 const discountTypes = [
                     {name: "Cố định", id: "fixed"},
                     {name: "Phần trăm", id: "percent"}
@@ -2077,7 +2420,6 @@
                     {name: "Số điện thoại", id: "customerPhoneNumber"},
                     {name: "Ngày sinh", id: "customerBirthday", type: "date"},
                     {name: "Trạng thái", id: "status", type: "select", options: statuses},
-                    {name: "Thanh toán", id: "paid", type: "select", options: paidoptions},
                     {name: "Giá tham chiếu (tự động theo phòng)", id: "roomPrice", disabled: true},
                     {name: "Loại discount", id: "discountType", type: "select", options: discountTypes},
                     {name: "Giá trị discount (VD: 50000 hoặc 10%)", id: "discountValue", type: "number", onValidate: validateDiscountValue},
@@ -2151,7 +2493,7 @@
                     phoneNumber: e.customerPhoneNumber || "",
                     birthday: e.customerBirthday || null
                 };
-                e.serviceFees = buildServiceFeesPayload(e);
+                e.serviceFees = Array.isArray(e.serviceFees) ? e.serviceFees : buildServiceFeesPayload(e);
                 const serviceFeesTotal = e.serviceFees.reduce((sum, fee) => sum + Math.max(0, parseLocaleNumber(fee.amount || 0)), 0);
                 e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue) + serviceFeesTotal;
                 const payload = Object.assign({}, e, {
@@ -2164,18 +2506,19 @@
                     ? parseInt(e.resource, 10)
                     : String(e.resource);
                 currentData.id = currentData.id || previousData.id;
-                currentData.text = e.text || currentData.text || previousData.text || "Reservation";
+                currentData.text = e.text || currentData.text || previousData.text || "Đặt/thuê phòng";
                 currentData.resource = Number.isNaN(normalizedResource) ? (currentData.resource || previousData.resource) : normalizedResource;
                 currentData.start = startDp;
                 currentData.end = endDp;
                 currentData.status = (result && result.status) ? result.status : (e.status || currentData.status || previousData.status || "New");
-                currentData.paid = (result && result.paid !== undefined) ? result.paid : (e.paid ?? currentData.paid ?? previousData.paid ?? 0);
+                currentData.paid = (result && result.paid !== undefined) ? result.paid : 0;
                 currentData.roomPrice = (result && result.roomPrice !== undefined) ? result.roomPrice : e.roomPrice;
                 currentData.discountType = (result && result.discountType) ? result.discountType : e.discountType;
                 currentData.discountValue = (result && result.discountValue !== undefined) ? result.discountValue : e.discountValue;
                 currentData.finalPrice = (result && result.finalPrice !== undefined) ? result.finalPrice : e.finalPrice;
                 currentData.customer = (result && result.customer) ? result.customer : (e.customer || previousData.customer || currentData.customer);
                 currentData.serviceFees = (result && result.serviceFees) ? result.serviceFees : (e.serviceFees || previousData.serviceFees || currentData.serviceFees || []);
+                currentData.invoices = (result && result.invoices) ? result.invoices : (e.invoices || previousData.invoices || currentData.invoices || []);
 
                 if (!currentData.resource || !currentData.start || !currentData.end) {
                     console.warn("Skip event update due to invalid scheduler fields", currentData);
@@ -2183,7 +2526,7 @@
                     return;
                 }
                 dp.events.update(args.e);
-                await notify("Đã cập nhật reservation.", "success");
+                await notify("Đã cập nhật đặt/thuê phòng.", "success");
             },
             
             onBeforeEventRender: (args) => {
@@ -2270,7 +2613,6 @@
                 const discountTypeText = args.data.discountType === "percent" ? "%" : "đ";
                 const discountValueText = `${Number(args.data.discountValue || 0).toLocaleString("vi-VN")}${discountTypeText}`;
                 const dateRangeText = `${start.toString("d/M")} - ${end.toString(start.getYear() !== end.getYear() ? "d/M/yy" : "d/M")}`;
-                const paidText = `${Number(args.data.paid || 0)}%`;
                 const reservationDurationMs = end.toDate().getTime() - start.toDate().getTime();
                 const isShortReservation = reservationDurationMs < (2 * 24 * 60 * 60 * 1000);
                 if (isMobileRoomHeader()) {
@@ -2279,7 +2621,6 @@
                             <div style="line-height:1.25; display:flex; flex-direction:column; gap:3px; padding-bottom:24px;">
                                 <div style="font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div>
                                 <div style="font-size:11px; color:#64748b;">${dateRangeText}</div>
-                                <div style="font-size:11px; color:#334155;">TT: <strong>${paidText}</strong></div>
                             </div>
                         `;
                     } else {
@@ -2288,7 +2629,6 @@
                             <div style="font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div>
                             <div style="font-size:11px; color:#64748b;">${dateRangeText}</div>
                             <div style="display:flex; justify-content:space-between; gap:8px; font-size:11px;">
-                                <span style="color:#334155;">TT: ${paidText}</span>
                                 <span style="color:#334155; font-weight:600;">${finalPriceText}</span>
                             </div>
                         </div>
@@ -2300,7 +2640,6 @@
                             <div style="line-height:1.35; display:flex; flex-direction:column; gap:3px; padding-bottom:26px;">
                                 <div style="font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div>
                                 <div style="font-size:11px; color:#64748b;">${dateRangeText}</div>
-                                <div style="font-size:11px; color:#334155;">TT: <strong>${paidText}</strong></div>
                             </div>
                         `;
                     } else {
@@ -2308,14 +2647,11 @@
                         <div style="line-height:1.35; display:flex; flex-direction:column; gap:2px; padding-bottom:26px;">
                             <div style="font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${DayPilot.Util.escapeHtml(args.data.text)}</div>
                             <div style="font-size:11px; color:#64748b;">${dateRangeText}</div>
-                            <div style="font-size:11px; color:#334155;">Giảm: ${discountValueText} • Còn lại: <strong>${finalPriceText}</strong> • TT: ${paidText}</div>
+                            <div style="font-size:11px; color:#334155;">Giảm: ${discountValueText} • Còn lại: <strong>${finalPriceText}</strong></div>
                         </div>
                     `;
                     }
                 }
-    
-                const paid = args.data.paid;
-                const paidColor = "#aaaaaa";
 
                 args.data.areas = [
                     {
@@ -2339,7 +2675,7 @@
                                 await DayPilot.Http.post("backend_reservation_status_update.php", {id: args.source.id(), status: picked});
                                 args.source.data.status = picked;
                                 dp.events.update(args.source);
-                                await notify("Đã cập nhật trạng thái reservation.", "success");
+                                await notify("Đã cập nhật trạng thái đặt/thuê phòng.", "success");
                             } catch (err) {
                                 console.error(err);
                                 await notify("Không thể cập nhật trạng thái. Vui lòng thử lại.", "error");
@@ -2375,9 +2711,7 @@
                             await notify("Đã xóa.");
                             return false;
                         }
-                    },
-                    { top: 5, right: 24, html: `<div style='color:${paidColor}; font-size: 8pt;'>TT: ${paid}%</div>`, v: isMobileRoomHeader() ? "Hidden" : "Visible"},
-                    { left: compactReservationStatus ? 4 : 120, bottom: 8, right: 4, height: 2, html: `<div style='background-color:${paidColor}; height: 100%; width:${paid}%'></div>`, v: isMobileRoomHeader() ? "Hidden" : "Visible"}
+                    }
                 ];
     
             }

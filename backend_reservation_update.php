@@ -12,12 +12,14 @@ $end = $params->end;
 $name = $params->text;
 $room = $params->resource;
 $status = $params->status;
-$paid = $params->paid;
 $discountType = isset($params->discountType) ? $params->discountType : 'fixed';
 $discountValue = isset($params->discountValue) ? floatval($params->discountValue) : 0;
 $roomPrice = isset($params->roomPrice) ? floatval($params->roomPrice) : null;
 $customerPayload = extractCustomerPayload($params);
 $serviceFees = extractServiceFeesPayload($params);
+$serviceFees = applyAutoChargeModeByDuration($serviceFees, $start, $end);
+$invoicePayloads = (isset($params->invoices) && is_array($params->invoices)) ? $params->invoices : [];
+$invoiceServicePayloads = (isset($params->invoiceServiceFees) && is_array($params->invoiceServiceFees)) ? $params->invoiceServiceFees : [];
 if ($discountValue < 0) {
     $discountValue = 0;
 }
@@ -45,8 +47,9 @@ if ($finalPrice < 0) {
     $finalPrice = 0;
 }
 
-$serviceFeesTotal = calculateServiceFeesTotalAmount($serviceFees);
-$finalPrice = $finalPrice + $serviceFeesTotal;
+$monthlyNetAmount = calculateRoomMonthlyAmount($roomPrice, $discountType, $discountValue);
+$invoicePlans = buildReservationInvoices($start, $end, $monthlyNetAmount, $serviceFees);
+$finalPrice = calculateReservationTotalFromInvoices($invoicePlans);
 
 $reservationStmt = $db->prepare("SELECT customer_id FROM reservations WHERE id = :id AND tenant_id = :tenant_id");
 $reservationStmt->bindValue(':id', $id);
@@ -56,7 +59,7 @@ $reservationRow = $reservationStmt->fetch(PDO::FETCH_ASSOC);
 $existingCustomerId = $reservationRow && isset($reservationRow['customer_id']) ? $reservationRow['customer_id'] : null;
 $customerId = upsertReservationCustomer($db, $tenantId, $customerPayload, $existingCustomerId);
 
-$stmt = $db->prepare("UPDATE reservations SET customer_id = :customer_id, name = :name, start = :start, `end` = :end, room_id = :room, status = :status, paid = :paid, room_price = :room_price, discount_type = :discount_type, discount_value = :discount_value, final_price = :final_price WHERE id = :id AND tenant_id = :tenant_id");
+$stmt = $db->prepare("UPDATE reservations SET customer_id = :customer_id, name = :name, start = :start, `end` = :end, room_id = :room, status = :status, paid = 0, room_price = :room_price, discount_type = :discount_type, discount_value = :discount_value, final_price = :final_price WHERE id = :id AND tenant_id = :tenant_id");
 
 $stmt->bindValue(':id', $id);
 $stmt->bindValue(':tenant_id', $tenantId);
@@ -66,27 +69,37 @@ $stmt->bindValue(':end', $end);
 $stmt->bindValue(':name', $name);
 $stmt->bindValue(':room', $room);
 $stmt->bindValue(':status', $status);
-$stmt->bindValue(':paid', $paid);
 $stmt->bindValue(':room_price', $roomPrice);
 $stmt->bindValue(':discount_type', $discountType);
 $stmt->bindValue(':discount_value', $discountValue);
 $stmt->bindValue(':final_price', $finalPrice);
 $stmt->execute();
 replaceReservationServiceFees($db, $tenantId, $id, $serviceFees);
+$invoices = replaceReservationInvoices($db, $tenantId, $id, $invoicePlans);
+reseedReservationInvoiceServiceFees($db, $tenantId, $id, $invoices, $serviceFees);
+applyInvoiceServiceFeePayloads($db, $tenantId, $id, $invoiceServicePayloads);
+recomputeReservationInvoicesFromServiceFees($db, $tenantId, $id);
+applyReservationInvoicePayments($db, $tenantId, $id, $invoicePayloads);
+$invoices = fetchReservationInvoices($db, $tenantId, $id);
 
 $response = new stdClass();
 $response->result = 'OK';
 $response->message = 'Update successful';
 $response->status = $status;
-$response->paid = intval($paid);
+$response->paid = 0;
 $response->roomPrice = floatval($roomPrice);
 $response->discountType = $discountType;
 $response->discountValue = floatval($discountValue);
-$response->finalPrice = $finalPrice;
-$response->serviceFeesTotal = $serviceFeesTotal;
+$response->finalPrice = calculateReservationTotalFromInvoices(array_map(function ($item) {
+    return [
+        'total_amount' => isset($item['totalAmount']) ? $item['totalAmount'] : 0
+    ];
+}, $invoices));
+$response->serviceFeesTotal = calculateServiceFeesTotalAmount($serviceFees);
 $response->customerId = $customerId;
 $response->customer = $customerPayload;
 $response->serviceFees = $serviceFees;
+$response->invoices = $invoices;
 
 header('Content-Type: application/json');
 echo json_encode($response);

@@ -24,7 +24,7 @@ foreach ($result as $row) {
 $feesByReservation = [];
 if (!empty($reservationIds)) {
     $placeholders = implode(',', array_fill(0, count($reservationIds), '?'));
-    $feeSql = "SELECT reservation_id, fee_type, description, meter_start, meter_end, period_start, period_end, amount
+    $feeSql = "SELECT reservation_id, fee_type, charge_mode, description, meter_start, meter_end, period_start, period_end, amount
                FROM reservation_service_fees
                WHERE tenant_id = ? AND reservation_id IN ($placeholders)";
     $feeStmt = $db->prepare($feeSql);
@@ -42,6 +42,7 @@ if (!empty($reservationIds)) {
         }
         $item = new stdClass();
         $item->feeType = $feeRow['fee_type'];
+        $item->chargeMode = isset($feeRow['charge_mode']) ? $feeRow['charge_mode'] : 'one_time';
         $item->description = isset($feeRow['description']) ? $feeRow['description'] : '';
         $item->meterStart = floatval($feeRow['meter_start']);
         $item->meterEnd = floatval($feeRow['meter_end']);
@@ -50,6 +51,51 @@ if (!empty($reservationIds)) {
         $item->amount = floatval($feeRow['amount']);
         $feesByReservation[$reservationId][] = $item;
     }
+}
+
+$invoicesByReservation = [];
+if (!empty($reservationIds)) {
+    $placeholders = implode(',', array_fill(0, count($reservationIds), '?'));
+    $invoiceSql = "SELECT id, reservation_id, cycle_index, period_start, period_end, occupied_days, month_days, room_amount, service_amount, total_amount, payment_status, payment_method, paid_amount, paid_at, payment_ref, payment_note
+                   FROM reservation_invoices
+                   WHERE tenant_id = ? AND reservation_id IN ($placeholders)
+                   ORDER BY cycle_index ASC, id ASC";
+    $invoiceStmt = $db->prepare($invoiceSql);
+    $idx = 1;
+    $invoiceStmt->bindValue($idx++, $tenantId);
+    foreach ($reservationIds as $reservationId) {
+        $invoiceStmt->bindValue($idx++, $reservationId);
+    }
+    $invoiceStmt->execute();
+    $invoiceRows = $invoiceStmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($invoiceRows as $invoiceRow) {
+        $reservationId = intval($invoiceRow['reservation_id']);
+        if (!isset($invoicesByReservation[$reservationId])) {
+            $invoicesByReservation[$reservationId] = [];
+        }
+        $item = new stdClass();
+        $item->id = intval($invoiceRow['id']);
+        $item->cycleIndex = intval($invoiceRow['cycle_index']);
+        $item->periodStart = $invoiceRow['period_start'];
+        $item->periodEnd = $invoiceRow['period_end'];
+        $item->occupiedDays = intval($invoiceRow['occupied_days']);
+        $item->monthDays = intval($invoiceRow['month_days']);
+        $item->roomAmount = floatval($invoiceRow['room_amount']);
+        $item->serviceAmount = floatval($invoiceRow['service_amount']);
+        $item->totalAmount = floatval($invoiceRow['total_amount']);
+        $item->paymentStatus = $invoiceRow['payment_status'];
+        $item->paymentMethod = $invoiceRow['payment_method'];
+        $item->paidAmount = floatval($invoiceRow['paid_amount']);
+        $item->paidAt = $invoiceRow['paid_at'];
+        $item->paymentRef = $invoiceRow['payment_ref'];
+        $item->paymentNote = $invoiceRow['payment_note'];
+        $invoicesByReservation[$reservationId][] = $item;
+    }
+}
+
+$invoiceFeesByReservation = [];
+foreach ($reservationIds as $reservationId) {
+    $invoiceFeesByReservation[$reservationId] = fetchInvoiceServiceFeesByReservation($db, $tenantId, $reservationId);
 }
 
 #[AllowDynamicProperties]
@@ -72,7 +118,16 @@ foreach($result as $row) {
     
     // additional properties
     $e->status = $row['status'];
-    $e->paid = intval($row['paid']);
+    $reservationId = intval($row['id']);
+    $reservationInvoices = isset($invoicesByReservation[$reservationId]) ? $invoicesByReservation[$reservationId] : [];
+    $invoiceTotal = 0;
+    $invoicePaid = 0;
+    foreach ($reservationInvoices as $invoiceItem) {
+        $invoiceTotal += floatval($invoiceItem->totalAmount);
+        $invoicePaid += floatval($invoiceItem->paidAmount);
+    }
+    $paidPercent = $invoiceTotal > 0 ? intval(round(min(100, ($invoicePaid / $invoiceTotal) * 100))) : intval($row['paid']);
+    $e->paid = $paidPercent;
     $e->roomPrice = floatval($row['room_price']);
     $e->discountType = isset($row['discount_type']) ? $row['discount_type'] : 'fixed';
     $e->discountValue = floatval($row['discount_value']);
@@ -83,8 +138,12 @@ foreach($result as $row) {
     $e->customer->idType = isset($row['customer_id_type']) ? $row['customer_id_type'] : 'CCCD';
     $e->customer->idNumber = isset($row['customer_id_number']) ? $row['customer_id_number'] : '';
     $e->customer->birthday = isset($row['customer_birthday']) ? $row['customer_birthday'] : null;
-    $reservationId = intval($row['id']);
     $e->serviceFees = isset($feesByReservation[$reservationId]) ? $feesByReservation[$reservationId] : [];
+    foreach ($reservationInvoices as $invoiceItem) {
+        $invoiceId = intval($invoiceItem->id);
+        $invoiceItem->serviceFees = isset($invoiceFeesByReservation[$reservationId][$invoiceId]) ? $invoiceFeesByReservation[$reservationId][$invoiceId] : [];
+    }
+    $e->invoices = $reservationInvoices;
     $events[] = $e;
 }
 

@@ -4,6 +4,12 @@ require_once '_db.php';
 $result = new stdClass();
 $tenantContext = resolveTenantContext();
 $tenantId = $tenantContext['tenant_id'];
+$startDate = isset($_GET['startDate']) ? trim((string)$_GET['startDate']) : date('Y-m-d');
+$endDate = isset($_GET['endDate']) ? trim((string)$_GET['endDate']) : $startDate;
+$groupBy = isset($_GET['groupBy']) ? trim((string)$_GET['groupBy']) : 'day';
+if ($groupBy !== 'month') {
+    $groupBy = 'day';
+}
 
 $roomsTotalStmt = $db->prepare("SELECT COUNT(*) AS count FROM rooms WHERE tenant_id = :tenant_id");
 $roomsTotalStmt->bindValue(':tenant_id', $tenantId);
@@ -60,6 +66,43 @@ foreach ($latestRows as $row) {
     $latest[] = $item;
 }
 $result->latestReservations = $latest;
+
+$revenueSql = "SELECT paid_at, paid_amount FROM reservation_invoices
+               WHERE tenant_id = :tenant_id
+               AND payment_status = 'paid'
+               AND paid_at IS NOT NULL
+               AND date(paid_at) >= :start_date
+               AND date(paid_at) <= :end_date";
+$revenueRowsStmt = $db->prepare($revenueSql);
+$revenueRowsStmt->bindValue(':tenant_id', $tenantId);
+$revenueRowsStmt->bindValue(':start_date', $startDate);
+$revenueRowsStmt->bindValue(':end_date', $endDate);
+$revenueRowsStmt->execute();
+$revenueRows = $revenueRowsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$groupedRevenue = [];
+foreach ($revenueRows as $row) {
+    $key = $groupBy === 'month' ? date('Y-m', strtotime($row['paid_at'])) : date('Y-m-d', strtotime($row['paid_at']));
+    if (!isset($groupedRevenue[$key])) {
+        $groupedRevenue[$key] = 0;
+    }
+    $groupedRevenue[$key] += floatval($row['paid_amount']);
+}
+ksort($groupedRevenue);
+
+$revenueSeries = [];
+foreach ($groupedRevenue as $period => $amount) {
+    $item = new stdClass();
+    $item->period = $period;
+    $item->amount = round($amount, 2);
+    $revenueSeries[] = $item;
+}
+$result->revenueSeries = $revenueSeries;
+$result->revenueFilter = (object)[
+    'startDate' => $startDate,
+    'endDate' => $endDate,
+    'groupBy' => $groupBy
+];
 
 header('Content-Type: application/json');
 echo json_encode($result);

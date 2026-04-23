@@ -53,13 +53,34 @@ if (!$db_exists) {
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         tenant_id INTEGER DEFAULT 1,
                         reservation_id INTEGER NOT NULL,
+                        invoice_id INTEGER NULL,
                         fee_type TEXT,
+                        charge_mode TEXT DEFAULT 'one_time',
                         description TEXT,
                         meter_start REAL DEFAULT 0,
                         meter_end REAL DEFAULT 0,
                         period_start DATE NULL,
                         period_end DATE NULL,
                         amount REAL DEFAULT 0)");
+
+    $db->exec("CREATE TABLE IF NOT EXISTS reservation_invoices (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        reservation_id INTEGER NOT NULL,
+                        cycle_index INTEGER DEFAULT 1,
+                        period_start DATE NOT NULL,
+                        period_end DATE NOT NULL,
+                        occupied_days INTEGER DEFAULT 0,
+                        month_days INTEGER DEFAULT 0,
+                        room_amount REAL DEFAULT 0,
+                        service_amount REAL DEFAULT 0,
+                        total_amount REAL DEFAULT 0,
+                        payment_status TEXT DEFAULT 'unpaid',
+                        payment_method TEXT NULL,
+                        paid_amount REAL DEFAULT 0,
+                        paid_at DATETIME NULL,
+                        payment_ref TEXT NULL,
+                        payment_note TEXT NULL)");
 
     $rooms = array(
                     array('name' => 'Room 1',
@@ -161,7 +182,9 @@ $db->exec("CREATE TABLE IF NOT EXISTS reservation_service_fees (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     tenant_id INTEGER DEFAULT 1,
                     reservation_id INTEGER NOT NULL,
+                    invoice_id INTEGER NULL,
                     fee_type TEXT,
+                    charge_mode TEXT DEFAULT 'one_time',
                     description TEXT,
                     meter_start REAL DEFAULT 0,
                     meter_end REAL DEFAULT 0,
@@ -172,3 +195,30 @@ $db->exec("CREATE TABLE IF NOT EXISTS reservation_service_fees (
 if (!columnExists($db, "reservation_service_fees", "description")) {
     $db->exec("ALTER TABLE reservation_service_fees ADD COLUMN description TEXT");
 }
+
+if (!columnExists($db, "reservation_service_fees", "invoice_id")) {
+    $db->exec("ALTER TABLE reservation_service_fees ADD COLUMN invoice_id INTEGER NULL");
+}
+
+if (!columnExists($db, "reservation_service_fees", "charge_mode")) {
+    $db->exec("ALTER TABLE reservation_service_fees ADD COLUMN charge_mode TEXT DEFAULT 'one_time'");
+}
+
+$db->exec("CREATE TABLE IF NOT EXISTS reservation_invoices (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    tenant_id INTEGER DEFAULT 1,
+                    reservation_id INTEGER NOT NULL,
+                    cycle_index INTEGER DEFAULT 1,
+                    period_start DATE NOT NULL,
+                    period_end DATE NOT NULL,
+                    occupied_days INTEGER DEFAULT 0,
+                    month_days INTEGER DEFAULT 0,
+                    room_amount REAL DEFAULT 0,
+                    service_amount REAL DEFAULT 0,
+                    total_amount REAL DEFAULT 0,
+                    payment_status TEXT DEFAULT 'unpaid',
+                    payment_method TEXT NULL,
+                    paid_amount REAL DEFAULT 0,
+                    paid_at DATETIME NULL,
+                    payment_ref TEXT NULL,
+                    payment_note TEXT NULL)");

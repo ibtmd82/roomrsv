@@ -109,6 +109,41 @@
                         </table>
                     </div>
                 </div>
+
+                <div class="section-card p-3 mt-3">
+                    <h5 class="mb-3">Doanh thu theo invoice đã thanh toán</h5>
+                    <div class="row g-2 mb-3">
+                        <div class="col-12 col-md-3">
+                            <label class="form-label mb-1">Từ ngày</label>
+                            <input id="revenueStartDate" type="date" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label mb-1">Đến ngày</label>
+                            <input id="revenueEndDate" type="date" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label mb-1">Nhóm theo</label>
+                            <select id="revenueGroupBy" class="form-select form-select-sm">
+                                <option value="day">Ngày</option>
+                                <option value="month">Tháng</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 d-flex align-items-end">
+                            <button id="revenueFilterBtn" class="btn btn-primary btn-sm w-100">Xem thống kê</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Kỳ</th>
+                                <th class="text-end">Doanh thu</th>
+                            </tr>
+                            </thead>
+                            <tbody id="revenueSeries"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -154,8 +189,30 @@
         });
     };
 
+    const fillRevenueSeries = (rows) => {
+        const body = document.getElementById("revenueSeries");
+        body.innerHTML = "";
+        if (!rows || rows.length === 0) {
+            body.innerHTML = "<tr><td colspan='2' class='text-center text-muted'>Không có dữ liệu</td></tr>";
+            return;
+        }
+        rows.forEach((r) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${r.period}</td><td class="text-end">${toCurrency(r.amount)}</td>`;
+            body.appendChild(tr);
+        });
+    };
+
     const loadDashboard = async () => {
-        const res = await fetch("backend_dashboard.php");
+        const startDate = document.getElementById("revenueStartDate").value;
+        const endDate = document.getElementById("revenueEndDate").value;
+        const groupBy = document.getElementById("revenueGroupBy").value || "day";
+        const params = new URLSearchParams({
+            startDate,
+            endDate,
+            groupBy
+        });
+        const res = await fetch(`backend_dashboard.php?${params.toString()}`);
         const data = await res.json();
 
         document.getElementById("roomsTotal").textContent = data.roomsTotal || 0;
@@ -166,8 +223,13 @@
         fillStatus("roomsByStatus", data.roomsByStatus);
         fillStatus("reservationsByStatus", data.reservationsByStatus);
         fillLatest(data.latestReservations);
+        fillRevenueSeries(data.revenueSeries);
     };
 
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById("revenueStartDate").value = today;
+    document.getElementById("revenueEndDate").value = today;
+    document.getElementById("revenueFilterBtn").addEventListener("click", loadDashboard);
     loadDashboard();
 </script>
 <script src="assets/vendor/jquery/jquery.min.js"></script>
