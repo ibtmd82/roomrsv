@@ -802,7 +802,7 @@
                     <div class="page-title">
                         <div class="d-flex align-items-center justify-content-between gap-2 flex-nowrap">
                             <div class="d-flex align-items-center gap-2 flex-nowrap">
-                                <h3 class="toolbar-label">Hình thức thuê</h3>
+                                <h3 class="toolbar-label">Xem lịch theo</h3>
                                 <select id="timerange" class="form-select form-select-sm">
                                     <option value="week">Tuần</option>
                                     <option value="month" selected>Tháng</option>
@@ -904,7 +904,7 @@
                         <div class="small text-muted mb-2">Hệ thống tự động xác định cách thu: thời gian thuê từ 1 tháng trở lên sẽ thu theo chu kỳ tháng; dưới 1 tháng sẽ thu 1 lần.</div>
                         <div id="rn_feesWrap"></div>
                     </div>
-                    <div class="reservation-native-section">
+                    <div class="reservation-native-section" id="rn_invoiceSection">
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <h6 class="mb-0">Kỳ thanh toán</h6>
                             <button type="button" class="reservation-native-collapse-btn" id="rn_toggleInvoiceFees">▾ Thu gọn chi phí theo kỳ</button>
@@ -1300,13 +1300,26 @@
                 bsModal.show();
             });
         };
-        const openReservationForm = async (form, data) => {
+        const openReservationForm = async (form, data, options = {}) => {
             const modalEl = document.getElementById("reservationNativeModal");
             const feesWrap = document.getElementById("rn_feesWrap");
             const invoicesWrap = document.getElementById("rn_invoicesWrap");
             const bsModal = new bootstrap.Modal(modalEl, {backdrop: "static"});
             const byId = (id) => document.getElementById(id);
             const roomSelect = byId("rn_resource");
+            const isCreateMode = options && options.mode === "create";
+            const setFieldVisible = (id, visible) => {
+                const el = byId(id);
+                if (!el) {
+                    return;
+                }
+                const wrapper = el.closest("div");
+                if (wrapper) {
+                    wrapper.style.display = visible ? "" : "none";
+                }
+            };
+            const customerSection = byId("rn_customerFullName") ? byId("rn_customerFullName").closest(".reservation-native-section") : null;
+            const invoiceSection = byId("rn_invoiceSection");
 
             const rooms = dp.resources || [];
             roomSelect.innerHTML = rooms.map((r) => `<option value="${r.id}">${r.name} (${formatCurrency(r.price)})</option>`).join("");
@@ -1361,6 +1374,22 @@
             byId("rn_customerIdNumber").value = mapped.customerIdNumber || "";
             byId("rn_customerPhoneNumber").value = mapped.customerPhoneNumber || "";
             byId("rn_customerBirthday").value = mapped.customerBirthday || "";
+
+            // Create mode: show only booking info (content, room, start/end).
+            if (customerSection) {
+                customerSection.style.display = isCreateMode ? "none" : "";
+            }
+            if (invoiceSection) {
+                invoiceSection.style.display = isCreateMode ? "none" : "";
+            }
+            if (byId("rn_legacyServiceFeeSection")) {
+                byId("rn_legacyServiceFeeSection").style.display = "none";
+            }
+            setFieldVisible("rn_status", !isCreateMode);
+            setFieldVisible("rn_roomPrice", !isCreateMode);
+            setFieldVisible("rn_discountType", !isCreateMode);
+            setFieldVisible("rn_discountValue", !isCreateMode);
+            setFieldVisible("rn_finalPrice", !isCreateMode);
 
             const defaultFees = (mapped.serviceFees || []).filter((f) => f.feeType === "other");
             const extraRows = Math.max(0, Math.min(6, defaultFees.length > 0 ? defaultFees.length - 1 : 0));
@@ -1843,7 +1872,7 @@
                         resource: byId("rn_resource").value,
                         start: byId("rn_start").value ? byId("rn_start").value.replace("T", " ") + ":00" : null,
                         end: byId("rn_end").value ? byId("rn_end").value.replace("T", " ") + ":00" : null,
-                        status: byId("rn_status").value,
+                        status: isCreateMode ? "New" : byId("rn_status").value,
                         roomPrice: parseLocaleNumber(byId("rn_roomPrice").value || 0),
                         discountType: byId("rn_discountType").value,
                         discountValue: parseLocaleNumber(byId("rn_discountValue").value || 0),
@@ -1854,9 +1883,9 @@
                         customerPhoneNumber: byId("rn_customerPhoneNumber").value || "",
                         customerBirthday: byId("rn_customerBirthday").value || null,
                         showServiceFees: expanded ? "1" : "0",
-                        serviceFees,
+                        serviceFees: isCreateMode ? [] : serviceFees,
                         invoices: mappedInvoices,
-                        invoiceServiceFees: mappedInvoices.map((inv) => {
+                        invoiceServiceFees: isCreateMode ? [] : mappedInvoices.map((inv) => {
                             const fees = Array.isArray(inv.serviceFees) ? inv.serviceFees : [];
                             return {
                                 invoiceId: inv.id,
@@ -2344,7 +2373,7 @@
                     extraOtherRowsVisible: 0
                 };
     
-                const modal = await openReservationForm(form, data);
+                const modal = await openReservationForm(form, data, {mode: "create"});
     
                 dp.clearSelection();
                 if (modal.canceled) {
