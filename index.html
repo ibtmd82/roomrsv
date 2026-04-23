@@ -1035,9 +1035,9 @@
                                 } else if (statusType === "reservation") {
                                     await DayPilot.Http.post("backend_reservation_status_update.php", {id, status: selectedStatus});
                                     const event = dp.events.find(id);
-                                    if (event && event.data) {
+                                    if (event) {
                                         event.data.status = selectedStatus;
-                                        dp.events.update(event.data);
+                                        dp.events.update(event);
                                     }
                                     updated = true;
                                     await notify("Đã cập nhật trạng thái reservation.", "success");
@@ -2002,14 +2002,12 @@
                 if (modal.canceled) {
                     return;
                 }
-                const previous = Object.assign({}, args.e.data);
                 const e = modal.result;
-                e.id = e.id || previous.id;
-                e.start = e.start || previous.start;
-                e.end = e.end || previous.end;
-                e.text = e.text || previous.text;
-                e.status = e.status || previous.status || "New";
-                e.paid = e.paid !== undefined && e.paid !== null ? e.paid : (previous.paid || 0);
+                e.start = e.start || args.start;
+                e.end = e.end || args.end;
+                e.text = e.text || "Reservation";
+                e.status = e.status || "New";
+                e.paid = e.paid !== undefined && e.paid !== null ? e.paid : 0;
                 e.roomPrice = getRoomPriceById(e.resource);
                 e.discountType = e.discountType || "fixed";
                 e.discountValue = Math.max(0, parseLocaleNumber(e.discountValue));
@@ -2339,8 +2337,8 @@
                             }
                             try {
                                 await DayPilot.Http.post("backend_reservation_status_update.php", {id: args.source.id(), status: picked});
-                                const updated = Object.assign({}, args.source.data, {status: picked});
-                                dp.events.update(updated);
+                                args.source.data.status = picked;
+                                dp.events.update(args.source);
                                 await notify("Đã cập nhật trạng thái reservation.", "success");
                             } catch (err) {
                                 console.error(err);
