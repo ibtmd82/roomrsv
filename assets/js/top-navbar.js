@@ -63,6 +63,37 @@
                 logout();
             });
         }
+
+        const sidebarToggleButton = topNavbar.querySelector("#sidebarCollapse");
+        if (sidebarToggleButton) {
+            let lastTouchAt = 0;
+            const toggleSidebar = (event) => {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                const sidebar = document.getElementById("sidebar");
+                const body = document.getElementById("body");
+                if (sidebar) {
+                    sidebar.classList.toggle("active");
+                }
+                if (body) {
+                    body.classList.toggle("active");
+                }
+            };
+            sidebarToggleButton.addEventListener("touchend", (event) => {
+                lastTouchAt = Date.now();
+                toggleSidebar(event);
+            }, { passive: false });
+            sidebarToggleButton.addEventListener("click", (event) => {
+                if (Date.now() - lastTouchAt < 500) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                toggleSidebar(event);
+            });
+        }
     };
 
     if (document.readyState === "loading") {
