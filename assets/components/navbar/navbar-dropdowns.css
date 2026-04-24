@@ -63,8 +63,25 @@
     color: #888;
     font-size: 14px;
     padding: .8rem;
+    -webkit-tap-highlight-color: transparent;
+    background-clip: padding-box;
+}
+
+.nav-dropdown .nav-link-menu .nav-list li a:focus,
+.nav-dropdown .nav-link-menu .nav-list li a:focus-visible,
+.nav-dropdown .nav-link-menu .nav-list li a:active {
+    outline: none;
+    box-shadow: none;
+    border: 0;
 }
 
 .nav-dropdown .dropdown-divider {
     margin: 3px 0;
+}
+
+.nav-dropdown .dropdown-item:active,
+.nav-dropdown .dropdown-item.active,
+.nav-dropdown .dropdown-item:focus {
+    color: #334155;
+    background-color: #eef2f7;
 }
