@@ -14,7 +14,7 @@
 
         const accountId = localStorage.getItem("clientid") || "Tài khoản";
         target.innerHTML = `
-            <ul class="nav navbar-nav align-items-center gap-1 me-md-1">
+            <ul class="nav navbar-nav align-items-center flex-row flex-nowrap gap-1 me-md-1 mb-0">
                 <li class="nav-item dropdown">
                     <div class="nav-dropdown">
                         <a href="#" id="navQuickLinks" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">

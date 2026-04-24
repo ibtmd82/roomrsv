@@ -461,3 +461,15 @@ table.dataTable>tbody>tr.child ul.dtr-details {
         flex-direction: row;
     }
 }
+
+.top-navbar-content {
+    min-width: 0;
+}
+
+.top-navbar-content .navbar-nav {
+    flex-wrap: nowrap;
+}
+
+.top-navbar-content .nav-link {
+    white-space: nowrap;
+}
