@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Cài đặt | Đặt/Thuê phòng</title>
+    <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/master.css" rel="stylesheet">
+</head>
+<body>
+<div class="wrapper">
+    <nav id="sidebar" class="active" data-current-page="settings"></nav>
+
+    <div id="body" class="active">
+        <div id="topNavbar"></div>
+
+        <div class="content">
+            <div class="container">
+                <div class="page-title mb-3">
+                    <h3>Cài đặt vận hành</h3>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Đối tượng sử dụng</h5>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="rentalMode" id="modeBoth" value="both" checked>
+                            <label class="form-check-label" for="modeBoth">Cả ngắn hạn và dài hạn</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="rentalMode" id="modeShort" value="short_term">
+                            <label class="form-check-label" for="modeShort">Chỉ ngắn hạn (thu 1 lần)</label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="rentalMode" id="modeLong" value="long_term">
+                            <label class="form-check-label" for="modeLong">Chỉ dài hạn (theo chu kỳ tháng)</label>
+                        </div>
+                        <button id="saveSettingsBtn" class="btn btn-primary btn-sm">Lưu cài đặt</button>
+                        <div id="settingsMsg" class="small text-muted mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="assets/js/backend-clientid.js"></script>
+<script>
+    const modeMap = {
+        both: "modeBoth",
+        short_term: "modeShort",
+        long_term: "modeLong"
+    };
+    const readMode = () => {
+        const selected = document.querySelector("input[name='rentalMode']:checked");
+        return selected ? selected.value : "both";
+    };
+    const setMode = (mode) => {
+        const target = document.getElementById(modeMap[mode] || "modeBoth");
+        if (target) {
+            target.checked = true;
+        }
+    };
+
+    const loadSettings = async () => {
+        const res = await fetch("backend_settings_get.php");
+        const data = await res.json();
+        setMode(data.rentalMode || "both");
+    };
+
+    document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
+        const msg = document.getElementById("settingsMsg");
+        msg.textContent = "Đang lưu...";
+        try {
+            await fetch("backend_settings_update.php", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({rentalMode: readMode()})
+            });
+            msg.textContent = "Đã lưu cài đặt thành công.";
+        } catch (e) {
+            msg.textContent = "Không thể lưu cài đặt.";
+        }
+    });
+
+    loadSettings();
+</script>
+<script src="assets/js/sidebar-menu.js"></script>
+<script src="assets/js/top-navbar.js"></script>
+<script src="assets/vendor/jquery/jquery.min.js"></script>
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>

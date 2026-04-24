@@ -26,6 +26,20 @@ function normalizeNumberValue($value)
     return floatval($value);
 }
 
+function resolveRentalTypeByRange($start, $end)
+{
+    return isMonthlyCycleRange($start, $end) ? 'long_term' : 'short_term';
+}
+
+function normalizeRentalType($value, $start = null, $end = null)
+{
+    $text = trim((string)$value);
+    if ($text === 'short_term' || $text === 'long_term') {
+        return $text;
+    }
+    return resolveRentalTypeByRange($start, $end);
+}
+
 function isMonthlyCycleRange($start, $end)
 {
     if (!$start || !$end) {
@@ -59,6 +73,112 @@ function applyAutoChargeModeByDuration($fees, $start, $end)
         $result[] = $fee;
     }
     return $result;
+}
+
+function defaultContractTerms()
+{
+    return [
+        'electric_unit_price' => 3000,
+        'water_pricing_mode' => 'quota',
+        'water_quota_price' => 500,
+        'water_per_person_price' => 100000,
+        'occupants_count' => 1
+    ];
+}
+
+function extractContractTermsPayload($params)
+{
+    $defaults = defaultContractTerms();
+    if (!isset($params->contractTerms) || !is_object($params->contractTerms)) {
+        return $defaults;
+    }
+    $terms = $params->contractTerms;
+    $waterMode = isset($terms->waterPricingMode) ? trim((string)$terms->waterPricingMode) : $defaults['water_pricing_mode'];
+    if (!in_array($waterMode, ['quota', 'per_person'], true)) {
+        $waterMode = $defaults['water_pricing_mode'];
+    }
+
+    return [
+        'electric_unit_price' => max(0, normalizeNumberValue(isset($terms->electricUnitPrice) ? $terms->electricUnitPrice : $defaults['electric_unit_price'])),
+        'water_pricing_mode' => $waterMode,
+        'water_quota_price' => max(0, normalizeNumberValue(isset($terms->waterQuotaPrice) ? $terms->waterQuotaPrice : $defaults['water_quota_price'])),
+        'water_per_person_price' => max(0, normalizeNumberValue(isset($terms->waterPerPersonPrice) ? $terms->waterPerPersonPrice : $defaults['water_per_person_price'])),
+        'occupants_count' => max(1, intval(isset($terms->occupantsCount) ? $terms->occupantsCount : $defaults['occupants_count']))
+    ];
+}
+
+function upsertReservationContractTerms($db, $tenantId, $reservationId, $contractTerms, $isMonthly)
+{
+    if (!$isMonthly) {
+        $deleteStmt = $db->prepare("DELETE FROM reservation_contract_terms WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id");
+        $deleteStmt->bindValue(':tenant_id', $tenantId);
+        $deleteStmt->bindValue(':reservation_id', $reservationId);
+        $deleteStmt->execute();
+        return null;
+    }
+
+    $terms = $contractTerms;
+    if (!is_array($terms)) {
+        $terms = defaultContractTerms();
+    }
+    $existsStmt = $db->prepare("SELECT id FROM reservation_contract_terms WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id");
+    $existsStmt->bindValue(':tenant_id', $tenantId);
+    $existsStmt->bindValue(':reservation_id', $reservationId);
+    $existsStmt->execute();
+    $existingId = $existsStmt->fetchColumn();
+
+    if ($existingId) {
+        $stmt = $db->prepare("UPDATE reservation_contract_terms
+                              SET electric_unit_price = :electric_unit_price,
+                                  water_pricing_mode = :water_pricing_mode,
+                                  water_quota_price = :water_quota_price,
+                                  water_per_person_price = :water_per_person_price,
+                                  occupants_count = :occupants_count
+                              WHERE id = :id AND tenant_id = :tenant_id");
+        $stmt->bindValue(':id', intval($existingId));
+        $stmt->bindValue(':tenant_id', $tenantId);
+    } else {
+        $stmt = $db->prepare("INSERT INTO reservation_contract_terms
+                              (tenant_id, reservation_id, electric_unit_price, water_pricing_mode, water_quota_price, water_per_person_price, occupants_count)
+                              VALUES (:tenant_id, :reservation_id, :electric_unit_price, :water_pricing_mode, :water_quota_price, :water_per_person_price, :occupants_count)");
+        $stmt->bindValue(':tenant_id', $tenantId);
+        $stmt->bindValue(':reservation_id', $reservationId);
+    }
+    $stmt->bindValue(':electric_unit_price', max(0, floatval($terms['electric_unit_price'])));
+    $stmt->bindValue(':water_pricing_mode', in_array($terms['water_pricing_mode'], ['quota', 'per_person'], true) ? $terms['water_pricing_mode'] : 'quota');
+    $stmt->bindValue(':water_quota_price', max(0, floatval($terms['water_quota_price'])));
+    $stmt->bindValue(':water_per_person_price', max(0, floatval($terms['water_per_person_price'])));
+    $stmt->bindValue(':occupants_count', max(1, intval($terms['occupants_count'])));
+    $stmt->execute();
+
+    return [
+        'electricUnitPrice' => max(0, floatval($terms['electric_unit_price'])),
+        'waterPricingMode' => in_array($terms['water_pricing_mode'], ['quota', 'per_person'], true) ? $terms['water_pricing_mode'] : 'quota',
+        'waterQuotaPrice' => max(0, floatval($terms['water_quota_price'])),
+        'waterPerPersonPrice' => max(0, floatval($terms['water_per_person_price'])),
+        'occupantsCount' => max(1, intval($terms['occupants_count']))
+    ];
+}
+
+function fetchReservationContractTerms($db, $tenantId, $reservationId)
+{
+    $stmt = $db->prepare("SELECT electric_unit_price, water_pricing_mode, water_quota_price, water_per_person_price, occupants_count
+                          FROM reservation_contract_terms
+                          WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id");
+    $stmt->bindValue(':tenant_id', $tenantId);
+    $stmt->bindValue(':reservation_id', $reservationId);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        return null;
+    }
+    return [
+        'electricUnitPrice' => floatval($row['electric_unit_price']),
+        'waterPricingMode' => $row['water_pricing_mode'],
+        'waterQuotaPrice' => floatval($row['water_quota_price']),
+        'waterPerPersonPrice' => floatval($row['water_per_person_price']),
+        'occupantsCount' => intval($row['occupants_count'])
+    ];
 }
 
 function extractCustomerPayload($params)
@@ -712,7 +832,7 @@ function applyInvoiceServiceFeePayloads($db, $tenantId, $reservationId, $payload
 
 function recomputeReservationInvoicesFromServiceFees($db, $tenantId, $reservationId)
 {
-    $invoiceStmt = $db->prepare("SELECT id, room_amount, payment_status FROM reservation_invoices WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id");
+    $invoiceStmt = $db->prepare("SELECT id, room_amount, payment_status, occupied_days, month_days FROM reservation_invoices WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id");
     $invoiceStmt->bindValue(':tenant_id', $tenantId);
     $invoiceStmt->bindValue(':reservation_id', $reservationId);
     $invoiceStmt->execute();
@@ -721,6 +841,22 @@ function recomputeReservationInvoicesFromServiceFees($db, $tenantId, $reservatio
         return;
     }
 
+    $terms = fetchReservationContractTerms($db, $tenantId, $reservationId);
+    if (!$terms) {
+        $defaults = defaultContractTerms();
+        $terms = [
+            'electricUnitPrice' => $defaults['electric_unit_price'],
+            'waterPricingMode' => $defaults['water_pricing_mode'],
+            'waterQuotaPrice' => $defaults['water_quota_price'],
+            'waterPerPersonPrice' => $defaults['water_per_person_price'],
+            'occupantsCount' => $defaults['occupants_count']
+        ];
+    }
+
+    $feeRowsStmt = $db->prepare("SELECT id, fee_type, charge_mode, meter_start, meter_end, amount
+                                 FROM reservation_service_fees
+                                 WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id AND invoice_id = :invoice_id");
+    $updateFeeAmountStmt = $db->prepare("UPDATE reservation_service_fees SET amount = :amount WHERE id = :id");
     $sumStmt = $db->prepare("SELECT COALESCE(SUM(amount), 0) AS service_sum FROM reservation_service_fees WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id AND invoice_id = :invoice_id");
     $updateStmt = $db->prepare("UPDATE reservation_invoices
                                 SET service_amount = :service_amount,
@@ -731,6 +867,38 @@ function recomputeReservationInvoicesFromServiceFees($db, $tenantId, $reservatio
     foreach ($invoices as $invoice) {
         $invoiceId = intval($invoice['id']);
         $roomAmount = floatval($invoice['room_amount']);
+        $occupiedDays = max(1, intval($invoice['occupied_days']));
+        $monthDays = max(1, intval($invoice['month_days']));
+
+        $feeRowsStmt->bindValue(':tenant_id', $tenantId);
+        $feeRowsStmt->bindValue(':reservation_id', $reservationId);
+        $feeRowsStmt->bindValue(':invoice_id', $invoiceId);
+        $feeRowsStmt->execute();
+        $feeRows = $feeRowsStmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($feeRows as $feeRow) {
+            $feeType = $feeRow['fee_type'];
+            $chargeMode = isset($feeRow['charge_mode']) ? $feeRow['charge_mode'] : 'one_time';
+            if ($chargeMode !== 'per_cycle') {
+                continue;
+            }
+            $amount = floatval($feeRow['amount']);
+            if ($feeType === 'electricity') {
+                $usage = max(0, floatval($feeRow['meter_end']) - floatval($feeRow['meter_start']));
+                $amount = round($usage * max(0, floatval($terms['electricUnitPrice'])), 2);
+            } elseif ($feeType === 'water') {
+                if ($terms['waterPricingMode'] === 'per_person') {
+                    $base = max(1, intval($terms['occupantsCount'])) * max(0, floatval($terms['waterPerPersonPrice']));
+                    $amount = round(($base * $occupiedDays) / $monthDays, 2);
+                } else {
+                    $usage = max(0, floatval($feeRow['meter_end']) - floatval($feeRow['meter_start']));
+                    $amount = round($usage * max(0, floatval($terms['waterQuotaPrice'])), 2);
+                }
+            }
+            $updateFeeAmountStmt->bindValue(':amount', $amount);
+            $updateFeeAmountStmt->bindValue(':id', intval($feeRow['id']));
+            $updateFeeAmountStmt->execute();
+        }
+
         $sumStmt->bindValue(':tenant_id', $tenantId);
         $sumStmt->bindValue(':reservation_id', $reservationId);
         $sumStmt->bindValue(':invoice_id', $invoiceId);

@@ -77,8 +77,8 @@
         //return false;
     }
 
-    // Toggle sidebar on Menu button click
-    $('#sidebarCollapse').on('click', function() {
+    // Toggle sidebar on Menu button click (supports dynamically-rendered navbar)
+    $(document).on('click', '#sidebarCollapse', function() {
         $('#sidebar').toggleClass('active');
         $('#body').toggleClass('active');
     });
@@ -93,8 +93,10 @@
     //     //location.reload();
     //     //redirect_self("msgplays.html");
     // });
-    $('#readandroid').on('click', function() {
+    $('#readandroid').on('click', function(event) {
+        event.preventDefault();
         localStorage.clear();
+        window.location.href = "login.html";
     });
 
     $('#write').on('click', function (event) {

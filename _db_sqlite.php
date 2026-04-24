@@ -32,6 +32,7 @@ if (!$db_exists) {
                         name TEXT,
                         start DATETIME,
                         `end` DATETIME,
+                        rental_type TEXT DEFAULT 'short_term',
                         room_id INTEGER,
                         status VARCHAR(30),
                         paid INTEGER,
@@ -81,6 +82,16 @@ if (!$db_exists) {
                         paid_at DATETIME NULL,
                         payment_ref TEXT NULL,
                         payment_note TEXT NULL)");
+
+    $db->exec("CREATE TABLE IF NOT EXISTS reservation_contract_terms (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        reservation_id INTEGER NOT NULL,
+                        electric_unit_price REAL DEFAULT 3000,
+                        water_pricing_mode TEXT DEFAULT 'quota',
+                        water_quota_price REAL DEFAULT 500,
+                        water_per_person_price REAL DEFAULT 100000,
+                        occupants_count INTEGER DEFAULT 1)");
 
     $rooms = array(
                     array('name' => 'Room 1',
@@ -147,6 +158,10 @@ if (!columnExists($db, "reservations", "tenant_id")) {
 
 if (!columnExists($db, "reservations", "customer_id")) {
     $db->exec("ALTER TABLE reservations ADD COLUMN customer_id INTEGER NULL");
+}
+
+if (!columnExists($db, "reservations", "rental_type")) {
+    $db->exec("ALTER TABLE reservations ADD COLUMN rental_type TEXT DEFAULT 'short_term'");
 }
 
 if (!columnExists($db, "rooms", "price")) {
@@ -222,3 +237,19 @@ $db->exec("CREATE TABLE IF NOT EXISTS reservation_invoices (
                     paid_at DATETIME NULL,
                     payment_ref TEXT NULL,
                     payment_note TEXT NULL)");
+
+$db->exec("CREATE TABLE IF NOT EXISTS reservation_contract_terms (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    tenant_id INTEGER DEFAULT 1,
+                    reservation_id INTEGER NOT NULL,
+                    electric_unit_price REAL DEFAULT 3000,
+                    water_pricing_mode TEXT DEFAULT 'quota',
+                    water_quota_price REAL DEFAULT 500,
+                    water_per_person_price REAL DEFAULT 100000,
+                    occupants_count INTEGER DEFAULT 1)");
+
+$db->exec("CREATE TABLE IF NOT EXISTS tenant_settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    tenant_id INTEGER NOT NULL,
+                    rental_mode TEXT DEFAULT 'both',
+                    updated_at DATETIME NULL)");

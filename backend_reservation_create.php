@@ -15,6 +15,8 @@ $discountValue = isset($params->discountValue) ? floatval($params->discountValue
 $customerPayload = extractCustomerPayload($params);
 $serviceFees = extractServiceFeesPayload($params);
 $serviceFees = applyAutoChargeModeByDuration($serviceFees, $start, $end);
+$contractTerms = extractContractTermsPayload($params);
+$rentalType = resolveRentalTypeByRange($start, $end);
 if ($discountValue < 0) {
     $discountValue = 0;
 }
@@ -46,11 +48,12 @@ $finalPrice = calculateReservationTotalFromInvoices($invoicePlans);
 
 $customerId = upsertReservationCustomer($db, $tenantId, $customerPayload);
 
-$stmt = $db->prepare("INSERT INTO reservations (tenant_id, customer_id, name, start, `end`, room_id, status, paid, room_price, discount_type, discount_value, final_price) VALUES (:tenant_id, :customer_id, :name, :start, :end, :room, 'New', 0, :room_price, :discount_type, :discount_value, :final_price)");
+$stmt = $db->prepare("INSERT INTO reservations (tenant_id, customer_id, name, start, `end`, rental_type, room_id, status, paid, room_price, discount_type, discount_value, final_price) VALUES (:tenant_id, :customer_id, :name, :start, :end, :rental_type, :room, 'New', 0, :room_price, :discount_type, :discount_value, :final_price)");
 $stmt->bindValue(':tenant_id', $tenantId);
 $stmt->bindValue(':customer_id', $customerId);
 $stmt->bindValue(':start', $start);
 $stmt->bindValue(':end', $end);
+$stmt->bindValue(':rental_type', $rentalType);
 $stmt->bindValue(':name', $name);
 $stmt->bindValue(':room', $room);
 $stmt->bindValue(':room_price', $roomPrice);
@@ -62,15 +65,18 @@ $stmt->execute();
 $newId = $db->lastInsertId();
 replaceReservationServiceFees($db, $tenantId, $newId, $serviceFees);
 $invoices = replaceReservationInvoices($db, $tenantId, $newId, $invoicePlans);
+upsertReservationContractTerms($db, $tenantId, $newId, $contractTerms, isMonthlyCycleRange($start, $end));
 reseedReservationInvoiceServiceFees($db, $tenantId, $newId, $invoices, $serviceFees);
 recomputeReservationInvoicesFromServiceFees($db, $tenantId, $newId);
 $invoices = fetchReservationInvoices($db, $tenantId, $newId);
+$savedContractTerms = fetchReservationContractTerms($db, $tenantId, $newId);
 
 $response = new stdClass();
 $response->result = 'OK';
 $response->message = 'Created with id: '.$newId;
 $response->id = $newId;
 $response->tenantId = $tenantId;
+$response->rentalType = $rentalType;
 $response->status = "New";
 $response->paid = 0;
 $response->roomPrice = $roomPrice;
@@ -86,6 +92,7 @@ $response->customerId = $customerId;
 $response->customer = $customerPayload;
 $response->serviceFees = $serviceFees;
 $response->invoices = $invoices;
+$response->contractTerms = $savedContractTerms;
 
 header('Content-Type: application/json');
 echo json_encode($response);

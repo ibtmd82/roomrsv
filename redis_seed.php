@@ -15,6 +15,7 @@ function seedTenants()
     $tenants = [
         ['tenant_id' => 1, 'name' => 'RoomRSV Demo', 'description' => 'Default tenant for demo environment'],
         ['tenant_id' => 2, 'name' => 'RoomRSV Branch A', 'description' => 'Branch A tenant'],
+        ['tenant_id' => 3, 'name' => 'RoomRSV Branch B', 'description' => 'Branch B tenant'],
     ];
 
     foreach ($tenants as $tenant) {
@@ -47,6 +48,16 @@ function seedAccounts()
             'tenant_id' => 1,
             'password' => '12345',
         ],
+        [
+            'account_id' => 'test02',
+            'tenant_id' => 2,
+            'password' => '12345',
+        ],
+        [
+            'account_id' => 'test03',
+            'tenant_id' => 3,
+            'password' => '12345',
+        ],
     ];
 
     foreach ($accounts as $account) {
@@ -72,7 +83,7 @@ try {
     seedAccounts();
 
     echo "Redis seed completed.\n";
-    echo "Accounts: E46594ED => tenant 1, A9F22B1C => tenant 2\n";
+    echo "Accounts: E46594ED => tenant 1, A9F22B1C => tenant 2, test01 => tenant 1, test02 => tenant 2, test03 => tenant 3\n";
 } catch (Throwable $e) {
     http_response_code(500);
     echo "Redis seed failed: " . $e->getMessage() . "\n";

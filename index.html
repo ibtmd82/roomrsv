@@ -716,86 +716,11 @@
 <body>
     <div class="wrapper">
         <!-- sidebar navigation component -->
-        <nav id="sidebar" class="active">
-            <div class="sidebar-header">
-                <img src="assets/img/bootstraper-logo.png" alt="bootraper logo" class="app-logo">
-            </div>
-            <ul class="list-unstyled components text-secondary">
-                <li>
-                    <a href="dashboard.html"><i class="fas fa-chart-line"></i>Thống kê</a>
-                </li>
-                <li>
-                    <a href="index.html"><i class="fas fa-calendar-check"></i>Đặt/Thuê phòng</a>
-                </li>
-                
-                <li>
-                    <a href="#authmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-user-shield"></i>Xác thực</a>
-                    <ul class="collapse list-unstyled" id="authmenu">
-                        <li>
-                            <a href="login.html"><i class="fas fa-lock"></i>Đăng nhập</a>
-                        </li>
-                        <li>
-                            <a href="signup.html"><i class="fas fa-user-plus"></i>Đăng ký</a>
-                        </li>
-                        <li>
-                            <a href="forgot-password.html"><i class="fas fa-user-lock"></i>Quên mật khẩu</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="users.html"><i class="fas fa-user-friends"></i>Người dùng</a>
-                </li>
-                <li>
-                    <a href="settings.html"><i class="fas fa-cog"></i>Cài đặt</a>
-                </li>
-            </ul>
-        </nav>
+        <nav id="sidebar" class="active" data-current-page="booking"></nav>
         <!-- end of sidebar component -->
         <div id="body" class="active">
             <!-- navbar navigation component -->
-            <nav class="navbar navbar-expand-lg navbar-white bg-white">
-                <button type="button" id="sidebarCollapse" class="btn btn-light">
-                    <i class="fas fa-bars"></i><span></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="nav navbar-nav ms-auto">
-                        <li class="nav-item dropdown">
-                            <div class="nav-dropdown">
-                                <a href="#" id="nav1" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-link"></i> <span>Liên kết nhanh</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end nav-link-menu" aria-labelledby="nav1">
-                                    <ul class="nav-list">
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-list"></i> Nhật ký truy cập</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-database"></i> Sao lưu</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-cloud-download-alt"></i> Cập nhật</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-user-shield"></i>Vai trò</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <div class="nav-dropdown">
-                                <a href="#" id="nav2" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user"></i> <span>John Doe</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end nav-link-menu">
-                                    <ul class="nav-list">
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-address-card"></i> Hồ sơ</a></li>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-envelope"></i> Tin nhắn</a></li>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-cog"></i> Cài đặt</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <div id="topNavbar"></div>
             <!-- end of navbar navigation -->
             <div class="content">
                 <div class="container">
@@ -873,6 +798,7 @@
                 <div class="modal-body" id="reservationNativeBody">
                     <div class="reservation-native-section">
                         <h6>Thông tin đặt/thuê phòng</h6>
+                        <div id="rn_modeConstraintHint" class="small text-muted mb-2" style="display:none;"></div>
                         <div class="reservation-native-grid">
                             <div><label class="form-label mb-1">Nội dung</label><input id="rn_text" class="form-control form-control-sm" /></div>
                             <div><label class="form-label mb-1">Phòng</label><select id="rn_resource" class="form-select form-select-sm"></select></div>
@@ -895,6 +821,16 @@
                             <div><label class="form-label mb-1">Ngày sinh</label><input id="rn_customerBirthday" type="date" class="form-control form-control-sm" /></div>
                         </div>
                     </div>
+                    <div class="reservation-native-section" id="rn_contractSection">
+                        <h6>Thông số hợp đồng dài hạn</h6>
+                        <div class="reservation-native-grid">
+                            <div><label class="form-label mb-1">Đơn giá điện (đ/kWh)</label><input id="rn_electricUnitPrice" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Cách tính tiền nước</label><select id="rn_waterPricingMode" class="form-select form-select-sm"><option value="quota">Theo định mức</option><option value="per_person">Theo đầu người/tháng</option></select></div>
+                            <div><label class="form-label mb-1">Đơn giá nước định mức (đ/m3)</label><input id="rn_waterQuotaPrice" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Nước theo đầu người/tháng (đ)</label><input id="rn_waterPerPersonPrice" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Số người</label><input id="rn_occupantsCount" class="form-control form-control-sm" /></div>
+                        </div>
+                    </div>
                     <div class="reservation-native-section" id="rn_legacyServiceFeeSection" style="display:none;">
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <h6 class="mb-0">Chi phí dịch vụ</h6>
@@ -909,6 +845,7 @@
                             <h6 class="mb-0">Kỳ thanh toán</h6>
                             <button type="button" class="reservation-native-collapse-btn" id="rn_toggleInvoiceFees">▾ Thu gọn chi phí theo kỳ</button>
                         </div>
+                        <div class="small text-muted mb-2">Dài hạn: thu theo kỳ tháng. Ngắn hạn: thu 1 lần.</div>
                         <div id="rn_invoicesWrap" class="small"></div>
                     </div>
                 </div>
@@ -922,6 +859,7 @@
     <script src="assets/js/backend-clientid.js"></script>
     <script>
         const app = {
+            rentalMode: "both",
             days: DayPilot.Date.today().daysInMonth(),
             elements: {
                 timerange: document.querySelector("#timerange"),
@@ -943,7 +881,7 @@
                 const filterEl = document.querySelector("#filter");
                 const capacity = filterEl ? filterEl.value : "0";
                 const {data} = await DayPilot.Http.post("backend_rooms.php", { capacity });
-                dp.update({resources: data});
+                applySchedulerResponsiveLayout(data);
             },
             addEventHandlers() {
                 const addRoomHandler = async (ev) => {
@@ -1064,6 +1002,33 @@
                     }
                     addRoomHandler(ev);
                 });
+            },
+            async loadRentalModeSetting() {
+                try {
+                    const {data} = await DayPilot.Http.get("backend_settings_get.php");
+                    const mode = data && data.rentalMode ? data.rentalMode : "both";
+                    if (["both", "short_term", "long_term"].includes(mode)) {
+                        app.rentalMode = mode;
+                    } else {
+                        app.rentalMode = "both";
+                    }
+                } catch (e) {
+                    app.rentalMode = "both";
+                }
+            },
+            initRentalModeHint() {
+                const label = document.querySelector(".toolbar-label");
+                if (!label) {
+                    return;
+                }
+                const modeText = app.rentalMode === "short_term"
+                    ? " (chế độ: ngắn hạn)"
+                    : app.rentalMode === "long_term"
+                        ? " (chế độ: dài hạn)"
+                        : " (chế độ: cả hai)";
+                if (label.textContent.indexOf("chế độ:") === -1) {
+                    label.textContent = `${label.textContent}${modeText}`;
+                }
             },
             init() {
                 app.loadRooms();
@@ -1308,6 +1273,16 @@
             const byId = (id) => document.getElementById(id);
             const roomSelect = byId("rn_resource");
             const isCreateMode = options && options.mode === "create";
+            const isDurationAllowedByMode = () => {
+                const isLong = isMonthlyCycleRange();
+                if (app.rentalMode === "short_term" && isLong) {
+                    return false;
+                }
+                if (app.rentalMode === "long_term" && !isLong) {
+                    return false;
+                }
+                return true;
+            };
             const setFieldVisible = (id, visible) => {
                 const el = byId(id);
                 if (!el) {
@@ -1320,6 +1295,7 @@
             };
             const customerSection = byId("rn_customerFullName") ? byId("rn_customerFullName").closest(".reservation-native-section") : null;
             const invoiceSection = byId("rn_invoiceSection");
+            const contractSection = byId("rn_contractSection");
 
             const rooms = dp.resources || [];
             roomSelect.innerHTML = rooms.map((r) => `<option value="${r.id}">${r.name} (${formatCurrency(r.price)})</option>`).join("");
@@ -1339,7 +1315,50 @@
                 const end = byId("rn_end").value;
                 return {start: (start || "").slice(0, 10), end: (end || "").slice(0, 10)};
             };
+            const getContractTermsFromForm = () => {
+                return {
+                    electricUnitPrice: Math.max(0, parseLocaleNumber(byId("rn_electricUnitPrice").value || 3000)),
+                    waterPricingMode: byId("rn_waterPricingMode").value === "per_person" ? "per_person" : "quota",
+                    waterQuotaPrice: Math.max(0, parseLocaleNumber(byId("rn_waterQuotaPrice").value || 500)),
+                    waterPerPersonPrice: Math.max(0, parseLocaleNumber(byId("rn_waterPerPersonPrice").value || 100000)),
+                    occupantsCount: Math.max(1, parseInt(byId("rn_occupantsCount").value || "1", 10))
+                };
+            };
+            const applyContractModeUi = () => {
+                const mode = byId("rn_waterPricingMode").value === "per_person" ? "per_person" : "quota";
+                byId("rn_waterQuotaPrice").disabled = mode !== "quota";
+                byId("rn_waterPerPersonPrice").disabled = mode !== "per_person";
+                byId("rn_occupantsCount").disabled = mode !== "per_person";
+            };
+            const updateModeConstraintHint = () => {
+                const hint = byId("rn_modeConstraintHint");
+                if (!hint) {
+                    return;
+                }
+                if (!isCreateMode || app.rentalMode === "both") {
+                    hint.style.display = "none";
+                    hint.textContent = "";
+                    return;
+                }
+                const isLong = isMonthlyCycleRange();
+                if (app.rentalMode === "short_term") {
+                    hint.style.display = "";
+                    hint.style.color = isLong ? "#b91c1c" : "#64748b";
+                    hint.textContent = isLong
+                        ? "Chế độ hiện tại chỉ cho phép ngắn hạn (< 1 tháng)."
+                        : "Chế độ hiện tại: chỉ ngắn hạn.";
+                } else if (app.rentalMode === "long_term") {
+                    hint.style.display = "";
+                    hint.style.color = isLong ? "#64748b" : "#b91c1c";
+                    hint.textContent = isLong
+                        ? "Chế độ hiện tại: chỉ dài hạn (>= 1 tháng)."
+                        : "Chế độ hiện tại chỉ cho phép dài hạn (>= 1 tháng).";
+                }
+            };
             const isMonthlyCycleRange = () => {
+                if (!isCreateMode && data && (data.rentalType === "long_term" || data.rentalType === "short_term")) {
+                    return data.rentalType === "long_term";
+                }
                 const startValue = byId("rn_start").value;
                 const endValue = byId("rn_end").value;
                 if (!startValue || !endValue) {
@@ -1356,6 +1375,7 @@
             };
 
             const mapped = Object.assign({}, data);
+            const contractTerms = mapped.contractTerms || {};
             mapped.customerFullName = mapped.customer && mapped.customer.fullName ? mapped.customer.fullName : (mapped.customerFullName || "");
             mapped.customerIdType = mapped.customer && mapped.customer.idType ? mapped.customer.idType : (mapped.customerIdType || "CCCD");
             mapped.customerIdNumber = mapped.customer && mapped.customer.idNumber ? mapped.customer.idNumber : (mapped.customerIdNumber || "");
@@ -1374,6 +1394,12 @@
             byId("rn_customerIdNumber").value = mapped.customerIdNumber || "";
             byId("rn_customerPhoneNumber").value = mapped.customerPhoneNumber || "";
             byId("rn_customerBirthday").value = mapped.customerBirthday || "";
+            byId("rn_electricUnitPrice").value = parseLocaleNumber(contractTerms.electricUnitPrice || 3000);
+            byId("rn_waterPricingMode").value = contractTerms.waterPricingMode === "per_person" ? "per_person" : "quota";
+            byId("rn_waterQuotaPrice").value = parseLocaleNumber(contractTerms.waterQuotaPrice || 500);
+            byId("rn_waterPerPersonPrice").value = parseLocaleNumber(contractTerms.waterPerPersonPrice || 100000);
+            byId("rn_occupantsCount").value = Math.max(1, parseInt(contractTerms.occupantsCount || 1, 10));
+            applyContractModeUi();
 
             // Create mode: show only booking info (content, room, start/end).
             if (customerSection) {
@@ -1381,6 +1407,9 @@
             }
             if (invoiceSection) {
                 invoiceSection.style.display = isCreateMode ? "none" : "";
+            }
+            if (contractSection) {
+                contractSection.style.display = (isCreateMode || !isMonthlyCycleRange()) ? "none" : "";
             }
             if (byId("rn_legacyServiceFeeSection")) {
                 byId("rn_legacyServiceFeeSection").style.display = "none";
@@ -1390,13 +1419,134 @@
             setFieldVisible("rn_discountType", !isCreateMode);
             setFieldVisible("rn_discountValue", !isCreateMode);
             setFieldVisible("rn_finalPrice", !isCreateMode);
+            byId("rn_resource").disabled = !isCreateMode;
+            byId("rn_start").disabled = !isCreateMode;
+            byId("rn_end").disabled = !isCreateMode;
 
             const defaultFees = (mapped.serviceFees || []).filter((f) => f.feeType === "other");
             const extraRows = Math.max(0, Math.min(6, defaultFees.length > 0 ? defaultFees.length - 1 : 0));
             let extraOtherRowsVisible = extraRows;
             let expanded = hasServiceFeeData(mapped);
             let invoiceFeesExpanded = true;
-            const mappedInvoices = Array.isArray(mapped.invoices) ? mapped.invoices.map((inv) => Object.assign({}, inv)) : [];
+            let mappedInvoices = Array.isArray(mapped.invoices) ? mapped.invoices.map((inv) => Object.assign({}, inv)) : [];
+            const buildInvoicePreviewRows = (startValue, endValue, monthlyNetAmount) => {
+                const rows = [];
+                if (!startValue || !endValue) {
+                    return rows;
+                }
+                const startDate = new Date(startValue);
+                const endDate = new Date(endValue);
+                if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate <= startDate) {
+                    return rows;
+                }
+
+                const oneMonthAfterStart = new Date(startDate.getTime());
+                oneMonthAfterStart.setMonth(oneMonthAfterStart.getMonth() + 1);
+                const isMonthly = endDate >= oneMonthAfterStart;
+                if (!isMonthly) {
+                    const days = Math.max(1, Math.floor((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)));
+                    rows.push({
+                        id: null,
+                        cycleIndex: 1,
+                        periodStart: startValue.slice(0, 10),
+                        periodEnd: endValue.slice(0, 10),
+                        occupiedDays: days,
+                        monthDays: days,
+                        roomAmount: Math.max(0, parseLocaleNumber(monthlyNetAmount || 0)),
+                        serviceAmount: 0,
+                        totalAmount: Math.max(0, parseLocaleNumber(monthlyNetAmount || 0)),
+                        paymentStatus: "unpaid",
+                        paymentMethod: null,
+                        paidAmount: 0,
+                        paidAt: null,
+                        paymentRef: null,
+                        paymentNote: null,
+                        serviceFees: []
+                    });
+                    return rows;
+                }
+
+                const now = new Date();
+                const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                const generationEnd = endDate < nextMonthStart ? endDate : nextMonthStart;
+                if (generationEnd <= startDate) {
+                    return rows;
+                }
+
+                let cursor = new Date(startDate.getTime());
+                let index = 1;
+                while (cursor < generationEnd) {
+                    const monthStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+                    const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+                    const periodStart = new Date(cursor.getTime());
+                    const periodEnd = generationEnd < monthEnd ? new Date(generationEnd.getTime()) : monthEnd;
+                    if (periodEnd <= periodStart) {
+                        break;
+                    }
+                    const occupiedDays = Math.max(1, Math.floor((periodEnd.getTime() - periodStart.getTime()) / (24 * 60 * 60 * 1000)));
+                    const monthDays = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
+                    const roomAmount = Math.round((Math.max(0, parseLocaleNumber(monthlyNetAmount || 0)) * occupiedDays / Math.max(1, monthDays)) * 100) / 100;
+                    rows.push({
+                        id: null,
+                        cycleIndex: index,
+                        periodStart: periodStart.toISOString().slice(0, 10),
+                        periodEnd: periodEnd.toISOString().slice(0, 10),
+                        occupiedDays,
+                        monthDays,
+                        roomAmount,
+                        serviceAmount: 0,
+                        totalAmount: roomAmount,
+                        paymentStatus: "unpaid",
+                        paymentMethod: null,
+                        paidAmount: 0,
+                        paidAt: null,
+                        paymentRef: null,
+                        paymentNote: null,
+                        serviceFees: []
+                    });
+                    cursor = periodEnd;
+                    index += 1;
+                }
+                return rows;
+            };
+            const mergeInvoicesWithExisting = (nextInvoices) => {
+                const keyOf = (inv) => `${inv.periodStart}__${inv.periodEnd}`;
+                const existingMap = {};
+                mappedInvoices.forEach((inv) => {
+                    existingMap[keyOf(inv)] = inv;
+                });
+                return nextInvoices.map((inv) => {
+                    const prev = existingMap[keyOf(inv)];
+                    if (!prev) {
+                        return inv;
+                    }
+                    return Object.assign({}, inv, {
+                        id: prev.id || inv.id,
+                        paymentStatus: prev.paymentStatus || inv.paymentStatus,
+                        paymentMethod: prev.paymentMethod || null,
+                        paidAmount: prev.paidAmount || 0,
+                        paidAt: prev.paidAt || null,
+                        paymentRef: prev.paymentRef || null,
+                        paymentNote: prev.paymentNote || null,
+                        serviceFees: Array.isArray(prev.serviceFees) ? prev.serviceFees : []
+                    });
+                });
+            };
+            const rebuildInvoicePreview = () => {
+                const startValue = byId("rn_start").value;
+                const endValue = byId("rn_end").value;
+                const roomPrice = getRoomPriceById(byId("rn_resource").value);
+                const discountType = byId("rn_discountType").value || "fixed";
+                let discountValue = parseLocaleNumber(byId("rn_discountValue").value || 0);
+                if (discountType === "percent") {
+                    discountValue = Math.min(100, discountValue);
+                }
+                const monthlyNetAmount = calculateFinalPrice(roomPrice, discountType, discountValue);
+                const preview = buildInvoicePreviewRows(startValue, endValue, monthlyNetAmount);
+                mappedInvoices = mergeInvoicesWithExisting(preview);
+                updateMeterCarryInMemory();
+                renderInvoices();
+            };
             const ensureInvoiceServiceFees = () => {
                 const monthlyMode = isMonthlyCycleRange();
                 mappedInvoices.forEach((inv) => {
@@ -1421,10 +1571,20 @@
                 ensureInvoiceServiceFees();
                 const rows = mappedInvoices.map((inv) => {
                     const monthlyMode = isMonthlyCycleRange();
+                    const contractTermsLive = getContractTermsFromForm();
                     const serviceFees = Array.isArray(inv.serviceFees) ? inv.serviceFees : [];
                     const electricFee = serviceFees.find((f) => f.feeType === "electricity") || {};
                     const waterFee = serviceFees.find((f) => f.feeType === "water") || {};
                     const otherFees = serviceFees.filter((f) => f.feeType === "other");
+                    const electricUsage = Math.max(0, parseLocaleNumber(electricFee.meterEnd || 0) - parseLocaleNumber(electricFee.meterStart || 0));
+                    electricFee.amount = monthlyMode ? Math.round(electricUsage * Math.max(0, parseLocaleNumber(contractTermsLive.electricUnitPrice || 0)) * 100) / 100 : parseLocaleNumber(electricFee.amount || 0);
+                    if (monthlyMode && contractTermsLive.waterPricingMode === "per_person") {
+                        const base = Math.max(1, parseInt(contractTermsLive.occupantsCount || 1, 10)) * Math.max(0, parseLocaleNumber(contractTermsLive.waterPerPersonPrice || 0));
+                        waterFee.amount = Math.round((base * Math.max(1, parseInt(inv.occupiedDays || 1, 10))) / Math.max(1, parseInt(inv.monthDays || 1, 10)) * 100) / 100;
+                    } else if (monthlyMode) {
+                        const waterUsage = Math.max(0, parseLocaleNumber(waterFee.meterEnd || 0) - parseLocaleNumber(waterFee.meterStart || 0));
+                        waterFee.amount = Math.round(waterUsage * Math.max(0, parseLocaleNumber(contractTermsLive.waterQuotaPrice || 0)) * 100) / 100;
+                    }
                     const statusBadge = inv.paymentStatus === "paid"
                         ? `<span class="badge bg-success">Đã thanh toán</span>`
                         : `<span class="badge bg-secondary">Chưa thanh toán</span>`;
@@ -1432,6 +1592,9 @@
                     const invoiceTotal = Math.max(0, parseLocaleNumber(inv.roomAmount || 0)) + serviceSum;
                     inv.serviceAmount = serviceSum;
                     inv.totalAmount = invoiceTotal;
+                    const monthSource = (inv.periodStart || "").split("-").map((n) => parseInt(n, 10));
+                    const periodMonth = monthSource.length >= 2 && Number.isFinite(monthSource[1]) ? monthSource[1] : inv.cycleIndex;
+                    const periodYear = monthSource.length >= 1 && Number.isFinite(monthSource[0]) ? monthSource[0] : "";
                     const otherMarkup = otherFees.map((fee, idx) => `
                         <div class="row g-2 mt-1">
                             <div class="col-12 col-md-3">
@@ -1450,7 +1613,7 @@
                     return `
                         <div class="border rounded p-2 mb-2">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div><strong>Kỳ ${inv.cycleIndex}</strong> (${inv.periodStart} - ${inv.periodEnd})</div>
+                                <div><strong>Kỳ tháng ${periodMonth}${periodYear ? `/${periodYear}` : ""}</strong> (${inv.periodStart} - ${inv.periodEnd})</div>
                                 ${statusBadge}
                             </div>
                             <div class="row g-2">
@@ -1662,7 +1825,11 @@
             renderFeeRows();
             syncPeriodToFees();
             rebuildFinalPrice();
+            updateModeConstraintHint();
             invoiceFeesExpanded = isMonthlyCycleRange();
+            if (!mappedInvoices.length) {
+                rebuildInvoicePreview();
+            }
             renderInvoices();
 
             if (byId("rn_toggleInvoiceFees")) {
@@ -1691,6 +1858,11 @@
             watchedIds.forEach((id) => byId(id).addEventListener("change", () => {
                 syncPeriodToFees();
                 rebuildFinalPrice();
+                updateModeConstraintHint();
+                rebuildInvoicePreview();
+                if (contractSection) {
+                    contractSection.style.display = (isCreateMode || !isMonthlyCycleRange()) ? "none" : "";
+                }
                 if (!isMonthlyCycleRange()) {
                     invoiceFeesExpanded = false;
                     if (byId("rn_toggleInvoiceFees")) {
@@ -1699,6 +1871,21 @@
                 }
                 renderInvoices();
             }));
+            ["rn_electricUnitPrice", "rn_waterPricingMode", "rn_waterQuotaPrice", "rn_waterPerPersonPrice", "rn_occupantsCount"].forEach((id) => {
+                if (byId(id)) {
+                    byId(id).addEventListener("input", () => {
+                        if (id !== "rn_waterPricingMode") {
+                            byId(id).value = normalizeNumericInput(byId(id).value);
+                        }
+                        applyContractModeUi();
+                        renderInvoices();
+                    });
+                    byId(id).addEventListener("change", () => {
+                        applyContractModeUi();
+                        renderInvoices();
+                    });
+                }
+            });
             feesWrap.addEventListener("input", (e) => {
                 if (e.target && e.target.classList.contains("fee-input")) {
                     if (["meterStart", "meterEnd", "amount"].includes(e.target.getAttribute("data-col"))) {
@@ -1847,6 +2034,14 @@
                 modalEl.addEventListener("hidden.bs.modal", hideHandler, {once: true});
 
                 saveBtn.onclick = () => {
+                    if (isCreateMode && !isDurationAllowedByMode()) {
+                        updateModeConstraintHint();
+                        const msg = app.rentalMode === "short_term"
+                            ? "Hệ thống đang ở chế độ ngắn hạn, không thể tạo đặt phòng dài hạn."
+                            : "Hệ thống đang ở chế độ dài hạn, không thể tạo đặt phòng ngắn hạn.";
+                        notify(msg, "error");
+                        return;
+                    }
                     const serviceFees = [];
                     const autoChargeMode = isMonthlyCycleRange() ? "per_cycle" : "one_time";
                     if (mappedInvoices.length > 0) {
@@ -1872,6 +2067,7 @@
                         resource: byId("rn_resource").value,
                         start: byId("rn_start").value ? byId("rn_start").value.replace("T", " ") + ":00" : null,
                         end: byId("rn_end").value ? byId("rn_end").value.replace("T", " ") + ":00" : null,
+                        rentalType: isMonthlyCycleRange() ? "long_term" : "short_term",
                         status: isCreateMode ? "New" : byId("rn_status").value,
                         roomPrice: parseLocaleNumber(byId("rn_roomPrice").value || 0),
                         discountType: byId("rn_discountType").value,
@@ -1882,6 +2078,7 @@
                         customerIdNumber: byId("rn_customerIdNumber").value || "",
                         customerPhoneNumber: byId("rn_customerPhoneNumber").value || "",
                         customerBirthday: byId("rn_customerBirthday").value || null,
+                        contractTerms: getContractTermsFromForm(),
                         showServiceFees: expanded ? "1" : "0",
                         serviceFees: isCreateMode ? [] : serviceFees,
                         invoices: mappedInvoices,
@@ -2051,28 +2248,82 @@
             }, 2200);
         };
         const isMobileRoomHeader = () => window.matchMedia("(max-width: 767px)").matches;
-        const applySchedulerResponsiveLayout = () => {
+        const measureRoomHeaderWidth = (resources, isLongTermOnlyMode) => {
+            const rows = Array.isArray(resources) ? resources : [];
+            if (!rows.length) {
+                return isLongTermOnlyMode ? 220 : 320;
+            }
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+                return isLongTermOnlyMode ? 220 : 320;
+            }
+            const roomNameFont = "600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+            const metaFont = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+            let maxWidth = 0;
+            rows.forEach((room) => {
+                const roomName = `${room && room.name ? room.name : ""}`;
+                const priceText = formatCurrency((room && room.price) || 0);
+                ctx.font = roomNameFont;
+                const roomNameWidth = Math.ceil(ctx.measureText(roomName).width);
+                ctx.font = metaFont;
+                const priceWidth = Math.ceil(ctx.measureText(priceText).width);
+                if (isLongTermOnlyMode) {
+                    maxWidth = Math.max(maxWidth, roomNameWidth + priceWidth + 52);
+                    return;
+                }
+                const capacityText = `${room && room.capacity ? room.capacity : 0} giường`;
+                const statusText = getRoomStatusLabel(room && room.status ? room.status : "Ready");
+                const capacityWidth = Math.ceil(ctx.measureText(capacityText).width);
+                const statusWidth = Math.ceil(ctx.measureText(statusText).width);
+                maxWidth = Math.max(maxWidth, roomNameWidth + Math.max(capacityWidth + priceWidth, statusWidth + 88) + 108);
+            });
+            const minWidth = isLongTermOnlyMode ? 205 : 285;
+            const maxAllowed = isLongTermOnlyMode ? 300 : 420;
+            return Math.max(minWidth, Math.min(maxAllowed, maxWidth));
+        };
+        const applySchedulerResponsiveLayout = (resourcesOverride = null) => {
+            const isLongTermOnlyMode = app.rentalMode === "long_term";
+            const resources = Array.isArray(resourcesOverride)
+                ? resourcesOverride
+                : (dp && Array.isArray(dp.resources) ? dp.resources : []);
             if (isMobileRoomHeader()) {
                 const viewportWidth = window.innerWidth || 360;
-                const proportionalWidth = Math.floor(viewportWidth * 0.34);
-                const mobileRowHeaderWidth = Math.max(120, Math.min(165, proportionalWidth));
-                dp.update({
+                const proportionalWidth = Math.floor(viewportWidth * 0.27);
+                const mobileRowHeaderWidth = Math.max(102, Math.min(145, proportionalWidth));
+                const nextConfig = {
                     rowHeaderWidth: mobileRowHeaderWidth,
                     cellWidthSpec: "Fixed",
-                    cellWidth: 44,
+                    cellWidth: 42,
                     cellWidthMin: 32,
                     eventHeight: 64
-                });
+                };
+                if (Array.isArray(resourcesOverride)) {
+                    nextConfig.resources = resourcesOverride;
+                }
+                dp.update(nextConfig);
                 return;
             }
 
-            dp.update({
-                rowHeaderWidth: 365,
+            const desktopRowHeaderWidth = measureRoomHeaderWidth(resources, isLongTermOnlyMode);
+            const nextConfig = {
+                rowHeaderWidth: desktopRowHeaderWidth,
+                rowHeaderColumns: [
+                    {
+                        name: isLongTermOnlyMode ? "Phòng | Giá phòng" : "Phòng | Sức chứa | Trạng thái",
+                        display: "name",
+                        width: desktopRowHeaderWidth
+                    }
+                ],
                 cellWidthSpec: "Auto",
                 cellWidth: 80,
                 cellWidthMin: 60,
                 eventHeight: 80
-            });
+            };
+            if (Array.isArray(resourcesOverride)) {
+                nextConfig.resources = resourcesOverride;
+            }
+            dp.update(nextConfig);
         };
     
         const dp = new DayPilot.Scheduler("dp", {
@@ -2184,11 +2435,23 @@
                 const priceLabel = formatCurrency(args.row.data.price || 0);
                 const roomIconMarkup = `<span style="font-size:10px;line-height:1;font-weight:700;">${DayPilot.Util.escapeHtml(iconText)}</span>`;
                 const roomStatusButton = buildStatusIconButtonHtml("room", args.row.data.id, args.row.data.status, roomIconMarkup, iconColor, statusLabel);
+                const isLongTermOnlyMode = app.rentalMode === "long_term";
                 
                 if (isMobileRoomHeader()) {
+                    if (isLongTermOnlyMode) {
+                        args.row.html = `
+                            <div style="display:flex; flex-direction:column; gap:4px; padding:2px 18px 2px 0;">
+                                <div style="font-weight:600; font-size:12px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:normal; word-break:break-word;">
+                                    ${args.row.data.name}
+                                </div>
+                                <div style="font-size:11px; color:#64748b; line-height:1.2;">${priceLabel}</div>
+                            </div>
+                        `;
+                        return;
+                    }
                     args.row.html = `
                         <div style="display:flex; flex-direction:column; gap:3px; padding:2px 18px 2px 0;">
-                            <div style="font-weight:600; font-size:12px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            <div style="font-weight:600; font-size:12px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:normal; word-break:break-word;">
                                 ${args.row.data.name}
                             </div>
                             <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:#475569; line-height:1.2;">
@@ -2197,6 +2460,16 @@
                                 <span style="white-space:nowrap;">${capacityLabel}</span>
                             </div>
                             <div style="font-size:11px; color:#64748b; line-height:1.2;">${priceLabel}</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (isLongTermOnlyMode) {
+                    args.row.html = `
+                        <div style="display:grid; grid-template-columns:minmax(0, 1fr) 110px; align-items:center; gap:10px; padding-right:20px;">
+                            <div style="font-weight:600; padding-right:8px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:normal; word-break:break-word;">${args.row.data.name}</div>
+                            <div style="font-size:12px; color:#4b5563; white-space:nowrap; text-align:right; font-variant-numeric:tabular-nums;">${priceLabel}</div>
                         </div>
                     `;
                     return;
@@ -2764,9 +3037,16 @@
         applySchedulerResponsiveLayout();
         window.addEventListener("resize", applySchedulerResponsiveLayout);
     
-        app.init();
+        (async () => {
+            await app.loadRentalModeSetting();
+            applySchedulerResponsiveLayout();
+            app.initRentalModeHint();
+            app.init();
+        })();
     
     </script>
+    <script src="assets/js/sidebar-menu.js"></script>
+    <script src="assets/js/top-navbar.js"></script>
     <script src="assets/vendor/jquery/jquery.min.js"></script>
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/datatables/datatables.min.js"></script>

@@ -93,6 +93,32 @@ if (!empty($reservationIds)) {
     }
 }
 
+$contractTermsByReservation = [];
+if (!empty($reservationIds)) {
+    $placeholders = implode(',', array_fill(0, count($reservationIds), '?'));
+    $termsSql = "SELECT reservation_id, electric_unit_price, water_pricing_mode, water_quota_price, water_per_person_price, occupants_count
+                 FROM reservation_contract_terms
+                 WHERE tenant_id = ? AND reservation_id IN ($placeholders)";
+    $termsStmt = $db->prepare($termsSql);
+    $idx = 1;
+    $termsStmt->bindValue($idx++, $tenantId);
+    foreach ($reservationIds as $reservationId) {
+        $termsStmt->bindValue($idx++, $reservationId);
+    }
+    $termsStmt->execute();
+    $termsRows = $termsStmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($termsRows as $termsRow) {
+        $reservationId = intval($termsRow['reservation_id']);
+        $term = new stdClass();
+        $term->electricUnitPrice = floatval($termsRow['electric_unit_price']);
+        $term->waterPricingMode = $termsRow['water_pricing_mode'];
+        $term->waterQuotaPrice = floatval($termsRow['water_quota_price']);
+        $term->waterPerPersonPrice = floatval($termsRow['water_per_person_price']);
+        $term->occupantsCount = intval($termsRow['occupants_count']);
+        $contractTermsByReservation[$reservationId] = $term;
+    }
+}
+
 $invoiceFeesByReservation = [];
 foreach ($reservationIds as $reservationId) {
     $invoiceFeesByReservation[$reservationId] = fetchInvoiceServiceFeesByReservation($db, $tenantId, $reservationId);
@@ -117,6 +143,7 @@ foreach($result as $row) {
     $e->bubbleHtml = "Reservation details: <br/>".$e->text;
     
     // additional properties
+    $e->rentalType = normalizeRentalType(isset($row['rental_type']) ? $row['rental_type'] : null, $row['start'], $row['end']);
     $e->status = $row['status'];
     $reservationId = intval($row['id']);
     $reservationInvoices = isset($invoicesByReservation[$reservationId]) ? $invoicesByReservation[$reservationId] : [];
@@ -144,6 +171,7 @@ foreach($result as $row) {
         $invoiceItem->serviceFees = isset($invoiceFeesByReservation[$reservationId][$invoiceId]) ? $invoiceFeesByReservation[$reservationId][$invoiceId] : [];
     }
     $e->invoices = $reservationInvoices;
+    $e->contractTerms = isset($contractTermsByReservation[$reservationId]) ? $contractTermsByReservation[$reservationId] : null;
     $events[] = $e;
 }
 

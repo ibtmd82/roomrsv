@@ -23,99 +23,11 @@
 <body>
     <div class="wrapper">
         <!-- sidebar navigation component -->
-        <nav id="sidebar" class="active">
-            <div class="sidebar-header">
-                <img src="assets/img/bootstraper-logo.png" alt="bootraper logo" class="app-logo">
-            </div>
-            <ul class="list-unstyled components text-secondary">
-                <li>
-                    <a href="dashboard.html"><i class="fas fa-chart-line"></i>Thống kê</a>
-                </li>
-                <li>
-                    <a href="index.html"><i class="fas fa-calendar-check"></i>Đặt/Thuê phòng</a>
-                </li>
-                <li>
-                    <a href="forms.html"><i class="fas fa-file-alt"></i>Biểu mẫu</a>
-                </li>
-                <li>
-                    <a href="tables.html"><i class="fas fa-table"></i>Bảng biểu</a>
-                </li>
-                <li>
-                    <a href="charts.html"><i class="fas fa-chart-bar"></i>Biểu đồ</a>
-                </li>
-                <li>
-                    <a href="icons.html"><i class="fas fa-icons"></i>Biểu tượng</a>
-                </li>
-                
-                <li>
-                    <a href="#authmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-user-shield"></i>Xác thực</a>
-                    <ul class="collapse list-unstyled" id="authmenu">
-                        <li>
-                            <a href="login.html"><i class="fas fa-lock"></i>Đăng nhập</a>
-                        </li>
-                        <li>
-                            <a href="signup.html"><i class="fas fa-user-plus"></i>Đăng ký</a>
-                        </li>
-                        <li>
-                            <a href="forgot-password.html"><i class="fas fa-user-lock"></i>Quên mật khẩu</a>
-                        </li>
-                    </ul>
-                </li>
-                
-                <li>
-                    <a href="users.html"><i class="fas fa-user-friends"></i>Người dùng</a>
-                </li>
-                <li>
-                    <a href="settings.html"><i class="fas fa-cog"></i>Cài đặt</a>
-                </li>
-            </ul>
-        </nav>
+        <nav id="sidebar" class="active" data-current-page="users"></nav>
         <!-- end of sidebar component -->
         <div id="body" class="active">
             <!-- navbar navigation component -->
-            <nav class="navbar navbar-expand-lg navbar-white bg-white">
-                <button type="button" id="sidebarCollapse" class="btn btn-light">
-                    <i class="fas fa-bars"></i><span></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="nav navbar-nav ms-auto">
-                        <li class="nav-item dropdown">
-                            <div class="nav-dropdown">
-                                <a href="#" id="nav1" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-link"></i> <span>Liên kết nhanh</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end nav-link-menu" aria-labelledby="nav1">
-                                    <ul class="nav-list">
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-list"></i> Nhật ký truy cập</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-database"></i> Sao lưu</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-cloud-download-alt"></i> Cập nhật</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-user-shield"></i> Vai trò</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <div class="nav-dropdown">
-                                <a href="#" id="nav2" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user"></i> <span>John Doe</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end nav-link-menu">
-                                    <ul class="nav-list">
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-address-card"></i> Hồ sơ</a></li>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-envelope"></i> Tin nhắn</a></li>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-cog"></i> Cài đặt</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <div id="topNavbar"></div>
             <!-- end of navbar navigation -->
             <div class="content">
                 <div class="container">
@@ -223,6 +135,8 @@
             </div>
         </div>
     </div>
+    <script src="assets/js/sidebar-menu.js"></script>
+    <script src="assets/js/top-navbar.js"></script>
     <script src="assets/vendor/jquery/jquery.min.js"></script>
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/datatables/datatables.min.js"></script>

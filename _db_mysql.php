@@ -5,32 +5,43 @@ $username = "roomrsv";
 $password = 'P@$$vv04d:roomrsv';
 $database = "roomrsv";
 
-$db = new PDO("mysql:host=$host;port=$port",
-               $username,
-               $password);
+$db = new PDO(
+    "mysql:host=$host;port=$port",
+    $username,
+    $password,
+    [
+        PDO::ATTR_TIMEOUT => 5,
+    ]
+);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $db->exec("CREATE DATABASE IF NOT EXISTS `$database`");
 $db->exec("use `$database`");
+$db->exec("SET SESSION lock_wait_timeout = 5");
 
 function tableExists($dbh, $id)
 {
-    $results = $dbh->query("SHOW TABLES LIKE '$id'");
+    $stmt = $dbh->prepare("SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = :table_name LIMIT 1");
+    $stmt->bindValue(':table_name', $id);
+    $stmt->execute();
+    $results = $stmt->fetchColumn();
     if(!$results) {
         return false;
     }
-    if($results->rowCount() > 0) {
-        return true;
-    }
-    return false;
+    return true;
 }
 
 function columnExists($dbh, $table, $column)
 {
-    $stmt = $dbh->prepare("SHOW COLUMNS FROM `$table` LIKE :column");
-    $stmt->bindValue(':column', $column);
-    $stmt->execute();
-    return $stmt->rowCount() > 0;
+    try {
+        $stmt = $dbh->prepare("SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = :table_name AND column_name = :column_name LIMIT 1");
+        $stmt->bindValue(':table_name', $table);
+        $stmt->bindValue(':column_name', $column);
+        $stmt->execute();
+        return (bool)$stmt->fetchColumn();
+    } catch (Throwable $e) {
+        return false;
+    }
 }
 
 $exists = tableExists($db, "rooms");
@@ -52,6 +63,7 @@ if (!$exists) {
                         name TEXT,
                         start DATETIME,
                         `end` DATETIME,
+                        rental_type VARCHAR(20) DEFAULT 'short_term',
                         room_id INTEGER,
                         status VARCHAR(30),
                         paid INTEGER,
@@ -101,6 +113,16 @@ if (!$exists) {
                         paid_at DATETIME NULL,
                         payment_ref VARCHAR(100) NULL,
                         payment_note VARCHAR(255) NULL)");
+
+    $db->exec("CREATE TABLE IF NOT EXISTS reservation_contract_terms (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        reservation_id INTEGER NOT NULL,
+                        electric_unit_price DECIMAL(10,2) DEFAULT 3000,
+                        water_pricing_mode VARCHAR(30) DEFAULT 'quota',
+                        water_quota_price DECIMAL(10,2) DEFAULT 500,
+                        water_per_person_price DECIMAL(10,2) DEFAULT 100000,
+                        occupants_count INTEGER DEFAULT 1)");
 
     $rooms = array(
                     array('name' => 'Room 1',
@@ -167,6 +189,10 @@ if (!columnExists($db, "reservations", "tenant_id")) {
 
 if (!columnExists($db, "reservations", "customer_id")) {
     $db->exec("ALTER TABLE reservations ADD COLUMN customer_id INTEGER NULL");
+}
+
+if (!columnExists($db, "reservations", "rental_type")) {
+    $db->exec("ALTER TABLE reservations ADD COLUMN rental_type VARCHAR(20) DEFAULT 'short_term'");
 }
 
 if (!columnExists($db, "rooms", "price")) {
@@ -247,4 +273,24 @@ if (!tableExists($db, "reservation_invoices")) {
                         paid_at DATETIME NULL,
                         payment_ref VARCHAR(100) NULL,
                         payment_note VARCHAR(255) NULL)");
+}
+
+if (!tableExists($db, "reservation_contract_terms")) {
+    $db->exec("CREATE TABLE IF NOT EXISTS reservation_contract_terms (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        reservation_id INTEGER NOT NULL,
+                        electric_unit_price DECIMAL(10,2) DEFAULT 3000,
+                        water_pricing_mode VARCHAR(30) DEFAULT 'quota',
+                        water_quota_price DECIMAL(10,2) DEFAULT 500,
+                        water_per_person_price DECIMAL(10,2) DEFAULT 100000,
+                        occupants_count INTEGER DEFAULT 1)");
+}
+
+if (!tableExists($db, "tenant_settings")) {
+    $db->exec("CREATE TABLE IF NOT EXISTS tenant_settings (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER NOT NULL,
+                        rental_mode VARCHAR(20) DEFAULT 'both',
+                        updated_at DATETIME NULL)");
 }

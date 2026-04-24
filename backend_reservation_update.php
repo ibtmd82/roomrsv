@@ -18,6 +18,7 @@ $roomPrice = isset($params->roomPrice) ? floatval($params->roomPrice) : null;
 $customerPayload = extractCustomerPayload($params);
 $serviceFees = extractServiceFeesPayload($params);
 $serviceFees = applyAutoChargeModeByDuration($serviceFees, $start, $end);
+$contractTerms = extractContractTermsPayload($params);
 $invoicePayloads = (isset($params->invoices) && is_array($params->invoices)) ? $params->invoices : [];
 $invoiceServicePayloads = (isset($params->invoiceServiceFees) && is_array($params->invoiceServiceFees)) ? $params->invoiceServiceFees : [];
 if ($discountValue < 0) {
@@ -51,21 +52,23 @@ $monthlyNetAmount = calculateRoomMonthlyAmount($roomPrice, $discountType, $disco
 $invoicePlans = buildReservationInvoices($start, $end, $monthlyNetAmount, $serviceFees);
 $finalPrice = calculateReservationTotalFromInvoices($invoicePlans);
 
-$reservationStmt = $db->prepare("SELECT customer_id FROM reservations WHERE id = :id AND tenant_id = :tenant_id");
+$reservationStmt = $db->prepare("SELECT customer_id, rental_type FROM reservations WHERE id = :id AND tenant_id = :tenant_id");
 $reservationStmt->bindValue(':id', $id);
 $reservationStmt->bindValue(':tenant_id', $tenantId);
 $reservationStmt->execute();
 $reservationRow = $reservationStmt->fetch(PDO::FETCH_ASSOC);
 $existingCustomerId = $reservationRow && isset($reservationRow['customer_id']) ? $reservationRow['customer_id'] : null;
+$rentalType = normalizeRentalType($reservationRow && isset($reservationRow['rental_type']) ? $reservationRow['rental_type'] : null, $start, $end);
 $customerId = upsertReservationCustomer($db, $tenantId, $customerPayload, $existingCustomerId);
 
-$stmt = $db->prepare("UPDATE reservations SET customer_id = :customer_id, name = :name, start = :start, `end` = :end, room_id = :room, status = :status, paid = 0, room_price = :room_price, discount_type = :discount_type, discount_value = :discount_value, final_price = :final_price WHERE id = :id AND tenant_id = :tenant_id");
+$stmt = $db->prepare("UPDATE reservations SET customer_id = :customer_id, name = :name, start = :start, `end` = :end, rental_type = :rental_type, room_id = :room, status = :status, paid = 0, room_price = :room_price, discount_type = :discount_type, discount_value = :discount_value, final_price = :final_price WHERE id = :id AND tenant_id = :tenant_id");
 
 $stmt->bindValue(':id', $id);
 $stmt->bindValue(':tenant_id', $tenantId);
 $stmt->bindValue(':customer_id', $customerId);
 $stmt->bindValue(':start', $start);
 $stmt->bindValue(':end', $end);
+$stmt->bindValue(':rental_type', $rentalType);
 $stmt->bindValue(':name', $name);
 $stmt->bindValue(':room', $room);
 $stmt->bindValue(':status', $status);
@@ -76,15 +79,18 @@ $stmt->bindValue(':final_price', $finalPrice);
 $stmt->execute();
 replaceReservationServiceFees($db, $tenantId, $id, $serviceFees);
 $invoices = replaceReservationInvoices($db, $tenantId, $id, $invoicePlans);
+upsertReservationContractTerms($db, $tenantId, $id, $contractTerms, isMonthlyCycleRange($start, $end));
 reseedReservationInvoiceServiceFees($db, $tenantId, $id, $invoices, $serviceFees);
 applyInvoiceServiceFeePayloads($db, $tenantId, $id, $invoiceServicePayloads);
 recomputeReservationInvoicesFromServiceFees($db, $tenantId, $id);
 applyReservationInvoicePayments($db, $tenantId, $id, $invoicePayloads);
 $invoices = fetchReservationInvoices($db, $tenantId, $id);
+$savedContractTerms = fetchReservationContractTerms($db, $tenantId, $id);
 
 $response = new stdClass();
 $response->result = 'OK';
 $response->message = 'Update successful';
+$response->rentalType = $rentalType;
 $response->status = $status;
 $response->paid = 0;
 $response->roomPrice = floatval($roomPrice);
@@ -100,6 +106,7 @@ $response->customerId = $customerId;
 $response->customer = $customerPayload;
 $response->serviceFees = $serviceFees;
 $response->invoices = $invoices;
+$response->contractTerms = $savedContractTerms;
 
 header('Content-Type: application/json');
 echo json_encode($response);
