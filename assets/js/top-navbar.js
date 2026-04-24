@@ -13,7 +13,7 @@
         topNavbar.innerHTML = `
             <nav class="navbar navbar-expand-lg navbar-white bg-white">
                 <div class="container-fluid px-2 px-md-3">
-                    <button type="button" id="sidebarCollapse" class="btn btn-light">
+                    <button type="button" id="sidebarCollapse" class="btn btn-light" aria-label="Mở menu" style="position:relative;z-index:1101;touch-action:manipulation;">
                         <i class="fas fa-bars"></i><span></span>
                     </button>
                     <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
@@ -62,40 +62,6 @@
             logoutButton.addEventListener("click", (event) => {
                 event.preventDefault();
                 logout();
-            });
-        }
-
-        const sidebarToggle = topNavbar.querySelector("#sidebarCollapse");
-        if (sidebarToggle) {
-            let touched = false;
-            const onToggle = (event) => {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                if (window.toggleSidebarLayout) {
-                    window.toggleSidebarLayout(event);
-                    return;
-                }
-                const sidebar = document.getElementById("sidebar");
-                const body = document.getElementById("body");
-                if (sidebar) {
-                    sidebar.classList.toggle("active");
-                }
-                if (body) {
-                    body.classList.toggle("active");
-                }
-            };
-            sidebarToggle.addEventListener("touchend", (event) => {
-                touched = true;
-                onToggle(event);
-            }, { passive: false });
-            sidebarToggle.addEventListener("click", (event) => {
-                if (touched) {
-                    touched = false;
-                    return;
-                }
-                onToggle(event);
             });
         }
     };

@@ -86,6 +86,28 @@
         $('#body').toggleClass('active');
     };
     window.toggleSidebarLayout = toggleSidebar;
+    let lastSidebarToggleAt = 0;
+    const delegatedSidebarToggle = function(event) {
+        if (!event || !event.target || typeof event.target.closest !== 'function') {
+            return;
+        }
+        const toggleButton = event.target.closest('#sidebarCollapse');
+        if (!toggleButton) {
+            return;
+        }
+        const now = Date.now();
+        if (event.type === 'click' && now - lastSidebarToggleAt < 450) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+        }
+        lastSidebarToggleAt = now;
+        event.preventDefault();
+        event.stopPropagation();
+        toggleSidebar(event);
+    };
+    document.addEventListener('touchend', delegatedSidebarToggle, { capture: true, passive: false });
+    document.addEventListener('click', delegatedSidebarToggle, true);
 
     // $('#savemsg').on('click', function() {
     //     var data = JSON.parse(localStorage.getItem("msgplays"));
