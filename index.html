@@ -1486,6 +1486,9 @@
             const isMonthlyCycleRange = () => {
                 const startValue = byId("rn_start").value;
                 const endValue = byId("rn_end").value;
+                if (!isCreateMode && data && (data.rentalType === "long_term" || data.rentalType === "short_term")) {
+                    return data.rentalType === "long_term";
+                }
                 const fallbackRentalType = !isCreateMode && data ? data.rentalType : null;
                 return isLongTermByMode(startValue, endValue, fallbackRentalType);
             };
