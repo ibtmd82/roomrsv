@@ -20,12 +20,10 @@ function seedTenants()
 
     foreach ($tenants as $tenant) {
         $id = (int)$tenant['tenant_id'];
-        redisExec([
-            'HSET', "tenant:{$id}",
-            'tenant_id', (string)$id,
-            'name', $tenant['name'],
-            'description', $tenant['description'],
-        ]);
+        // Redis on CentOS 7 is often old; avoid multi-field HSET.
+        redisExec(['HSET', "tenant:{$id}", 'tenant_id', (string)$id]);
+        redisExec(['HSET', "tenant:{$id}", 'name', $tenant['name']]);
+        redisExec(['HSET', "tenant:{$id}", 'description', $tenant['description']]);
         redisExec(['SADD', 'tenants:all', (string)$id]);
     }
 }
@@ -65,12 +63,10 @@ function seedAccounts()
         $tenantId = (int)$account['tenant_id'];
         $password = (string)$account['password'];
 
-        redisExec([
-            'HSET', "account:{$accountId}",
-            'account_id', $accountId,
-            'tenant_id', (string)$tenantId,
-            'password', $password,
-        ]);
+        // Redis on CentOS 7 is often old; avoid multi-field HSET.
+        redisExec(['HSET', "account:{$accountId}", 'account_id', $accountId]);
+        redisExec(['HSET', "account:{$accountId}", 'tenant_id', (string)$tenantId]);
+        redisExec(['HSET', "account:{$accountId}", 'password', $password]);
         redisExec(['SADD', 'accounts:all', $accountId]);
     }
 }
