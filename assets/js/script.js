@@ -83,6 +83,11 @@
         $('#body').toggleClass('active');
     });
 
+    // iOS Safari can keep focus ring artifacts on dropdown triggers.
+    $(document).on('shown.bs.dropdown', '#navQuickLinks, #navUserMenu', function() {
+        this.blur();
+    });
+
     // $('#savemsg').on('click', function() {
     //     var data = JSON.parse(localStorage.getItem("msgplays"));
     //     data.push({'number':'2','phone':'0966093512','message':'hung.2dai34dd5n','status':'active','actions':''});

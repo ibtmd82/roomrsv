@@ -14,6 +14,21 @@
     color: #fff;
 }
 
+#navQuickLinks,
+#navUserMenu {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    box-shadow: none;
+}
+
+#navQuickLinks:focus,
+#navQuickLinks:active,
+#navUserMenu:focus,
+#navUserMenu:active {
+    outline: none;
+    box-shadow: none;
+}
+
 .nav-dropdown.show a {
     color: #fff;
 }
