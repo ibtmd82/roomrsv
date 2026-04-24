@@ -2818,6 +2818,7 @@
                 e.discountType = result.discountType;
                 e.discountValue = result.discountValue;
                 e.finalPrice = result.finalPrice;
+                e.rentalType = result.rentalType || e.rentalType || (isLongTermByMode(e.start, e.end, null) ? "long_term" : "short_term");
                 e.customer = result.customer || e.customer;
                 e.serviceFees = result.serviceFees || e.serviceFees;
                 e.invoices = result.invoices || [];
@@ -2969,6 +2970,7 @@
                 currentData.discountType = (result && result.discountType) ? result.discountType : e.discountType;
                 currentData.discountValue = (result && result.discountValue !== undefined) ? result.discountValue : e.discountValue;
                 currentData.finalPrice = (result && result.finalPrice !== undefined) ? result.finalPrice : e.finalPrice;
+                currentData.rentalType = (result && result.rentalType) ? result.rentalType : (e.rentalType || currentData.rentalType || previousData.rentalType);
                 currentData.customer = (result && result.customer) ? result.customer : (e.customer || previousData.customer || currentData.customer);
                 currentData.serviceFees = (result && result.serviceFees) ? result.serviceFees : (e.serviceFees || previousData.serviceFees || currentData.serviceFees || []);
                 currentData.invoices = (result && result.invoices) ? result.invoices : (e.invoices || previousData.invoices || currentData.invoices || []);
