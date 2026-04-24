@@ -64,39 +64,6 @@
                 logout();
             });
         }
-
-        const sidebarToggle = topNavbar.querySelector("#sidebarCollapse");
-        if (sidebarToggle) {
-            let touched = false;
-            const onToggle = (event) => {
-                if (window.toggleSidebarLayout) {
-                    window.toggleSidebarLayout(event);
-                    return;
-                }
-                if (event) {
-                    event.preventDefault();
-                }
-                const sidebar = document.getElementById("sidebar");
-                const body = document.getElementById("body");
-                if (sidebar) {
-                    sidebar.classList.toggle("active");
-                }
-                if (body) {
-                    body.classList.toggle("active");
-                }
-            };
-            sidebarToggle.addEventListener("touchend", (event) => {
-                touched = true;
-                onToggle(event);
-            }, { passive: false });
-            sidebarToggle.addEventListener("click", (event) => {
-                if (touched) {
-                    touched = false;
-                    return;
-                }
-                onToggle(event);
-            });
-        }
     };
 
     if (document.readyState === "loading") {
