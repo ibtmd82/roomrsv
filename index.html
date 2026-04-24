@@ -1455,12 +1455,7 @@
                         : "Chế độ hiện tại chỉ cho phép dài hạn (>= 1 tháng).";
                 }
             };
-            const isMonthlyCycleRange = () => {
-                if (!isCreateMode && data && (data.rentalType === "long_term" || data.rentalType === "short_term")) {
-                    return data.rentalType === "long_term";
-                }
-                const startValue = byId("rn_start").value;
-                const endValue = byId("rn_end").value;
+            const isLongTermRange = (startValue, endValue) => {
                 if (!startValue || !endValue) {
                     return false;
                 }
@@ -1469,9 +1464,30 @@
                 if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate <= startDate) {
                     return false;
                 }
-                const oneMonthAfterStart = new Date(startDate.getTime());
-                oneMonthAfterStart.setMonth(oneMonthAfterStart.getMonth() + 1);
-                return endDate >= oneMonthAfterStart;
+                const diffDays = (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000);
+                if (diffDays >= 30) {
+                    return true;
+                }
+                const monthDiff = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+                return monthDiff >= 1;
+            };
+            const isLongTermByMode = (startValue, endValue, fallbackRentalType) => {
+                if (fallbackRentalType === "long_term" || fallbackRentalType === "short_term") {
+                    return fallbackRentalType === "long_term";
+                }
+                if (app.rentalMode === "long_term") {
+                    return true;
+                }
+                if (app.rentalMode === "short_term") {
+                    return false;
+                }
+                return isLongTermRange(startValue, endValue);
+            };
+            const isMonthlyCycleRange = () => {
+                const startValue = byId("rn_start").value;
+                const endValue = byId("rn_end").value;
+                const fallbackRentalType = !isCreateMode && data ? data.rentalType : null;
+                return isLongTermByMode(startValue, endValue, fallbackRentalType);
             };
 
             const mapped = Object.assign({}, data);
@@ -1551,9 +1567,7 @@
                     return rows;
                 }
 
-                const oneMonthAfterStart = new Date(startDate.getTime());
-                oneMonthAfterStart.setMonth(oneMonthAfterStart.getMonth() + 1);
-                const isMonthly = endDate >= oneMonthAfterStart;
+                const isMonthly = isLongTermByMode(startValue, endValue, mapped.rentalType || null);
                 if (!isMonthly) {
                     const days = Math.max(1, Math.floor((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)));
                     rows.push({
@@ -2218,9 +2232,7 @@
                 const startDate = source && source.start ? new Date(source.start) : null;
                 const endDate = source && source.end ? new Date(source.end) : null;
                 if (startDate && endDate && !Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime()) && endDate > startDate) {
-                    const oneMonthAfterStart = new Date(startDate.getTime());
-                    oneMonthAfterStart.setMonth(oneMonthAfterStart.getMonth() + 1);
-                    autoChargeMode = endDate >= oneMonthAfterStart ? "per_cycle" : "one_time";
+                    autoChargeMode = isLongTermByMode(source.start, source.end, source.rentalType || null) ? "per_cycle" : "one_time";
                 }
             } catch (e) {
                 autoChargeMode = "one_time";
@@ -2389,8 +2401,8 @@
                 : (dp && Array.isArray(dp.resources) ? dp.resources : []);
             if (isMobileRoomHeader()) {
                 const viewportWidth = window.innerWidth || 360;
-                const proportionalWidth = Math.floor(viewportWidth * 0.27);
-                const mobileRowHeaderWidth = Math.max(102, Math.min(145, proportionalWidth));
+                const proportionalWidth = Math.floor(viewportWidth * 0.23);
+                const mobileRowHeaderWidth = Math.max(88, Math.min(128, proportionalWidth));
                 const nextConfig = {
                     rowHeaderWidth: mobileRowHeaderWidth,
                     cellWidthSpec: "Fixed",
@@ -2535,7 +2547,7 @@
                 }
 
                 const statusLabel = getRoomStatusLabel(args.row.data.status);
-                const capacityLabel = `${args.row.data.capacity} giường`;
+                const capacityValue = Number.isFinite(parseInt(args.row.data.capacity, 10)) ? parseInt(args.row.data.capacity, 10) : 0;
                 const priceLabel = formatCurrency(args.row.data.price || 0);
                 const roomIconMarkup = `<span style="font-size:10px;line-height:1;font-weight:700;">${DayPilot.Util.escapeHtml(iconText)}</span>`;
                 const roomStatusButton = buildStatusIconButtonHtml("room", args.row.data.id, args.row.data.status, roomIconMarkup, iconColor, statusLabel);
@@ -2558,12 +2570,13 @@
                             <div style="font-weight:600; font-size:12px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:normal; word-break:break-word;">
                                 ${args.row.data.name}
                             </div>
-                            <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:#475569; line-height:1.2;">
+                            <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:#475569; line-height:1.2; flex-wrap:nowrap;">
+                                <span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap; color:#334155;">
+                                    <span style="font-variant-numeric:tabular-nums;">${capacityValue}</span>
+                                    <i class="fas fa-bed" style="font-size:10px;"></i>
+                                </span>
                                 ${roomStatusButton}
-                                <span style="color:#94a3b8;">|</span>
-                                <span style="white-space:nowrap;">${capacityLabel}</span>
                             </div>
-                            <div style="font-size:11px; color:#64748b; line-height:1.2;">${priceLabel}</div>
                         </div>
                     `;
                     return;
@@ -2582,7 +2595,7 @@
                 args.row.html = `
                     <div style="display:grid; grid-template-columns: 150px 95px 1fr; align-items:center; gap:0; padding-right:20px;">
                         <div style="font-weight:600; padding-right:8px;">${args.row.data.name}</div>
-                        <div style="font-size:12px; color:#4b5563;">${capacityLabel}<br /><span style="color:#64748b">${priceLabel}</span></div>
+                        <div style="font-size:12px; color:#4b5563;">${capacityValue} giường<br /><span style="color:#64748b">${priceLabel}</span></div>
                         <div style="display:flex; flex-direction:column; align-items:flex-start; gap:4px; font-size:12px;">
                             <div style="display:flex; align-items:center; gap:6px;">
                                 ${roomStatusButton}
