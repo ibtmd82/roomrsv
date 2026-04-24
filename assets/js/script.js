@@ -78,10 +78,14 @@
     }
 
     // Toggle sidebar on Menu button click (supports dynamically-rendered navbar)
-    $(document).on('click', '#sidebarCollapse', function() {
+    const toggleSidebar = function(event) {
+        if (event) {
+            event.preventDefault();
+        }
         $('#sidebar').toggleClass('active');
         $('#body').toggleClass('active');
-    });
+    };
+    $(document).on('click', '#sidebarCollapse', toggleSidebar);
 
     // $('#savemsg').on('click', function() {
     //     var data = JSON.parse(localStorage.getItem("msgplays"));
