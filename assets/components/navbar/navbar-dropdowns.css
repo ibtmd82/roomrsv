@@ -17,16 +17,22 @@
 #navQuickLinks,
 #navUserMenu {
     -webkit-tap-highlight-color: transparent;
+    border-radius: 8px;
+}
+
+/* Touch/click focus should not show Safari's harsh default ring. */
+#navQuickLinks:focus:not(:focus-visible),
+#navUserMenu:focus:not(:focus-visible) {
     outline: none;
     box-shadow: none;
 }
 
-#navQuickLinks:focus,
-#navQuickLinks:active,
-#navUserMenu:focus,
-#navUserMenu:active {
-    outline: none;
-    box-shadow: none;
+/* Keep accessible keyboard focus with a subtle, consistent ring. */
+#navQuickLinks:focus-visible,
+#navUserMenu:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.35);
 }
 
 .nav-dropdown.show a {
