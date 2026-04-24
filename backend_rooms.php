@@ -27,6 +27,8 @@ foreach($rooms as $room) {
   $r->capacity = intval($room['capacity']);
   $r->status = $room['status'];
   $r->price = floatval($room['price']);
+  $r->priceDay = isset($room['price_day']) ? floatval($room['price_day']) : 0;
+  $r->priceHour = isset($room['price_hour']) ? floatval($room['price_hour']) : 0;
   $result[] = $r;
 }
 

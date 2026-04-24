@@ -339,6 +339,26 @@ function calculateRoomMonthlyAmount($roomPrice, $discountType, $discountValue)
     return max(0, $result);
 }
 
+function calculateShortTermRoomAmount($start, $end, $roomDayPrice, $roomHourPrice, $dayThresholdHours)
+{
+    try {
+        $startDt = new DateTime($start);
+        $endDt = new DateTime($end);
+    } catch (Throwable $e) {
+        return max(0, floatval($roomDayPrice));
+    }
+    if ($endDt <= $startDt) {
+        return max(0, floatval($roomDayPrice));
+    }
+    $seconds = $endDt->getTimestamp() - $startDt->getTimestamp();
+    $hours = $seconds / 3600;
+    $threshold = max(1, intval($dayThresholdHours));
+    if ($hours > $threshold) {
+        return max(0, floatval($roomDayPrice));
+    }
+    return max(0, floatval($roomHourPrice) * max(1, ceil($hours)));
+}
+
 function buildReservationInvoices($start, $end, $monthlyNetAmount, $serviceFees)
 {
     $items = [];
@@ -830,6 +850,41 @@ function applyInvoiceServiceFeePayloads($db, $tenantId, $reservationId, $payload
     $syncMeterType('water', 'waterMeterEnd');
 }
 
+function applyInvoiceServiceFeePayloadsByCycle($db, $tenantId, $reservationId, $payloads)
+{
+    if (!is_array($payloads) || empty($payloads)) {
+        return;
+    }
+    $stmt = $db->prepare("SELECT id, cycle_index FROM reservation_invoices WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id");
+    $stmt->bindValue(':tenant_id', $tenantId);
+    $stmt->bindValue(':reservation_id', $reservationId);
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($rows)) {
+        return;
+    }
+    $invoiceIdByCycle = [];
+    foreach ($rows as $row) {
+        $invoiceIdByCycle[intval($row['cycle_index'])] = intval($row['id']);
+    }
+    $mapped = [];
+    foreach ($payloads as $item) {
+        if (!is_object($item)) {
+            continue;
+        }
+        $cycleIndex = isset($item->cycleIndex) ? intval($item->cycleIndex) : 0;
+        if ($cycleIndex <= 0 || !isset($invoiceIdByCycle[$cycleIndex])) {
+            continue;
+        }
+        $clone = clone $item;
+        $clone->invoiceId = $invoiceIdByCycle[$cycleIndex];
+        $mapped[] = $clone;
+    }
+    if (!empty($mapped)) {
+        applyInvoiceServiceFeePayloads($db, $tenantId, $reservationId, $mapped);
+    }
+}
+
 function recomputeReservationInvoicesFromServiceFees($db, $tenantId, $reservationId)
 {
     $invoiceStmt = $db->prepare("SELECT id, room_amount, payment_status, occupied_days, month_days FROM reservation_invoices WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id");
@@ -1018,6 +1073,42 @@ function applyReservationInvoicePayments($db, $tenantId, $reservationId, $invoic
         $updateStmt->bindValue(':tenant_id', $tenantId);
         $updateStmt->bindValue(':reservation_id', $reservationId);
         $updateStmt->execute();
+    }
+}
+
+function applyReservationInvoicePaymentsByCycle($db, $tenantId, $reservationId, $invoicePayloads)
+{
+    if (!is_array($invoicePayloads) || empty($invoicePayloads)) {
+        return;
+    }
+    $stmt = $db->prepare("SELECT id, cycle_index FROM reservation_invoices WHERE tenant_id = :tenant_id AND reservation_id = :reservation_id");
+    $stmt->bindValue(':tenant_id', $tenantId);
+    $stmt->bindValue(':reservation_id', $reservationId);
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($rows)) {
+        return;
+    }
+    $invoiceIdByCycle = [];
+    foreach ($rows as $row) {
+        $invoiceIdByCycle[intval($row['cycle_index'])] = intval($row['id']);
+    }
+
+    $mapped = [];
+    foreach ($invoicePayloads as $item) {
+        if (!is_object($item)) {
+            continue;
+        }
+        $cycleIndex = isset($item->cycleIndex) ? intval($item->cycleIndex) : 0;
+        if ($cycleIndex <= 0 || !isset($invoiceIdByCycle[$cycleIndex])) {
+            continue;
+        }
+        $clone = clone $item;
+        $clone->id = $invoiceIdByCycle[$cycleIndex];
+        $mapped[] = $clone;
+    }
+    if (!empty($mapped)) {
+        applyReservationInvoicePayments($db, $tenantId, $reservationId, $mapped);
     }
 }
 

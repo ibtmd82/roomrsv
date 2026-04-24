@@ -11,14 +11,18 @@ $name = $params->name;
 $capacity = $params->capacity;
 $status = $params->status;
 $price = isset($params->price) ? floatval($params->price) : 0;
+$priceDay = isset($params->priceDay) ? floatval($params->priceDay) : 300000;
+$priceHour = isset($params->priceHour) ? floatval($params->priceHour) : 80000;
 
-$stmt = $db->prepare("UPDATE rooms SET name = :name, capacity = :capacity, status = :status, price = :price WHERE id = :id AND tenant_id = :tenant_id");
+$stmt = $db->prepare("UPDATE rooms SET name = :name, capacity = :capacity, status = :status, price = :price, price_day = :price_day, price_hour = :price_hour WHERE id = :id AND tenant_id = :tenant_id");
 $stmt->bindValue(':id', $id);
 $stmt->bindValue(':tenant_id', $tenantId);
 $stmt->bindValue(':name', $name);
 $stmt->bindValue(':capacity', $capacity);
 $stmt->bindValue(':status', $status);
 $stmt->bindValue(':price', $price);
+$stmt->bindValue(':price_day', $priceDay);
+$stmt->bindValue(':price_hour', $priceHour);
 $stmt->execute();
 
 $response = new stdClass();

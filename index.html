@@ -777,7 +777,9 @@
                             <div><label class="form-label mb-1">Tên phòng</label><input id="rm_name" class="form-control form-control-sm" /></div>
                             <div><label class="form-label mb-1">Sức chứa</label><select id="rm_capacity" class="form-select form-select-sm"><option value="1">1</option><option value="2">2</option><option value="4">4</option></select></div>
                             <div><label class="form-label mb-1">Trạng thái</label><select id="rm_status" class="form-select form-select-sm"><option value="Ready">Sẵn sàng</option><option value="Cleanup">Cần dọn</option><option value="Dirty">Bẩn</option></select></div>
-                            <div><label class="form-label mb-1">Giá phòng</label><input id="rm_price" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Giá tháng (dài hạn)</label><input id="rm_price" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Giá ngày (ngắn hạn)</label><input id="rm_priceDay" class="form-control form-control-sm" /></div>
+                            <div><label class="form-label mb-1">Giá giờ (ngắn hạn)</label><input id="rm_priceHour" class="form-control form-control-sm" /></div>
                         </div>
                     </div>
                 </div>
@@ -796,8 +798,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="reservationNativeBody">
-                    <div class="reservation-native-section">
-                        <h6>Thông tin đặt/thuê phòng</h6>
+                    <div class="reservation-native-section" id="rn_bookingSection">
+                        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                            <h6 class="mb-0">Thông tin đặt/thuê phòng</h6>
+                            <button type="button" class="reservation-native-collapse-btn" id="rn_toggleBookingSection">▸ Mở rộng</button>
+                        </div>
+                        <div id="rn_bookingContent">
                         <div id="rn_modeConstraintHint" class="small text-muted mb-2" style="display:none;"></div>
                         <div class="reservation-native-grid">
                             <div><label class="form-label mb-1">Nội dung</label><input id="rn_text" class="form-control form-control-sm" /></div>
@@ -810,10 +816,14 @@
                             <div><label class="form-label mb-1">Giá trị discount</label><input id="rn_discountValue" class="form-control form-control-sm" /></div>
                             <div><label class="form-label mb-1">Tổng chi phí</label><input id="rn_finalPrice" class="form-control form-control-sm" readonly /></div>
                         </div>
+                        </div>
                     </div>
-                    <div class="reservation-native-section">
-                        <h6>Thông tin khách hàng</h6>
-                        <div class="reservation-native-grid">
+                    <div class="reservation-native-section" id="rn_customerSection">
+                        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                            <h6 class="mb-0">Thông tin khách hàng</h6>
+                            <button type="button" class="reservation-native-collapse-btn" id="rn_toggleCustomerSection">▸ Mở rộng</button>
+                        </div>
+                        <div id="rn_customerContent" class="reservation-native-grid">
                             <div><label class="form-label mb-1">Họ tên</label><input id="rn_customerFullName" class="form-control form-control-sm" /></div>
                             <div><label class="form-label mb-1">Loại giấy tờ</label><select id="rn_customerIdType" class="form-select form-select-sm"><option value="CCCD">CCCD</option><option value="Passport">Hộ chiếu</option></select></div>
                             <div><label class="form-label mb-1">Số giấy tờ</label><input id="rn_customerIdNumber" class="form-control form-control-sm" /></div>
@@ -822,8 +832,11 @@
                         </div>
                     </div>
                     <div class="reservation-native-section" id="rn_contractSection">
-                        <h6>Thông số hợp đồng dài hạn</h6>
-                        <div class="reservation-native-grid">
+                        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                            <h6 class="mb-0">Thông số hợp đồng dài hạn</h6>
+                            <button type="button" class="reservation-native-collapse-btn" id="rn_toggleContractSection">▸ Mở rộng</button>
+                        </div>
+                        <div id="rn_contractContent" class="reservation-native-grid">
                             <div><label class="form-label mb-1">Đơn giá điện (đ/kWh)</label><input id="rn_electricUnitPrice" class="form-control form-control-sm" /></div>
                             <div><label class="form-label mb-1">Cách tính tiền nước</label><select id="rn_waterPricingMode" class="form-select form-select-sm"><option value="quota">Theo định mức</option><option value="per_person">Theo đầu người/tháng</option></select></div>
                             <div><label class="form-label mb-1">Đơn giá nước định mức (đ/m3)</label><input id="rn_waterQuotaPrice" class="form-control form-control-sm" /></div>
@@ -845,7 +858,7 @@
                             <h6 class="mb-0">Kỳ thanh toán</h6>
                             <button type="button" class="reservation-native-collapse-btn" id="rn_toggleInvoiceFees">▾ Thu gọn chi phí theo kỳ</button>
                         </div>
-                        <div class="small text-muted mb-2">Dài hạn: thu theo kỳ tháng. Ngắn hạn: thu 1 lần.</div>
+                        <div class="small text-muted mb-2">Dài hạn: thu theo kỳ tháng và tiền phòng prorate theo số ngày thực tế trong kỳ. Ngắn hạn: thu 1 lần (giá giờ/ngày theo cài đặt).</div>
                         <div id="rn_invoicesWrap" class="small"></div>
                     </div>
                 </div>
@@ -860,6 +873,7 @@
     <script>
         const app = {
             rentalMode: "both",
+            shortTermDayThresholdHours: 4,
             days: DayPilot.Date.today().daysInMonth(),
             elements: {
                 timerange: document.querySelector("#timerange"),
@@ -896,12 +910,16 @@
                     const form = [
                         {name: "Tên phòng (VD: Phòng 101)", id: "name"},
                         {name: "Sức chứa", id: "capacity", type: "select", options: capacities},
-                        {name: "Giá phòng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice}
+                        {name: "Giá tháng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice},
+                        {name: "Giá ngày (VD: 300000)", id: "priceDay", type: "number", onValidate: validateRoomPrice},
+                        {name: "Giá giờ (VD: 50000)", id: "priceHour", type: "number", onValidate: validateRoomPrice}
                     ];
 
                     const data = {
                         capacity: 2,
-                        price: 600000
+                        price: 600000,
+                        priceDay: 300000,
+                        priceHour: 80000
                     };
 
                     const modal = await openRoomForm(form, data);
@@ -911,11 +929,15 @@
 
                     const room = modal.result;
                     room.price = Math.max(0, parseLocaleNumber(room.price));
+                    room.priceDay = Math.max(0, parseLocaleNumber(room.priceDay));
+                    room.priceHour = Math.max(0, parseLocaleNumber(room.priceHour));
                     const {data: result} = await DayPilot.Http.post("backend_room_create.php", room);
 
                     room.id = result.id;
                     room.status = result.status;
                     room.price = result.price;
+                    room.priceDay = result.priceDay;
+                    room.priceHour = result.priceHour;
                     dp.resources.push(room);
                     dp.update();
                 };
@@ -1012,8 +1034,11 @@
                     } else {
                         app.rentalMode = "both";
                     }
+                    const threshold = data && data.shortTermDayThresholdHours ? parseInt(data.shortTermDayThresholdHours, 10) : 4;
+                    app.shortTermDayThresholdHours = Number.isFinite(threshold) && threshold > 0 ? threshold : 4;
                 } catch (e) {
                     app.rentalMode = "both";
+                    app.shortTermDayThresholdHours = 4;
                 }
             },
             initRentalModeHint() {
@@ -1161,9 +1186,29 @@
                 }
             });
         };
-        const getRoomPriceById = (roomId) => {
+        const getRoomById = (roomId) => {
             const room = dp.resources.find((item) => String(item.id) === String(roomId));
+            return room || null;
+        };
+        // Backward-compatible helper for legacy call sites.
+        const getRoomPriceById = (roomId) => {
+            const room = getRoomById(roomId);
             return room ? Number(room.price || 0) : 0;
+        };
+        const getShortTermRoomAmount = (room, startValue, endValue) => {
+            const threshold = Math.max(1, parseInt(app.shortTermDayThresholdHours || 4, 10));
+            const dayPrice = Number(room && room.priceDay ? room.priceDay : 0);
+            const hourPrice = Number(room && room.priceHour ? room.priceHour : 0);
+            const startDate = new Date(startValue);
+            const endDate = new Date(endValue);
+            if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate <= startDate) {
+                return dayPrice;
+            }
+            const hours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+            if (hours > threshold) {
+                return dayPrice;
+            }
+            return hourPrice * Math.max(1, Math.ceil(hours));
         };
         const calculateFinalPrice = (roomPrice, discountType, discountValue) => {
             const base = Number(roomPrice || 0);
@@ -1183,6 +1228,23 @@
                 "otherExtra1Amount", "otherExtra2Amount"
             ];
             return fields.reduce((sum, field) => sum + Math.max(0, parseLocaleNumber(result[field] || 0)), 0);
+        };
+        const extractBackendMessage = (errOrResponse, fallback) => {
+            if (errOrResponse && errOrResponse.data && errOrResponse.data.message) {
+                return errOrResponse.data.message;
+            }
+            const request = errOrResponse && errOrResponse.request ? errOrResponse.request : null;
+            if (request && request.responseText) {
+                try {
+                    const parsed = JSON.parse(request.responseText);
+                    if (parsed && parsed.message) {
+                        return parsed.message;
+                    }
+                } catch (e) {
+                    // ignore non-JSON response
+                }
+            }
+            return fallback;
         };
         const validateDiscountValue = (args) => {
             const value = args.value;
@@ -1239,7 +1301,15 @@
             byId("rm_capacity").value = data && data.capacity ? String(data.capacity) : "2";
             byId("rm_status").value = data && data.status ? data.status : "Ready";
             byId("rm_price").value = normalizeNumericInput(data && data.price !== undefined ? data.price : 0);
+            byId("rm_priceDay").value = normalizeNumericInput(data && data.priceDay !== undefined ? data.priceDay : 0);
+            byId("rm_priceHour").value = normalizeNumericInput(data && data.priceHour !== undefined ? data.priceHour : 0);
             byId("rm_price").oninput = (ev) => {
+                ev.target.value = normalizeNumericInput(ev.target.value);
+            };
+            byId("rm_priceDay").oninput = (ev) => {
+                ev.target.value = normalizeNumericInput(ev.target.value);
+            };
+            byId("rm_priceHour").oninput = (ev) => {
                 ev.target.value = normalizeNumericInput(ev.target.value);
             };
             titleEl.textContent = data && data.id ? "Chỉnh sửa phòng" : "Thêm phòng";
@@ -1256,7 +1326,9 @@
                         name: byId("rm_name").value || "",
                         capacity: parseInt(byId("rm_capacity").value || "2", 10),
                         status: byId("rm_status").value || "Ready",
-                        price: parseLocaleNumber(byId("rm_price").value || 0)
+                        price: parseLocaleNumber(byId("rm_price").value || 0),
+                        priceDay: parseLocaleNumber(byId("rm_priceDay").value || 0),
+                        priceHour: parseLocaleNumber(byId("rm_priceHour").value || 0)
                     };
                     modalEl.removeEventListener("hidden.bs.modal", onHidden);
                     bsModal.hide();
@@ -1273,6 +1345,7 @@
             const byId = (id) => document.getElementById(id);
             const roomSelect = byId("rn_resource");
             const isCreateMode = options && options.mode === "create";
+            const modalBody = byId("reservationNativeBody");
             const isDurationAllowedByMode = () => {
                 const isLong = isMonthlyCycleRange();
                 if (app.rentalMode === "short_term" && isLong) {
@@ -1293,9 +1366,35 @@
                     wrapper.style.display = visible ? "" : "none";
                 }
             };
-            const customerSection = byId("rn_customerFullName") ? byId("rn_customerFullName").closest(".reservation-native-section") : null;
+            const bookingSection = byId("rn_bookingSection");
+            const customerSection = byId("rn_customerSection");
             const invoiceSection = byId("rn_invoiceSection");
             const contractSection = byId("rn_contractSection");
+            const detailsSection = byId("rn_text") ? byId("rn_text").closest(".reservation-native-section") : null;
+            const setSectionCollapsed = (toggleId, contentId, collapsed, enabled) => {
+                const toggleBtn = byId(toggleId);
+                const contentEl = byId(contentId);
+                if (!toggleBtn || !contentEl) {
+                    return;
+                }
+                if (!enabled) {
+                    toggleBtn.style.display = "none";
+                    contentEl.style.display = "";
+                    toggleBtn.onclick = null;
+                    return;
+                }
+                toggleBtn.style.display = "";
+                let isCollapsed = !!collapsed;
+                const applyState = () => {
+                    contentEl.style.display = isCollapsed ? "none" : "";
+                    toggleBtn.textContent = isCollapsed ? "▸ Mở rộng" : "▾ Thu gọn";
+                };
+                applyState();
+                toggleBtn.onclick = () => {
+                    isCollapsed = !isCollapsed;
+                    applyState();
+                };
+            };
 
             const rooms = dp.resources || [];
             roomSelect.innerHTML = rooms.map((r) => `<option value="${r.id}">${r.name} (${formatCurrency(r.price)})</option>`).join("");
@@ -1326,9 +1425,12 @@
             };
             const applyContractModeUi = () => {
                 const mode = byId("rn_waterPricingMode").value === "per_person" ? "per_person" : "quota";
-                byId("rn_waterQuotaPrice").disabled = mode !== "quota";
-                byId("rn_waterPerPersonPrice").disabled = mode !== "per_person";
-                byId("rn_occupantsCount").disabled = mode !== "per_person";
+                const contractEditable = isCreateMode && isMonthlyCycleRange();
+                byId("rn_waterPricingMode").disabled = !contractEditable;
+                byId("rn_electricUnitPrice").disabled = !contractEditable;
+                byId("rn_waterQuotaPrice").disabled = !contractEditable || mode !== "quota";
+                byId("rn_waterPerPersonPrice").disabled = !contractEditable || mode !== "per_person";
+                byId("rn_occupantsCount").disabled = !contractEditable || mode !== "per_person";
             };
             const updateModeConstraintHint = () => {
                 const hint = byId("rn_modeConstraintHint");
@@ -1409,7 +1511,18 @@
                 invoiceSection.style.display = isCreateMode ? "none" : "";
             }
             if (contractSection) {
-                contractSection.style.display = (isCreateMode || !isMonthlyCycleRange()) ? "none" : "";
+                contractSection.style.display = isMonthlyCycleRange() ? "" : "none";
+            }
+            const longTermEditMode = !isCreateMode && isMonthlyCycleRange();
+            setSectionCollapsed("rn_toggleBookingSection", "rn_bookingContent", longTermEditMode, longTermEditMode);
+            setSectionCollapsed("rn_toggleCustomerSection", "rn_customerContent", longTermEditMode, longTermEditMode);
+            setSectionCollapsed("rn_toggleContractSection", "rn_contractContent", longTermEditMode, longTermEditMode);
+            if (modalBody && invoiceSection) {
+                if (longTermEditMode) {
+                    modalBody.insertBefore(invoiceSection, modalBody.firstElementChild);
+                } else if (bookingSection && bookingSection.parentNode === modalBody) {
+                    modalBody.insertBefore(invoiceSection, bookingSection.nextSibling);
+                }
             }
             if (byId("rn_legacyServiceFeeSection")) {
                 byId("rn_legacyServiceFeeSection").style.display = "none";
@@ -1535,13 +1648,18 @@
             const rebuildInvoicePreview = () => {
                 const startValue = byId("rn_start").value;
                 const endValue = byId("rn_end").value;
-                const roomPrice = getRoomPriceById(byId("rn_resource").value);
+                const room = getRoomById(byId("rn_resource").value);
+                const monthlyRoomPrice = room ? Number(room.price || 0) : 0;
                 const discountType = byId("rn_discountType").value || "fixed";
                 let discountValue = parseLocaleNumber(byId("rn_discountValue").value || 0);
                 if (discountType === "percent") {
                     discountValue = Math.min(100, discountValue);
                 }
-                const monthlyNetAmount = calculateFinalPrice(roomPrice, discountType, discountValue);
+                const monthlyMode = isMonthlyCycleRange();
+                const shortTermBase = getShortTermRoomAmount(room, byId("rn_start").value, byId("rn_end").value);
+                const monthlyNetAmount = monthlyMode
+                    ? calculateFinalPrice(monthlyRoomPrice, discountType, discountValue)
+                    : calculateFinalPrice(shortTermBase, discountType, discountValue);
                 const preview = buildInvoicePreviewRows(startValue, endValue, monthlyNetAmount);
                 mappedInvoices = mergeInvoicesWithExisting(preview);
                 updateMeterCarryInMemory();
@@ -1572,6 +1690,7 @@
                 const rows = mappedInvoices.map((inv) => {
                     const monthlyMode = isMonthlyCycleRange();
                     const contractTermsLive = getContractTermsFromForm();
+                    const waterPerPersonMode = monthlyMode && contractTermsLive.waterPricingMode === "per_person";
                     const serviceFees = Array.isArray(inv.serviceFees) ? inv.serviceFees : [];
                     const electricFee = serviceFees.find((f) => f.feeType === "electricity") || {};
                     const waterFee = serviceFees.find((f) => f.feeType === "water") || {};
@@ -1649,13 +1768,14 @@
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label mb-1">Nước số cuối</label>
-                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="water" data-col="meterEnd" value="${parseLocaleNumber(waterFee.meterEnd || waterFee.meterStart || 0)}">
+                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="water" data-col="meterEnd" value="${parseLocaleNumber(waterFee.meterEnd || waterFee.meterStart || 0)}" ${waterPerPersonMode ? "readonly" : ""}>
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label mb-1">Tiền nước</label>
-                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="water" data-col="amount" value="${parseLocaleNumber(waterFee.amount || 0)}">
+                                    <input class="form-control form-control-sm invoice-svc-input" data-invoice-id="${inv.id}" data-fee-type="water" data-col="amount" value="${parseLocaleNumber(waterFee.amount || 0)}" readonly>
                                 </div>
                                 <div class="col-12 col-md-3"></div>
+                                ${waterPerPersonMode ? `<div class="col-12"><small class="text-muted">Tính theo đầu người/tháng: không cần nhập số đầu/số cuối nước.</small></div>` : ""}
                                 ` : ""}
                                 <div class="col-12 col-md-3">
                                     <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-4 invoice-other-add-btn" data-invoice-id="${inv.id}">+ Thêm phí khác</button>
@@ -1801,13 +1921,17 @@
             };
 
             const rebuildFinalPrice = () => {
-                const roomPrice = getRoomPriceById(byId("rn_resource").value);
+                const room = getRoomById(byId("rn_resource").value);
+                const monthlyRoomPrice = room ? Number(room.price || 0) : 0;
                 const discountType = byId("rn_discountType").value || "fixed";
                 let discountValue = parseLocaleNumber(byId("rn_discountValue").value || 0);
                 if (discountType === "percent") {
                     discountValue = Math.min(100, discountValue);
                 }
                 byId("rn_discountValue").value = discountValue;
+                const monthlyMode = isMonthlyCycleRange();
+                const shortTermBase = getShortTermRoomAmount(room, byId("rn_start").value, byId("rn_end").value);
+                const roomPrice = monthlyMode ? monthlyRoomPrice : shortTermBase;
                 byId("rn_roomPrice").value = roomPrice;
                 let totalService = 0;
                 feesWrap.querySelectorAll("input[data-col='amount']").forEach((el) => {
@@ -1826,13 +1950,14 @@
             syncPeriodToFees();
             rebuildFinalPrice();
             updateModeConstraintHint();
-            invoiceFeesExpanded = isMonthlyCycleRange();
+            invoiceFeesExpanded = longTermEditMode ? true : isMonthlyCycleRange();
             if (!mappedInvoices.length) {
                 rebuildInvoicePreview();
             }
             renderInvoices();
 
             if (byId("rn_toggleInvoiceFees")) {
+                byId("rn_toggleInvoiceFees").style.display = longTermEditMode ? "none" : "";
                 byId("rn_toggleInvoiceFees").onclick = () => {
                     invoiceFeesExpanded = !invoiceFeesExpanded;
                     byId("rn_toggleInvoiceFees").textContent = invoiceFeesExpanded ? "▾ Thu gọn chi phí theo kỳ" : "▸ Mở rộng chi phí theo kỳ";
@@ -1860,8 +1985,9 @@
                 rebuildFinalPrice();
                 updateModeConstraintHint();
                 rebuildInvoicePreview();
+                applyContractModeUi();
                 if (contractSection) {
-                    contractSection.style.display = (isCreateMode || !isMonthlyCycleRange()) ? "none" : "";
+                    contractSection.style.display = isMonthlyCycleRange() ? "" : "none";
                 }
                 if (!isMonthlyCycleRange()) {
                     invoiceFeesExpanded = false;
@@ -1953,34 +2079,23 @@
                 const refInput = invoicesWrap.querySelector(`.invoice-ref-input[data-invoice-id="${invoiceId}"]`);
                 const paymentMethod = methodInput ? methodInput.value : "cash";
                 const paymentRef = refInput ? refInput.value : "";
-                try {
-                    await DayPilot.Http.post("backend_invoice_payment_update.php", {
-                        invoiceId,
-                        paymentStatus: nextStatus,
-                        paymentMethod,
-                        paymentRef
-                    });
-                    const invoice = mappedInvoices.find((item) => Number(item.id) === invoiceId);
-                    if (invoice) {
-                        invoice.paymentStatus = nextStatus;
-                        if (nextStatus === "paid") {
-                            invoice.paymentMethod = paymentMethod;
-                            invoice.paymentRef = paymentRef;
-                            invoice.paidAmount = Number(invoice.totalAmount || 0);
-                            invoice.paidAt = new Date().toISOString().slice(0, 19).replace("T", " ");
-                        } else {
-                            invoice.paymentMethod = null;
-                            invoice.paymentRef = null;
-                            invoice.paidAmount = 0;
-                            invoice.paidAt = null;
-                        }
+                const invoice = mappedInvoices.find((item) => Number(item.id) === invoiceId);
+                if (invoice) {
+                    invoice.paymentStatus = nextStatus;
+                    if (nextStatus === "paid") {
+                        invoice.paymentMethod = paymentMethod;
+                        invoice.paymentRef = paymentRef;
+                        invoice.paidAmount = Number(invoice.totalAmount || 0);
+                        invoice.paidAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+                    } else {
+                        invoice.paymentMethod = null;
+                        invoice.paymentRef = null;
+                        invoice.paidAmount = 0;
+                        invoice.paidAt = null;
                     }
-                    renderInvoices();
-                    await notify("Đã cập nhật trạng thái thanh toán kỳ.", "success");
-                } catch (err) {
-                    console.error(err);
-                    await notify("Không thể cập nhật thanh toán kỳ.", "error");
                 }
+                renderInvoices();
+                await notify("Đã đánh dấu thanh toán. Nhấn OK để lưu.", "success");
             });
             invoicesWrap.addEventListener("input", (e) => {
                 const serviceInput = e.target && e.target.closest(".invoice-svc-input");
@@ -2042,26 +2157,6 @@
                         notify(msg, "error");
                         return;
                     }
-                    const serviceFees = [];
-                    const autoChargeMode = isMonthlyCycleRange() ? "per_cycle" : "one_time";
-                    if (mappedInvoices.length > 0) {
-                        const firstInvoiceFees = Array.isArray(mappedInvoices[0].serviceFees) ? mappedInvoices[0].serviceFees : [];
-                        firstInvoiceFees.forEach((fee) => {
-                            if (!fee || !fee.feeType) {
-                                return;
-                            }
-                            serviceFees.push({
-                                feeType: fee.feeType,
-                                meterStart: parseLocaleNumber(fee.meterStart || 0),
-                                meterEnd: parseLocaleNumber(fee.meterEnd || 0),
-                                chargeMode: autoChargeMode,
-                                description: fee.description || "",
-                                periodStart: mappedInvoices[0].periodStart || "",
-                                periodEnd: mappedInvoices[0].periodEnd || "",
-                                amount: parseLocaleNumber(fee.amount || 0)
-                            });
-                        });
-                    }
                     const result = Object.assign({}, data, {
                         text: byId("rn_text").value || "",
                         resource: byId("rn_resource").value,
@@ -2070,6 +2165,8 @@
                         rentalType: isMonthlyCycleRange() ? "long_term" : "short_term",
                         status: isCreateMode ? "New" : byId("rn_status").value,
                         roomPrice: parseLocaleNumber(byId("rn_roomPrice").value || 0),
+                        roomPriceDay: parseLocaleNumber(((getRoomById(byId("rn_resource").value) || {}).priceDay) || 0),
+                        roomPriceHour: parseLocaleNumber(((getRoomById(byId("rn_resource").value) || {}).priceHour) || 0),
                         discountType: byId("rn_discountType").value,
                         discountValue: parseLocaleNumber(byId("rn_discountValue").value || 0),
                         finalPrice: parseLocaleNumber(byId("rn_finalPrice").value || 0),
@@ -2080,12 +2177,17 @@
                         customerBirthday: byId("rn_customerBirthday").value || null,
                         contractTerms: getContractTermsFromForm(),
                         showServiceFees: expanded ? "1" : "0",
-                        serviceFees: isCreateMode ? [] : serviceFees,
+                        serviceFees: [],
                         invoices: mappedInvoices,
-                        invoiceServiceFees: isCreateMode ? [] : mappedInvoices.map((inv) => {
+                        invoiceServiceFees: mappedInvoices.map((inv) => {
                             const fees = Array.isArray(inv.serviceFees) ? inv.serviceFees : [];
+                            const electricFee = fees.find((fee) => fee && fee.feeType === "electricity") || null;
+                            const waterFee = fees.find((fee) => fee && fee.feeType === "water") || null;
                             return {
                                 invoiceId: inv.id,
+                                cycleIndex: inv.cycleIndex,
+                                electricMeterEnd: electricFee ? parseLocaleNumber(electricFee.meterEnd || 0) : 0,
+                                waterMeterEnd: waterFee ? parseLocaleNumber(waterFee.meterEnd || 0) : 0,
                                 fees: fees.map((fee) => ({
                                     feeType: fee.feeType,
                                     amount: parseLocaleNumber(fee.amount || 0),
@@ -2373,7 +2475,9 @@
                                 {name: "Tên phòng (VD: Phòng 101)", id: "name"},
                                 {name: "Sức chứa", id: "capacity", type: "select", options: capacities},
                                 {name: "Trạng thái", id: "status", type: "select", options: statuses},
-                                {name: "Giá phòng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice}
+                                {name: "Giá tháng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice},
+                                {name: "Giá ngày (VD: 300000)", id: "priceDay", type: "number", onValidate: validateRoomPrice},
+                                {name: "Giá giờ (VD: 50000)", id: "priceHour", type: "number", onValidate: validateRoomPrice}
                             ];
     
                             const data = args.source.data;
@@ -2385,6 +2489,8 @@
     
                             const room = modal.result;
                             room.price = Math.max(0, parseLocaleNumber(room.price));
+                            room.priceDay = Math.max(0, parseLocaleNumber(room.priceDay));
+                            room.priceHour = Math.max(0, parseLocaleNumber(room.priceHour));
                             await DayPilot.Http.post("backend_room_update.php", room);
                             dp.rows.update(room);
                         }},
@@ -2539,7 +2645,7 @@
                 // dp.message("Deleted.");
             },
             onTimeRangeSelected: async (args) => {
-    
+                try {
                 const rooms = dp.resources.map((item) => {
                     return {
                         name: `${item.name} (${formatCurrency(item.price)})`,
@@ -2672,10 +2778,24 @@
                     birthday: e.customerBirthday || null
                 };
                 e.serviceFees = Array.isArray(e.serviceFees) ? e.serviceFees : buildServiceFeesPayload(e);
-                const serviceFeesTotal = e.serviceFees.reduce((sum, fee) => sum + Math.max(0, parseLocaleNumber(fee.amount || 0)), 0);
+                const safeFees = Array.isArray(e.serviceFees) ? e.serviceFees : [];
+                const serviceFeesTotal = safeFees.reduce((sum, fee) => sum + Math.max(0, parseLocaleNumber((fee && fee.amount) || 0)), 0);
                 e.finalPrice = calculateFinalPrice(e.roomPrice, e.discountType, e.discountValue) + serviceFeesTotal;
     
-                const {data: result} = await DayPilot.Http.post("backend_reservation_create.php", e);
+                let result;
+                try {
+                    const response = await DayPilot.Http.post("backend_reservation_create.php", e);
+                    result = response.data;
+                    if (!result || result.result !== "OK") {
+                        const message = result && result.message ? result.message : extractBackendMessage(response, "Không thể tạo đặt/thuê phòng.");
+                        await notify(message, "error");
+                        return;
+                    }
+                } catch (err) {
+                    const backendMessage = extractBackendMessage(err, "Không thể tạo đặt/thuê phòng.");
+                    await notify(backendMessage, "error");
+                    return;
+                }
     
                 e.id = result.id;
                 e.paid = result.paid;
@@ -2688,7 +2808,11 @@
                 e.serviceFees = result.serviceFees || e.serviceFees;
                 e.invoices = result.invoices || [];
                 dp.events.add(e);
-    
+                } catch (err) {
+                    const backendMessage = extractBackendMessage(err, "Không thể tạo đặt/thuê phòng.");
+                    await notify(backendMessage, "error");
+                    console.error(err);
+                }
             },
             onEventClick: async (args) => {
                 const previous = Object.assign({}, args.e.data);
@@ -2802,7 +2926,20 @@
                     start: toBackendDateTime(startDp, previousData.start),
                     end: toBackendDateTime(endDp, previousData.end)
                 });
-                const {data: result} = await DayPilot.Http.post("backend_reservation_update.php", payload);
+                let result;
+                try {
+                    const response = await DayPilot.Http.post("backend_reservation_update.php", payload);
+                    result = response.data;
+                    if (!result || result.result !== "OK") {
+                        const message = result && result.message ? result.message : extractBackendMessage(response, "Không thể cập nhật đặt/thuê phòng.");
+                        await notify(message, "error");
+                        return;
+                    }
+                } catch (err) {
+                    const backendMessage = extractBackendMessage(err, "Không thể cập nhật đặt/thuê phòng.");
+                    await notify(backendMessage, "error");
+                    return;
+                }
                 const currentData = args.e.data || {};
                 const normalizedResource = (typeof previousData.resource === "number")
                     ? parseInt(e.resource, 10)

@@ -38,6 +38,11 @@
                             <input class="form-check-input" type="radio" name="rentalMode" id="modeLong" value="long_term">
                             <label class="form-check-label" for="modeLong">Chỉ dài hạn (theo chu kỳ tháng)</label>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label mb-1" for="shortTermDayThresholdHours">Ngưỡng giờ tính giá ngày (ngắn hạn)</label>
+                            <input id="shortTermDayThresholdHours" type="number" min="1" step="1" class="form-control form-control-sm" value="4">
+                            <div class="form-text">Nếu thời gian ở lớn hơn ngưỡng này, hệ thống dùng giá ngày; ngược lại dùng giá giờ.</div>
+                        </div>
                         <button id="saveSettingsBtn" class="btn btn-primary btn-sm">Lưu cài đặt</button>
                         <div id="settingsMsg" class="small text-muted mt-2"></div>
                     </div>
@@ -64,11 +69,20 @@
             target.checked = true;
         }
     };
+    const readShortTermThreshold = () => {
+        const input = document.getElementById("shortTermDayThresholdHours");
+        const value = input ? parseInt(input.value || "4", 10) : 4;
+        return Number.isFinite(value) && value > 0 ? value : 4;
+    };
 
     const loadSettings = async () => {
         const res = await fetch("backend_settings_get.php");
         const data = await res.json();
         setMode(data.rentalMode || "both");
+        const thresholdInput = document.getElementById("shortTermDayThresholdHours");
+        if (thresholdInput) {
+            thresholdInput.value = data.shortTermDayThresholdHours || 4;
+        }
     };
 
     document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
@@ -78,7 +92,10 @@
             await fetch("backend_settings_update.php", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({rentalMode: readMode()})
+                body: JSON.stringify({
+                    rentalMode: readMode(),
+                    shortTermDayThresholdHours: readShortTermThreshold()
+                })
             });
             msg.textContent = "Đã lưu cài đặt thành công.";
         } catch (e) {

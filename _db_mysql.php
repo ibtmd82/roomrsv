@@ -54,7 +54,9 @@ if (!$exists) {
                         name TEXT,
                         capacity INTEGER,
                         status VARCHAR(30),
-                        price DECIMAL(10,2) DEFAULT 0)");
+                        price DECIMAL(10,2) DEFAULT 0,
+                        price_day DECIMAL(10,2) DEFAULT 300000,
+                        price_hour DECIMAL(10,2) DEFAULT 80000)");
 
     $db->exec("CREATE TABLE IF NOT EXISTS reservations (
                         id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -199,6 +201,17 @@ if (!columnExists($db, "rooms", "price")) {
     $db->exec("ALTER TABLE rooms ADD COLUMN price DECIMAL(10,2) DEFAULT 0");
 }
 
+if (!columnExists($db, "rooms", "price_day")) {
+    $db->exec("ALTER TABLE rooms ADD COLUMN price_day DECIMAL(10,2) DEFAULT 300000");
+}
+
+if (!columnExists($db, "rooms", "price_hour")) {
+    $db->exec("ALTER TABLE rooms ADD COLUMN price_hour DECIMAL(10,2) DEFAULT 80000");
+}
+
+$db->exec("UPDATE rooms SET price_day = 300000 WHERE price_day IS NULL OR price_day <= 0");
+$db->exec("UPDATE rooms SET price_hour = 80000 WHERE price_hour IS NULL OR price_hour <= 0");
+
 if (!columnExists($db, "reservations", "room_price")) {
     $db->exec("ALTER TABLE reservations ADD COLUMN room_price DECIMAL(10,2) DEFAULT 0");
 }
@@ -292,5 +305,10 @@ if (!tableExists($db, "tenant_settings")) {
                         id INTEGER PRIMARY KEY AUTO_INCREMENT,
                         tenant_id INTEGER NOT NULL,
                         rental_mode VARCHAR(20) DEFAULT 'both',
+                        short_term_day_threshold_hours INTEGER DEFAULT 4,
                         updated_at DATETIME NULL)");
+}
+
+if (!columnExists($db, "tenant_settings", "short_term_day_threshold_hours")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN short_term_day_threshold_hours INTEGER DEFAULT 4");
 }
