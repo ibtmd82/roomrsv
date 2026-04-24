@@ -86,6 +86,8 @@
         $('#body').toggleClass('active');
     };
     window.toggleSidebarLayout = toggleSidebar;
+    $(document).on('click', '#sidebarCollapse', toggleSidebar);
+    $(document).on('touchend', '#sidebarCollapse', toggleSidebar);
 
     // $('#savemsg').on('click', function() {
     //     var data = JSON.parse(localStorage.getItem("msgplays"));

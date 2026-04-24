@@ -69,13 +69,12 @@
         if (sidebarToggle) {
             let touched = false;
             const onToggle = (event) => {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
                 if (window.toggleSidebarLayout) {
                     window.toggleSidebarLayout(event);
                     return;
+                }
+                if (event) {
+                    event.preventDefault();
                 }
                 const sidebar = document.getElementById("sidebar");
                 const body = document.getElementById("body");
