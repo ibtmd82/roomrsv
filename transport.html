@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <title>Đặt xe | RoomRSV</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="https://cdn.jsdelivr.net/npm/@daypilot/daypilot-lite-javascript@5.4.1/daypilot-javascript.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="icons/style.css" />
+    <link type="text/css" rel="stylesheet" href="index.css" />
+    <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/master.css" rel="stylesheet">
+    <link href="assets/css/booking-shared.css" rel="stylesheet">
+</head>
+<body>
+<div class="wrapper">
+    <nav id="sidebar" class="active" data-current-page="transport"></nav>
+    <div id="body" class="active">
+        <div id="topNavbar"></div>
+        <div class="content">
+            <div class="container">
+                <div class="page-title">
+                    <div class="d-flex align-items-center justify-content-between gap-2 flex-nowrap">
+                        <div class="d-flex align-items-center gap-2 flex-nowrap">
+                            <h3 class="toolbar-label">Xem lịch đặt xe theo</h3>
+                            <select id="timerange" class="form-select form-select-sm" style="width:auto;min-width:140px;">
+                                <option value="week">Tuần</option>
+                                <option value="month" selected>Tháng</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hint mt-1">Chỉ ngắn hạn - có giảm giá theo chuyến - tài xế nhập theo từng chuyến.</div>
+                </div>
+                <div class="box box-primary">
+                    <div class="box-body">
+                        <div id="nav"></div>
+                        <div id="dp"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade native-modal" id="statusNativeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-toggle-on"></i> Chọn trạng thái</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <select id="sn_status" class="form-select form-select-sm"></select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" id="sn_saveBtn">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade native-modal" id="tripEditNativeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit"></i> Cập nhật đặt chuyến</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="reservation-native-section" id="tn_paymentSection">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                        <h6 class="mb-0">Ghi nhận thanh toán</h6>
+                        <button type="button" id="tn_togglePaymentSection" class="reservation-native-collapse-btn">▾ Thu gọn</button>
+                    </div>
+                    <div class="reservation-native-grid" id="tn_paymentContent">
+                        <div class="grid-col-full">
+                            <div id="tn_invoiceWrap" class="small"></div>
+                        </div>
+                        <div class="grid-col-full"><label class="form-label mb-1">Ghi chú</label><input id="tn_note" class="form-control form-control-sm"></div>
+                    </div>
+                </div>
+                <div class="reservation-native-section" id="tn_costSection">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                        <h6 class="mb-0">Thông tin chi phí</h6>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" id="tn_costToggle" class="reservation-native-collapse-btn">▾ Thu gọn</button>
+                            <button type="button" id="tn_addCost" class="reservation-native-add-btn" title="Thêm chi phí">+</button>
+                        </div>
+                    </div>
+                    <div id="tn_costWrap">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered align-middle mb-0 trip-cost-table">
+                                <thead>
+                                <tr><th>Loại chi phí</th><th>Mô tả</th><th class="text-end">Số tiền</th><th class="text-center">Xóa</th></tr>
+                                </thead>
+                                <tbody id="tn_costRows"></tbody>
+                                <tfoot>
+                                <tr><th colspan="2">Chi phí xăng/dầu (tự tính)</th><th><input id="tn_fuelEstimatedCost" type="number" class="form-control form-control-sm text-end" readonly></th><th></th></tr>
+                                <tr><th colspan="2">Tổng chi phí khác (gồm xăng)</th><th><input id="tn_tripCostsTotal" type="number" class="form-control form-control-sm text-end" readonly></th><th></th></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="reservation-native-section" id="tn_customerSection">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                        <h6 class="mb-0">Thông tin khách hàng</h6>
+                        <button type="button" id="tn_toggleCustomerSection" class="reservation-native-collapse-btn">▾ Thu gọn</button>
+                    </div>
+                    <div class="reservation-native-grid" id="tn_customerContent">
+                        <div><label class="form-label mb-1">Họ tên</label><input id="tn_customerFullName" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Điện thoại</label><input id="tn_customerPhoneNumber" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Loại giấy tờ</label><select id="tn_customerIdType" class="form-select form-select-sm"><option value="CCCD">CCCD</option><option value="Passport">Passport</option></select></div>
+                        <div><label class="form-label mb-1">Số giấy tờ</label><input id="tn_customerIdNumber" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Ngày sinh</label><input id="tn_customerBirthday" type="date" class="form-control form-control-sm"></div>
+                    </div>
+                </div>
+                <div class="reservation-native-section" id="tn_tripSection">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                        <h6 class="mb-0">Thông tin đặt chuyến</h6>
+                        <button type="button" id="tn_toggleTripSection" class="reservation-native-collapse-btn">▾ Thu gọn</button>
+                    </div>
+                    <div class="reservation-native-grid" id="tn_tripSectionContent">
+                        <div><label class="form-label mb-1">Tên chuyến</label><input id="tn_text" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Tài xế</label><input id="tn_driverName" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Trạng thái</label><select id="tn_status" class="form-select form-select-sm"></select></div>
+                        <div><label class="form-label mb-1">Bắt đầu</label><input id="tn_start" type="datetime-local" class="form-control form-control-sm" readonly></div>
+                        <div><label class="form-label mb-1">Kết thúc</label><input id="tn_end" type="datetime-local" class="form-control form-control-sm" readonly></div>
+                        <div><label class="form-label mb-1">Quãng đường (km)</label><input id="tn_distanceKm" type="number" min="0" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Giá chuyến (tự tính, chưa gồm chi phí khác/xăng, chưa trừ discount)</label><input id="tn_tripPrice" type="number" min="0" class="form-control form-control-sm" readonly></div>
+                        <div><label class="form-label mb-1">Loại giảm giá</label><select id="tn_discountType" class="form-select form-select-sm"><option value="fixed">Cố định</option><option value="percent">Phần trăm</option></select></div>
+                        <div><label class="form-label mb-1">Giá trị giảm</label><input id="tn_discountValue" type="number" min="0" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Thành tiền (sau chi phí và giảm giá)</label><input id="tn_finalPrice" type="number" min="0" class="form-control form-control-sm" readonly></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" id="tn_saveBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="assets/js/backend-clientid.js"></script>
+<script src="assets/js/sidebar-menu.js"></script>
+<script src="assets/js/top-navbar.js"></script>
+<script src="assets/vendor/jquery/jquery.min.js"></script>
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+    if (!window.DayPilot) {
+        console.error("DayPilot library is unavailable.");
+    } else {
+    let moduleSettingsCache = null;
+    const app = {
+        days: DayPilot.Date.today().daysInMonth(),
+        defaultDiscountType: "fixed",
+        defaultDiscountValue: 0,
+        defaultCosts: { driver: 0, toll: 0, parking: 0, other: 0 },
+        fuelPricePerLiter: 22000
+    };
+    const toNumber = (value) => {
+        if (value === null || value === undefined) return 0;
+        const text = String(value).replace(/[^\d.,-]/g, "").replace(/\./g, "").replace(",", ".");
+        const parsed = parseFloat(text);
+        return Number.isFinite(parsed) ? parsed : 0;
+    };
+    const formatMoney = (value) => `${Number(value || 0).toLocaleString("vi-VN")} đ`;
+    const statusOptions = ["New", "Confirmed", "InTrip", "Done", "Cancelled"];
+    const paymentStatusOptions = ["unpaid", "partial", "paid"];
+
+    const computeFinalPrice = (price, discountType, discountValue) => {
+        const p = Math.max(0, toNumber(price));
+        const d = Math.max(0, toNumber(discountValue));
+        if (discountType === "percent") return Math.max(0, p - (p * Math.min(100, d) / 100));
+        return Math.max(0, p - d);
+    };
+    const getVehicleBasePricePerKm = (resourceId) => {
+        const row = (dp && Array.isArray(dp.resources)) ? dp.resources.find((r) => String(r.id) === String(resourceId)) : null;
+        const value = row && row.basePrice !== undefined ? toNumber(row.basePrice) : 0;
+        return value > 0 ? value : 6000;
+    };
+    const getVehicleFuelConsumption = (resourceId) => {
+        const row = (dp && Array.isArray(dp.resources)) ? dp.resources.find((r) => String(r.id) === String(resourceId)) : null;
+        const value = row && row.fuelConsumptionPer100Km !== undefined ? toNumber(row.fuelConsumptionPer100Km) : 8;
+        return value > 0 ? value : 8;
+    };
+    const computeTripPriceByDistance = (distanceKm, resourceId) => {
+        const km = Math.max(0, toNumber(distanceKm));
+        const pricePerKm = getVehicleBasePricePerKm(resourceId);
+        const distanceAmount = km * pricePerKm;
+        const fuelLitersPer100Km = getVehicleFuelConsumption(resourceId);
+        const fuelEstimatedCost = (km * fuelLitersPer100Km / 100) * Math.max(0, toNumber(app.fuelPricePerLiter));
+        return {
+            distanceKm: km,
+            fuelEstimatedCost,
+            tripPrice: distanceAmount
+        };
+    };
+    const calculateTripCostsTotal = (tripCosts) => (tripCosts || []).reduce((sum, item) => sum + Math.max(0, toNumber(item.amount)), 0);
+    const toDatetimeLocalValue = (value) => {
+        if (!value) return "";
+        const text = String(value).trim().replace(" ", "T");
+        if (text.length >= 16) return text.slice(0, 16);
+        return text;
+    };
+    const isMobileTransportHeader = () => (window.innerWidth || 0) <= 576;
+    const getVehicleStatusLabel = (status) => ({ Ready: "Sẵn sàng", Busy: "Đang chạy", Maintenance: "Bảo trì" }[status] || status || "Sẵn sàng");
+    const getVehicleStatusColor = (status) => ({ Ready: "#16a34a", Busy: "#f59e0b", Maintenance: "#dc2626" }[status] || "#16a34a");
+    const getTripStatusLabel = (status) => ({ New: "Mới", Confirmed: "Xác nhận", InTrip: "Đang chạy", Done: "Hoàn tất", Cancelled: "Đã hủy" }[status] || status || "Mới");
+    const getTripStatusColor = (status) => ({ New: "#e69138", Confirmed: "#38761d", InTrip: "#1691f4", Done: "#6b7280", Cancelled: "#cc4125" }[status] || "#2563eb");
+    const buildStatusIconButtonHtml = (id, status, iconText) => {
+        const color = getVehicleStatusColor(status);
+        const safeStatus = DayPilot.Util.escapeHtml(getVehicleStatusLabel(status));
+        return `<button type="button" class="status-icon-btn" data-status-type="vehicle" data-id="${id}" data-status="${status}" style="border-color:${color};color:${color};"><span class="status-icon-dot" style="background:${color};color:#fff;">${DayPilot.Util.escapeHtml(iconText)}</span><span>${safeStatus}</span></button>`;
+    };
+    const buildTripStatusPillHtml = (id, status, compact = false) => {
+        const color = getTripStatusColor(status);
+        const safeStatus = DayPilot.Util.escapeHtml(getTripStatusLabel(status));
+        if (compact) {
+            return `<button type="button" class="status-icon-btn" data-status-type="trip" data-id="${id}" data-status="${status}" style="background:${color};border-color:${color};padding:0;width:20px;height:20px;min-width:20px;"><span class="status-icon-dot">•</span></button>`;
+        }
+        return `<button type="button" class="status-icon-btn" data-status-type="trip" data-id="${id}" data-status="${status}" style="background:${color};border-color:${color};"><span class="status-icon-dot">•</span><span>${safeStatus}</span></button>`;
+    };
+    const notify = async (text, type = "success") => {
+        const toast = document.createElement("div");
+        toast.className = `app-toast ${type === "error" ? "error" : "success"}`;
+        toast.textContent = text;
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add("show"));
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 220);
+        }, 2200);
+    };
+    const chooseVehicleStatus = (current) => new Promise((resolve) => {
+        const modalEl = document.getElementById("statusNativeModal");
+        const selectEl = document.getElementById("sn_status");
+        const saveBtn = document.getElementById("sn_saveBtn");
+        if (!modalEl || !selectEl || !saveBtn || !window.bootstrap) {
+            resolve(current);
+            return;
+        }
+        selectEl.innerHTML = "";
+        [{name: "Sẵn sàng", id: "Ready"}, {name: "Đang chạy", id: "Busy"}, {name: "Bảo trì", id: "Maintenance"}].forEach((opt) => {
+            const option = document.createElement("option");
+            option.value = opt.id;
+            option.textContent = opt.name;
+            selectEl.appendChild(option);
+        });
+        selectEl.value = current || "Ready";
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const onHidden = () => {
+            modalEl.removeEventListener("hidden.bs.modal", onHidden);
+            saveBtn.removeEventListener("click", onSave);
+            resolve(selectEl.value || current);
+        };
+        const onSave = () => bsModal.hide();
+        saveBtn.addEventListener("click", onSave);
+        modalEl.addEventListener("hidden.bs.modal", onHidden);
+        bsModal.show();
+    });
+    const chooseTripStatus = (current) => new Promise((resolve) => {
+        const modalEl = document.getElementById("statusNativeModal");
+        const selectEl = document.getElementById("sn_status");
+        const saveBtn = document.getElementById("sn_saveBtn");
+        if (!modalEl || !selectEl || !saveBtn || !window.bootstrap) {
+            resolve(current);
+            return;
+        }
+        selectEl.innerHTML = "";
+        [{name: "Mới", id: "New"}, {name: "Xác nhận", id: "Confirmed"}, {name: "Đang chạy", id: "InTrip"}, {name: "Hoàn tất", id: "Done"}, {name: "Đã hủy", id: "Cancelled"}].forEach((opt) => {
+            const option = document.createElement("option");
+            option.value = opt.id;
+            option.textContent = opt.name;
+            selectEl.appendChild(option);
+        });
+        selectEl.value = current || "New";
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const onHidden = () => {
+            modalEl.removeEventListener("hidden.bs.modal", onHidden);
+            saveBtn.removeEventListener("click", onSave);
+            resolve(selectEl.value || current);
+        };
+        const onSave = () => bsModal.hide();
+        saveBtn.addEventListener("click", onSave);
+        modalEl.addEventListener("hidden.bs.modal", onHidden);
+        bsModal.show();
+    });
+    const applyTripStatusChange = async (id, currentStatus) => {
+        const nextStatus = await chooseTripStatus(currentStatus || "New");
+        if (!nextStatus || nextStatus === currentStatus) return;
+        await DayPilot.Http.post("backend_trip_reservation_status_update.php", { id, status: nextStatus });
+        const event = dp.events.find(id);
+        if (event) {
+            event.data.status = nextStatus;
+            dp.events.update(event);
+        }
+        await notify("Đã cập nhật trạng thái chuyến.");
+    };
+
+    const fetchTransportSettings = async () => {
+        if (moduleSettingsCache) {
+            return moduleSettingsCache;
+        }
+        const res = await fetch("backend_settings_get.php");
+        const settings = await res.json();
+        moduleSettingsCache = settings;
+        try {
+            window.__sidebarModuleSettings = settings;
+        } catch (e) {
+            // ignore
+        }
+        return settings;
+    };
+    const initTransportSettings = async () => {
+        const settings = await fetchTransportSettings();
+        if (settings.transportModuleEnabled === false) {
+            window.location.href = "settings.html";
+            return false;
+        }
+        app.defaultDiscountType = "fixed";
+        app.defaultDiscountValue = 0;
+        app.defaultCosts = {
+            driver: 0,
+            toll: 0,
+            parking: 0,
+            other: 0
+        };
+        app.fuelPricePerLiter = Math.max(0, toNumber(settings.transportFuelPricePerLiter || 22000));
+        return true;
+    };
+
+    const createOrEditTrip = async (context) => {
+        const data = context || {};
+        const customer = data.customer || {};
+        const isCreate = !data.id;
+        const form = isCreate
+            ? [
+                { name: "Tên chuyến", id: "text" },
+                { name: "Tài xế", id: "driverName" },
+                { name: "Bắt đầu", id: "start", type: "datetime" },
+                { name: "Kết thúc", id: "end", type: "datetime" },
+                { name: "Quãng đường (km)", id: "distanceKm", type: "number" }
+            ]
+            : [
+                { name: "=== Thông tin đặt chuyến ===", id: "sectionTrip", disabled: true },
+                { name: "Tên chuyến", id: "text" },
+                { name: "Tài xế", id: "driverName" },
+                { name: "Trạng thái", id: "status", type: "select", options: statusOptions.map((s) => ({ name: s, id: s })) },
+                { name: "Giá chuyến", id: "tripPrice", type: "number" },
+                { name: "Loại giảm giá", id: "discountType", type: "select", options: [{ name: "Cố định", id: "fixed" }, { name: "Phần trăm", id: "percent" }] },
+                { name: "Giá trị giảm", id: "discountValue", type: "number" },
+                { name: "Ghi chú", id: "note" },
+                { name: "=== Chi phí chuyến (mặc định luôn có tài xế + xăng/dầu) ===", id: "sectionCost", disabled: true },
+                { name: "Chi phí tài xế", id: "driverCost", type: "number" },
+                { name: "Chi phí xăng/dầu", id: "fuelCost", type: "number" },
+                { name: "Chi phí trạm", id: "tollCost", type: "number" },
+                { name: "Phí đậu xe", id: "parkingCost", type: "number" },
+                { name: "Chi phí khác", id: "otherCost", type: "number" },
+                { name: "=== Thông tin khách hàng ===", id: "sectionCustomer", disabled: true },
+                { name: "Họ tên khách", id: "customerFullName" },
+                { name: "Điện thoại", id: "customerPhoneNumber" },
+                { name: "Loại giấy tờ", id: "customerIdType", type: "select", options: [{name: "CCCD", id: "CCCD"}, {name: "Passport", id: "Passport"}] },
+                { name: "Số giấy tờ", id: "customerIdNumber" },
+                { name: "Ngày sinh", id: "customerBirthday", type: "date" },
+                { name: "=== Ghi nhận thanh toán ===", id: "sectionPayment", disabled: true },
+                { name: "Thanh toán", id: "paymentStatus", type: "select", options: paymentStatusOptions.map((s) => ({ name: s, id: s })) },
+                { name: "Đã thu", id: "paidAmount", type: "number" }
+            ];
+
+        const defaults = {
+            text: data.text || "Chuyến mới",
+            driverName: data.driverName || "",
+            start: data.start || null,
+            end: data.end || null,
+            distanceKm: data.distanceKm || 0,
+            status: data.status || "New",
+            tripPrice: data.tripPrice || 0,
+            discountType: data.discountType || app.defaultDiscountType,
+            discountValue: data.discountValue || app.defaultDiscountValue,
+            paymentStatus: data.paymentStatus || "unpaid",
+            paidAmount: data.paidAmount || 0,
+            customerFullName: customer.fullName || "",
+            customerPhoneNumber: customer.phoneNumber || "",
+            customerIdType: customer.idType || "CCCD",
+            customerIdNumber: customer.idNumber || "",
+            customerBirthday: customer.birthday || null,
+            driverCost: app.defaultCosts.driver,
+            tollCost: app.defaultCosts.toll,
+            parkingCost: app.defaultCosts.parking,
+            otherCost: app.defaultCosts.other,
+            note: data.note || ""
+        };
+        (data.tripCosts || []).forEach((c) => {
+            const amount = toNumber(c.amount);
+            if (c.costType === "driver") defaults.driverCost = amount;
+            if (c.costType === "toll") defaults.tollCost = amount;
+            if (c.costType === "parking") defaults.parkingCost = amount;
+            if (c.costType === "other") defaults.otherCost = amount;
+        });
+
+        const modal = await DayPilot.Modal.form(form, defaults);
+        if (modal.canceled) return null;
+        const result = modal.result;
+        const selectedStatus = result.status || (isCreate ? "New" : (data.status || "New"));
+        const discountType = result.discountType === "percent" ? "percent" : "fixed";
+        const payload = {
+            ...data,
+            ...result,
+            distanceKm: Math.max(0, toNumber(result.distanceKm)),
+            status: selectedStatus,
+            discountType,
+            discountValue: Math.max(0, toNumber(isCreate ? app.defaultDiscountValue : result.discountValue)),
+            paidAmount: Math.max(0, toNumber(isCreate ? 0 : result.paidAmount)),
+            paymentStatus: isCreate ? "unpaid" : (result.paymentStatus || "unpaid"),
+            note: isCreate ? "" : (result.note || ""),
+            customer: {
+                fullName: ((isCreate ? "" : result.customerFullName) || "").trim(),
+                phoneNumber: ((isCreate ? "" : result.customerPhoneNumber) || "").trim(),
+                idType: (isCreate ? "CCCD" : result.customerIdType) === "Passport" ? "Passport" : "CCCD",
+                idNumber: ((isCreate ? "" : result.customerIdNumber) || "").trim(),
+                birthday: (!isCreate && result.customerBirthday && String(result.customerBirthday).trim() !== "") ? result.customerBirthday : null
+            },
+            tripCosts: [
+                { costType: "driver", amount: Math.max(0, toNumber(isCreate ? defaults.driverCost : result.driverCost)), description: "Chi phí tài xế" },
+                { costType: "toll", amount: Math.max(0, toNumber(isCreate ? defaults.tollCost : result.tollCost)), description: "Tiền trạm thu phí" },
+                { costType: "parking", amount: Math.max(0, toNumber(isCreate ? defaults.parkingCost : result.parkingCost)), description: "Phí đậu xe" },
+                { costType: "other", amount: Math.max(0, toNumber(isCreate ? defaults.otherCost : result.otherCost)), description: "Chi phí khác" }
+            ].filter((c) => c.costType === "driver" || c.amount > 0)
+        };
+        const estimate = computeTripPriceByDistance(payload.distanceKm, payload.resource);
+        payload.tripPrice = estimate.tripPrice;
+        payload.fuelEstimatedCost = estimate.fuelEstimatedCost;
+        payload.finalPrice = computeFinalPrice(payload.tripPrice + calculateTripCostsTotal(payload.tripCosts) + payload.fuelEstimatedCost, payload.discountType, payload.discountValue);
+        return payload;
+    };
+    const editTripNativeModal = (data) => new Promise((resolve) => {
+        const modalEl = document.getElementById("tripEditNativeModal");
+        if (!modalEl || !window.bootstrap) {
+            resolve(null);
+            return;
+        }
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val == null ? "" : val;
+        };
+        const customer = data.customer || {};
+        setVal("tn_text", data.text || "");
+        setVal("tn_driverName", data.driverName || "");
+        setVal("tn_status", data.status || "New");
+        setVal("tn_start", toDatetimeLocalValue(data.start));
+        setVal("tn_end", toDatetimeLocalValue(data.end));
+        setVal("tn_distanceKm", data.distanceKm || 0);
+        setVal("tn_tripPrice", data.tripPrice || 0);
+        setVal("tn_finalPrice", data.finalPrice || 0);
+        setVal("tn_fuelEstimatedCost", data.fuelEstimatedCost || 0);
+        setVal("tn_discountType", data.discountType || "fixed");
+        setVal("tn_discountValue", data.discountValue || 0);
+        setVal("tn_note", data.note || "");
+        setVal("tn_customerFullName", customer.fullName || "");
+        setVal("tn_customerPhoneNumber", customer.phoneNumber || "");
+        setVal("tn_customerIdType", customer.idType || "CCCD");
+        setVal("tn_customerIdNumber", customer.idNumber || "");
+        setVal("tn_customerBirthday", customer.birthday || "");
+
+        const costRowsEl = document.getElementById("tn_costRows");
+        const addCostBtn = document.getElementById("tn_addCost");
+        const costTypeOptions = [
+            { id: "driver", label: "Tài xế" },
+            { id: "toll", label: "Qua trạm" },
+            { id: "parking", label: "Đậu xe" },
+            { id: "other", label: "Khác" }
+        ];
+        const buildTypeOptionsHtml = (selected) => costTypeOptions
+            .map((opt) => `<option value="${opt.id}" ${opt.id === selected ? "selected" : ""}>${opt.label}</option>`)
+            .join("");
+        let costRows = Array.isArray(data.tripCosts) && data.tripCosts.length
+            ? data.tripCosts.map((c, idx) => ({
+                id: `${Date.now()}_${idx}`,
+                costType: ["driver", "toll", "parking", "other"].includes(c.costType) ? c.costType : "other",
+                description: c.description || "",
+                amount: Math.max(0, toNumber(c.amount))
+            }))
+            : [
+                { id: `${Date.now()}_driver`, costType: "driver", description: "Chi phí tài xế", amount: app.defaultCosts.driver || 0 }
+            ];
+
+        const readCostRowsFromDom = () => {
+            if (!costRowsEl) return [];
+            return Array.from(costRowsEl.querySelectorAll("tr")).map((row) => {
+                const costType = row.querySelector('[data-col="costType"]') ? row.querySelector('[data-col="costType"]').value : "other";
+                const description = row.querySelector('[data-col="description"]') ? row.querySelector('[data-col="description"]').value : "";
+                const amount = row.querySelector('[data-col="amount"]') ? Math.max(0, toNumber(row.querySelector('[data-col="amount"]').value)) : 0;
+                return { costType, description, amount };
+            });
+        };
+
+        const renderCostRows = () => {
+            if (!costRowsEl) return;
+            costRowsEl.innerHTML = costRows.map((row) => `
+                <tr data-row-id="${row.id}">
+                    <td><select class="form-select form-select-sm" data-col="costType">${buildTypeOptionsHtml(row.costType)}</select></td>
+                    <td><input class="form-control form-control-sm" data-col="description" value="${DayPilot.Util.escapeHtml(row.description || "")}"></td>
+                    <td><input type="number" min="0" class="form-control form-control-sm text-end" data-col="amount" value="${row.amount}"></td>
+                    <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger" data-action="remove">×</button></td>
+                </tr>
+            `).join("");
+        };
+
+        const recalcSummary = () => {
+            const distanceKm = Math.max(0, toNumber(document.getElementById("tn_distanceKm").value));
+            const discountType = document.getElementById("tn_discountType").value === "percent" ? "percent" : "fixed";
+            const discountValue = Math.max(0, toNumber(document.getElementById("tn_discountValue").value));
+            const tripCosts = readCostRowsFromDom();
+            const estimate = computeTripPriceByDistance(distanceKm, data.resource);
+            const costsTotal = calculateTripCostsTotal(tripCosts) + estimate.fuelEstimatedCost;
+            const finalPrice = computeFinalPrice(estimate.tripPrice + costsTotal, discountType, discountValue);
+            setVal("tn_tripPrice", estimate.tripPrice);
+            setVal("tn_fuelEstimatedCost", estimate.fuelEstimatedCost);
+            setVal("tn_tripCostsTotal", costsTotal);
+            setVal("tn_finalPrice", finalPrice);
+            renderPaymentInvoice();
+        };
+        let currentPaymentStatus = data.paymentStatus || "unpaid";
+        let currentPaidAmount = Math.max(0, toNumber(data.paidAmount || 0));
+        let currentPaymentMethod = data.paymentMethod || "cash";
+        let currentPaymentRef = data.paymentRef || "";
+        const paymentWrapEl = document.getElementById("tn_invoiceWrap");
+        const renderPaymentInvoice = () => {
+            if (!paymentWrapEl) return;
+            const finalPrice = Math.max(0, toNumber(document.getElementById("tn_finalPrice").value));
+            const badge = currentPaymentStatus === "paid"
+                ? `<span class="badge bg-success">Đã thanh toán</span>`
+                : `<span class="badge bg-secondary">Chưa thanh toán</span>`;
+            const actionLabel = currentPaymentStatus === "paid" ? "Hủy đã thanh toán" : "Ghi nhận đã thanh toán";
+            paymentWrapEl.innerHTML = `
+                <div class="border rounded p-2 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>Hóa đơn chuyến</strong>
+                        ${badge}
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-12 col-md-4"><small>Tổng tiền: <strong>${formatMoney(finalPrice)}</strong></small></div>
+                        <div class="col-12 col-md-4"><small>Đã thu: <strong>${formatMoney(currentPaidAmount)}</strong></small></div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1">Phương thức</label>
+                            <select id="tn_invoiceMethod" class="form-select form-select-sm">
+                                <option value="cash">Tiền mặt</option>
+                                <option value="bank_transfer">Chuyển khoản</option>
+                                <option value="card">Thẻ</option>
+                                <option value="e_wallet">Ví điện tử</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1">Mã giao dịch</label>
+                            <input id="tn_invoiceRef" class="form-control form-control-sm" placeholder="Tùy chọn">
+                        </div>
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <button type="button" id="tn_invoicePayBtn" class="btn btn-sm btn-outline-primary w-100">${actionLabel}</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const methodEl = document.getElementById("tn_invoiceMethod");
+            const refEl = document.getElementById("tn_invoiceRef");
+            const payBtn = document.getElementById("tn_invoicePayBtn");
+            if (methodEl) {
+                methodEl.value = currentPaymentMethod;
+                methodEl.onchange = () => { currentPaymentMethod = methodEl.value || "cash"; };
+            }
+            if (refEl) {
+                refEl.value = currentPaymentRef;
+                refEl.oninput = () => { currentPaymentRef = refEl.value || ""; };
+            }
+            if (payBtn) {
+                payBtn.onclick = () => {
+                    const total = Math.max(0, toNumber(document.getElementById("tn_finalPrice").value));
+                    if (currentPaymentStatus === "paid") {
+                        currentPaymentStatus = "unpaid";
+                        currentPaidAmount = 0;
+                    } else {
+                        currentPaymentStatus = "paid";
+                        currentPaidAmount = total;
+                    }
+                    renderPaymentInvoice();
+                };
+            }
+        };
+        ["tn_distanceKm", "tn_discountType", "tn_discountValue"].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.oninput = recalcSummary;
+        });
+        renderCostRows();
+        if (costRowsEl) {
+            costRowsEl.oninput = recalcSummary;
+            costRowsEl.onchange = recalcSummary;
+            costRowsEl.onclick = (e) => {
+                const btn = e.target && e.target.closest('button[data-action="remove"]');
+                if (!btn) return;
+                const tr = btn.closest("tr");
+                const rowId = tr ? tr.getAttribute("data-row-id") : null;
+                costRows = costRows.filter((row) => row.id !== rowId);
+                if (!costRows.length) {
+                    costRows = [{ id: `${Date.now()}_other`, costType: "other", description: "", amount: 0 }];
+                }
+                renderCostRows();
+                recalcSummary();
+            };
+        }
+        if (addCostBtn) {
+            addCostBtn.onclick = () => {
+                costRows.push({ id: `${Date.now()}_${Math.random()}`, costType: "other", description: "", amount: 0 });
+                renderCostRows();
+                recalcSummary();
+            };
+        }
+        recalcSummary();
+
+        const statusEl = document.getElementById("tn_status");
+        if (statusEl && !statusEl.options.length) {
+            statusOptions.forEach((s) => {
+                const opt = document.createElement("option");
+                opt.value = s;
+                opt.textContent = s;
+                statusEl.appendChild(opt);
+            });
+        }
+        renderPaymentInvoice();
+
+        const costWrap = document.getElementById("tn_costWrap");
+        const costToggle = document.getElementById("tn_costToggle");
+        const customerWrap = document.getElementById("tn_customerContent");
+        const customerToggle = document.getElementById("tn_toggleCustomerSection");
+        const tripWrap = document.getElementById("tn_tripSectionContent");
+        const tripToggle = document.getElementById("tn_toggleTripSection");
+        const paymentWrap = document.getElementById("tn_paymentContent");
+        const paymentToggle = document.getElementById("tn_togglePaymentSection");
+        const setSectionCollapsed = (toggleEl, contentEl, collapsed) => {
+            if (!toggleEl || !contentEl) return;
+            const nextCollapsed = !!collapsed;
+            contentEl.style.display = nextCollapsed ? "none" : "";
+            toggleEl.textContent = nextCollapsed ? "▸ Mở rộng" : "▾ Thu gọn";
+            toggleEl.onclick = () => setSectionCollapsed(toggleEl, contentEl, !nextCollapsed);
+        };
+        setSectionCollapsed(tripToggle, tripWrap, false);
+        setSectionCollapsed(costToggle, costWrap, false);
+        setSectionCollapsed(customerToggle, customerWrap, false);
+        setSectionCollapsed(paymentToggle, paymentWrap, false);
+
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const saveBtn = document.getElementById("tn_saveBtn");
+        let saved = false;
+        const onSave = () => {
+            saved = true;
+            const next = {
+                ...data,
+                text: document.getElementById("tn_text").value,
+                driverName: document.getElementById("tn_driverName").value,
+                status: document.getElementById("tn_status").value || "New",
+                distanceKm: Math.max(0, toNumber(document.getElementById("tn_distanceKm").value)),
+                discountType: document.getElementById("tn_discountType").value === "percent" ? "percent" : "fixed",
+                discountValue: Math.max(0, toNumber(document.getElementById("tn_discountValue").value)),
+                paymentStatus: currentPaymentStatus,
+                paidAmount: currentPaidAmount,
+                paymentMethod: currentPaymentMethod,
+                paymentRef: currentPaymentRef,
+                note: document.getElementById("tn_note").value || "",
+                customer: {
+                    fullName: document.getElementById("tn_customerFullName").value || "",
+                    phoneNumber: document.getElementById("tn_customerPhoneNumber").value || "",
+                    idType: document.getElementById("tn_customerIdType").value === "Passport" ? "Passport" : "CCCD",
+                    idNumber: document.getElementById("tn_customerIdNumber").value || "",
+                    birthday: document.getElementById("tn_customerBirthday").value || null
+                },
+                tripCosts: readCostRowsFromDom().filter((c) => c.amount > 0 || c.costType === "driver")
+            };
+            const estimate = computeTripPriceByDistance(next.distanceKm, next.resource);
+            next.tripPrice = estimate.tripPrice;
+            next.fuelEstimatedCost = estimate.fuelEstimatedCost;
+            next.tripCostsTotal = calculateTripCostsTotal(next.tripCosts) + next.fuelEstimatedCost;
+            next.finalPrice = computeFinalPrice(next.tripPrice + next.tripCostsTotal, next.discountType, next.discountValue);
+            modalEl.__result = next;
+            bsModal.hide();
+        };
+        const onHidden = () => {
+            modalEl.removeEventListener("hidden.bs.modal", onHidden);
+            if (saveBtn) saveBtn.removeEventListener("click", onSave);
+            resolve(saved ? modalEl.__result : null);
+        };
+        modalEl.addEventListener("hidden.bs.modal", onHidden);
+        if (saveBtn) saveBtn.addEventListener("click", onSave);
+        bsModal.show();
+    });
+
+    const dp = new DayPilot.Scheduler("dp", {
+        scale: "Day",
+        cellDuration: 1440,
+        days: DayPilot.Date.today().daysInMonth(),
+        startDate: DayPilot.Date.today().firstDayOfMonth().getDatePart(),
+        timeHeaders: [{ groupBy: "Month", format: "MMMM yyyy" }, { groupBy: "Day", format: "d" }],
+        eventHeight: 80,
+        cellWidth: 80,
+        cellWidthMin: 60,
+        cellWidthSpec: "Auto",
+        rowHeaderColumns: [{ name: "Xe | Biển số | Trạng thái", display: "name", width: 365 }],
+        rowHeaderColumnsMode: "Legacy",
+        rowHeaderWidth: 365,
+        cornerHtml: "<div class='corner-toolbar'><div class='corner-title'>Danh sách xe</div><div class='corner-actions'><div class='corner-toolbar-left'><span class='corner-filter-label'>Lọc</span><select id='transportFilter' class='corner-filter' title='Lọc xe'><option value='0'>Tất cả</option><option value='4'>4 chỗ+</option><option value='7'>7 chỗ+</option><option value='16'>16 chỗ+</option></select></div><button id='addvehicle' class='corner-add-btn' title='Thêm xe'><i class='fas fa-plus-circle'></i> <span>Thêm</span></button></div></div>",
+        contextMenuResource: new DayPilot.Menu({
+            items: [
+                { text: "Chỉnh sửa...", onClick: async (args) => {
+                    const form = [
+                        { name: "Tên xe", id: "name" },
+                        { name: "Biển số", id: "plateNo" },
+                        { name: "Sức chứa", id: "capacity", type: "number" },
+                        { name: "Giá cơ sở / km", id: "basePrice", type: "number" },
+                        { name: "Lít tiêu thụ / 100km", id: "fuelConsumptionPer100Km", type: "number" },
+                        { name: "Trạng thái", id: "status", type: "select", options: [{ name: "Sẵn sàng", id: "Ready" }, { name: "Đang chạy", id: "Busy" }, { name: "Bảo trì", id: "Maintenance" }] }
+                    ];
+                    const modal = await DayPilot.Modal.form(form, args.source.data);
+                    if (modal.canceled) return;
+                    const vehicle = { ...modal.result, id: args.source.id };
+                    await DayPilot.Http.post("backend_vehicle_update.php", vehicle);
+                    dp.rows.update(vehicle);
+                    await notify("Đã cập nhật xe.");
+                }},
+                { text: "Xóa", onClick: async (args) => {
+                    const modal = await DayPilot.Modal.confirm("Xóa xe này?");
+                    if (modal.canceled) return;
+                    await DayPilot.Http.post("backend_vehicle_delete.php", { id: args.source.id });
+                    dp.rows.remove(args.source.id);
+                    await notify("Đã xóa xe.");
+                }}
+            ]
+        }),
+        onBeforeEventRender: (args) => {
+            const status = args.data.status || "New";
+            const colorMap = {
+                New: "#e69138",
+                Confirmed: "#38761d",
+                InTrip: "#1691f4",
+                Done: "#6b7280",
+                Cancelled: "#cc4125"
+            };
+            const iconMap = {
+                New: "<i class='fas fa-clock' style='font-size:9px;'></i>",
+                Confirmed: "<i class='fas fa-check-circle' style='font-size:9px;'></i>",
+                InTrip: "<i class='fas fa-route' style='font-size:9px;'></i>",
+                Done: "<i class='fas fa-flag-checkered' style='font-size:9px;'></i>",
+                Cancelled: "<i class='fas fa-times-circle' style='font-size:9px;'></i>"
+            };
+            const start = new DayPilot.Date(args.data.start);
+            const end = new DayPilot.Date(args.data.end);
+            const title = DayPilot.Util.escapeHtml(args.data.text || "Chuyến xe");
+            const driver = DayPilot.Util.escapeHtml(args.data.driverName || "Chưa có tài xế");
+            const line2 = `${formatMoney(args.data.finalPrice || 0)} • ${driver}`;
+            args.data.barColor = colorMap[status] || "#2563eb";
+            const isMobile = (window.innerWidth || 0) <= 576;
+            const compactTripStatus = isMobileTransportHeader();
+            const tripStatusPill = buildTripStatusPillHtml(args.data.id, status, compactTripStatus);
+            args.data.html = isMobile
+                ? `<div style="line-height:1.2; padding-bottom:24px;"><div style="font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${title}</div><div style="margin-top:2px; font-size:10px; opacity:.9; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${DayPilot.Util.escapeHtml(line2)}</div></div>`
+                : `<div style="line-height:1.25; padding-bottom:26px;"><div style="font-weight:700;">${title}</div><div style="font-size:11px;opacity:.92;">${DayPilot.Util.escapeHtml(line2)}</div><div style="font-size:10px;opacity:.85;">${start.toString("d/M")} - ${end.toString("d/M")}</div></div>`;
+            args.data.areas = [
+                {
+                    right: 26,
+                    top: 4,
+                    width: 16,
+                    height: 16,
+                    backColor: "#ffffff",
+                    fontColor: colorMap[status] || "#2563eb",
+                    borderRadius: "50%",
+                    html: iconMap[status] || iconMap.New
+                },
+                {
+                    left: 4,
+                    bottom: 4,
+                    width: compactTripStatus ? 20 : 110,
+                    height: 20,
+                    html: tripStatusPill,
+                    action: "None",
+                    visibility: "Visible",
+                    onClick: (areaArgs) => {
+                        if (areaArgs.originalEvent) {
+                            areaArgs.originalEvent.preventDefault();
+                            areaArgs.originalEvent.stopPropagation();
+                        }
+                        if (typeof areaArgs.preventDefault === "function") {
+                            areaArgs.preventDefault();
+                        }
+                        const eventId = areaArgs && areaArgs.source && areaArgs.source.data ? areaArgs.source.data.id : null;
+                        const current = areaArgs && areaArgs.source && areaArgs.source.data ? areaArgs.source.data.status : status;
+                        if (!eventId) return false;
+                        (async () => { await applyTripStatusChange(eventId, current); })();
+                        return false;
+                    }
+                },
+                {
+                    right: 5,
+                    top: 5,
+                    width: 17,
+                    height: 17,
+                    cssClass: "scheduler_default_event_delete",
+                    action: "None",
+                    visibility: isMobileTransportHeader() ? "Visible" : "TouchVisible",
+                    onClick: async (areaArgs) => {
+                        if (areaArgs.originalEvent) {
+                            areaArgs.originalEvent.preventDefault();
+                            areaArgs.originalEvent.stopPropagation();
+                        }
+                        if (typeof areaArgs.preventDefault === "function") {
+                            areaArgs.preventDefault();
+                        }
+                        const modal = await DayPilot.Modal.confirm("Bạn có chắc chắn muốn xóa đặt chuyến này không?");
+                        if (modal.canceled) {
+                            return false;
+                        }
+                        await DayPilot.Http.post("backend_trip_reservation_delete.php", { id: areaArgs.source.id() });
+                        dp.events.remove(areaArgs.source);
+                        await notify("Đã xóa.");
+                        return false;
+                    }
+                }
+            ];
+        },
+        onBeforeRowHeaderRender: (args) => {
+            args.row.areas = [
+                {
+                    right: 3,
+                    top: 3,
+                    width: 18,
+                    height: 18,
+                    cssClass: "area-menu",
+                    symbol: "icons/daypilot.svg#minichevron-down-2",
+                    fontColor: "#6b7280",
+                    padding: 2,
+                    visibility: "Visible",
+                    onClick: (areaArgs) => {
+                        if (dp.contextMenuResource && typeof dp.contextMenuResource.show === "function") {
+                            dp.contextMenuResource.show(areaArgs.source);
+                        }
+                    }
+                }
+            ];
+            let iconText = "✓";
+            if ((args.row.data.status || "Ready") === "Busy") iconText = "!";
+            if ((args.row.data.status || "Ready") === "Maintenance") iconText = "×";
+            const capacity = Number(args.row.data.capacity || 0);
+            const plateNo = args.row.data.plateNo ? String(args.row.data.plateNo) : "Chưa có biển số";
+            const statusButton = buildStatusIconButtonHtml(args.row.data.id, args.row.data.status || "Ready", iconText);
+            if (isMobileTransportHeader()) {
+                args.row.html = `
+                    <div style="display:flex; flex-direction:column; gap:3px; padding:2px 18px 2px 0;">
+                        <div style="font-weight:600; font-size:12px; line-height:1.25; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
+                            ${DayPilot.Util.escapeHtml(args.row.data.name || "")}
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:#475569; line-height:1.2; flex-wrap:nowrap;">
+                            <span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap; color:#334155;">
+                                <span style="font-variant-numeric:tabular-nums;">${capacity}</span>
+                                <span>chỗ</span>
+                            </span>
+                            <span style="white-space:nowrap; color:#64748b;">${DayPilot.Util.escapeHtml(plateNo)}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            ${statusButton}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            args.row.html = `<div style="display:grid; grid-template-columns: 150px 95px 1fr; align-items:center; gap:0; padding-right:20px;"><div style="font-weight:600; padding-right:8px;">${DayPilot.Util.escapeHtml(args.row.data.name || "")}</div><div style="font-size:12px; color:#4b5563;">${capacity} chỗ<br /><span style="color:#64748b">${DayPilot.Util.escapeHtml(plateNo)}</span></div><div style="display:flex; flex-direction:column; align-items:flex-start; gap:4px; font-size:12px;">${statusButton}</div></div>`;
+        },
+        onTimeRangeSelected: async (args) => {
+            const payload = await createOrEditTrip({
+                start: args.start,
+                end: args.end,
+                resource: args.resource
+            });
+            dp.clearSelection();
+            if (!payload) return;
+            const { data } = await DayPilot.Http.post("backend_trip_reservation_create.php", payload);
+            payload.id = data.id;
+            payload.status = data.status;
+            payload.finalPrice = data.finalPrice;
+            dp.events.add(payload);
+            await notify("Đã tạo chuyến.");
+        },
+        onEventClick: async (args) => {
+            const payload = await editTripNativeModal(args.e.data);
+            if (!payload) return;
+            payload.id = args.e.id();
+            payload.start = args.e.start();
+            payload.end = args.e.end();
+            payload.resource = args.e.resource();
+            const { data } = await DayPilot.Http.post("backend_trip_reservation_update.php", payload);
+            args.e.data = { ...args.e.data, ...payload, status: data.status, finalPrice: data.finalPrice };
+            dp.events.update(args.e);
+            await notify("Đã cập nhật chuyến.");
+        },
+        onEventMoved: async (args) => {
+            const { data } = await DayPilot.Http.post("backend_trip_reservation_move.php", {
+                id: args.e.id(),
+                newStart: args.newStart,
+                newEnd: args.newEnd,
+                newResource: args.newResource
+            });
+            if (data.result === "Error") {
+                DayPilot.Modal.alert(data.message);
+                args.preventDefault();
+            } else {
+                await notify("Đã di chuyển chuyến.");
+            }
+        },
+        onEventResized: async (args) => {
+            const { data } = await DayPilot.Http.post("backend_trip_reservation_resize.php", {
+                id: args.e.id(),
+                newStart: args.newStart,
+                newEnd: args.newEnd
+            });
+            if (data.result === "Error") {
+                DayPilot.Modal.alert(data.message);
+                args.preventDefault();
+            } else {
+                await notify("Đã thay đổi thời lượng chuyến.");
+            }
+        },
+        contextMenu: new DayPilot.Menu({
+            items: [
+                { text: "Xóa chuyến", onClick: async (args) => {
+                    const modal = await DayPilot.Modal.confirm("Xóa chuyến này?");
+                    if (modal.canceled) return;
+                    await DayPilot.Http.post("backend_trip_reservation_delete.php", { id: args.source.id() });
+                    dp.events.remove(args.source);
+                    await notify("Đã xóa chuyến.");
+                }}
+            ]
+        })
+    });
+    dp.init();
+
+    const applySchedulerResponsiveLayout = (resourcesOverride = null) => {
+        const resources = Array.isArray(resourcesOverride)
+            ? resourcesOverride
+            : (Array.isArray(dp.resources) ? dp.resources : []);
+        if (isMobileTransportHeader()) {
+            const viewportWidth = window.innerWidth || 360;
+            const proportionalWidth = Math.floor(viewportWidth * 0.32);
+            const mobileRowHeaderWidth = Math.max(118, Math.min(170, proportionalWidth));
+            const nextConfig = {
+                rowHeaderWidth: mobileRowHeaderWidth,
+                cellWidthSpec: "Fixed",
+                cellWidth: 42,
+                cellWidthMin: 32,
+                eventHeight: 64
+            };
+            if (Array.isArray(resourcesOverride)) {
+                nextConfig.resources = resourcesOverride;
+            }
+            dp.update(nextConfig);
+            return;
+        }
+        const nextConfig = {
+            rowHeaderWidth: 365,
+            rowHeaderColumns: [{ name: "Xe | Biển số | Trạng thái", display: "name", width: 365 }],
+            cellWidthSpec: "Auto",
+            cellWidth: 80,
+            cellWidthMin: 60,
+            eventHeight: 80
+        };
+        if (Array.isArray(resourcesOverride)) {
+            nextConfig.resources = resourcesOverride;
+        }
+        dp.update(nextConfig);
+    };
+
+    const loadVehicles = async () => {
+        const filterEl = document.getElementById("transportFilter");
+        const minCapacity = filterEl ? parseInt(filterEl.value || "0", 10) : 0;
+        const { data } = await DayPilot.Http.post("backend_vehicles.php", { capacity: "0" });
+        const normalized = (Array.isArray(data) ? data : []).map((v) => ({
+            ...v,
+            basePrice: toNumber(v.basePrice),
+            fuelConsumptionPer100Km: Math.max(0, toNumber(v.fuelConsumptionPer100Km || 8)) || 8
+        }));
+        const filtered = normalized.filter((v) => minCapacity <= 0 || Number(v.capacity || 0) >= minCapacity);
+        applySchedulerResponsiveLayout(filtered);
+    };
+    const loadTrips = async () => dp.events.load("backend_trip_reservations.php");
+
+    const addVehicle = async () => {
+        const form = [
+            { name: "Tên xe", id: "name" },
+            { name: "Biển số", id: "plateNo" },
+            { name: "Sức chứa", id: "capacity", type: "number" },
+            { name: "Giá cơ sở / km", id: "basePrice", type: "number" },
+            { name: "Lít tiêu thụ / 100km", id: "fuelConsumptionPer100Km", type: "number" },
+            { name: "Trạng thái", id: "status", type: "select", options: [{ name: "Sẵn sàng", id: "Ready" }, { name: "Đang chạy", id: "Busy" }, { name: "Bảo trì", id: "Maintenance" }] }
+        ];
+        const modal = await DayPilot.Modal.form(form, { capacity: 4, basePrice: 6000, fuelConsumptionPer100Km: 8, status: "Ready" });
+        if (modal.canceled) return;
+        const payload = { ...modal.result };
+        const { data } = await DayPilot.Http.post("backend_vehicle_create.php", payload);
+        payload.id = data.id;
+        dp.resources.push(payload);
+        dp.update();
+    };
+
+    const nav = new DayPilot.Navigator("nav", {
+        orientation: "Vertical",
+        cellWidth: "Auto",
+        selectMode: "Month",
+        showMonths: 1,
+        skipMonths: 1,
+        onTimeRangeSelected: (args) => {
+            dp.startDate = args.start;
+            dp.days = app.days;
+            dp.update();
+            loadTrips();
+        }
+    });
+    nav.init();
+
+    document.addEventListener("click", (e) => {
+        const btn = e.target && e.target.closest("#addvehicle");
+        if (!btn) {
+            const statusBtn = e.target && e.target.closest(".status-icon-btn");
+            if (!statusBtn) return;
+            e.preventDefault();
+            const id = statusBtn.getAttribute("data-id");
+            const current = statusBtn.getAttribute("data-status") || "Ready";
+            (async () => {
+                const nextStatus = await chooseVehicleStatus(current);
+                if (!nextStatus || nextStatus === current) return;
+                await DayPilot.Http.post("backend_vehicle_status_update.php", { id, status: nextStatus });
+                const vehicle = dp.resources.find((r) => String(r.id) === String(id));
+                if (vehicle) {
+                    vehicle.status = nextStatus;
+                    dp.update({ resources: dp.resources });
+                }
+                await notify("Đã cập nhật trạng thái xe.");
+            })();
+            return;
+        }
+        e.preventDefault();
+        addVehicle();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.altKey && e.key.toLowerCase() === "n") {
+            addVehicle();
+        }
+    });
+    document.addEventListener("change", (e) => {
+        if (e.target && e.target.id === "transportFilter") {
+            loadVehicles();
+        }
+        if (e.target && e.target.id === "timerange") {
+            switch (e.target.value) {
+                case "week":
+                    app.days = 7;
+                    nav.selectMode = "Week";
+                    nav.select(nav.selectionDay || dp.startDate || DayPilot.Date.today());
+                    break;
+                case "month":
+                default:
+                    app.days = dp.startDate.daysInMonth();
+                    nav.selectMode = "Month";
+                    nav.select(nav.selectionDay || dp.startDate || DayPilot.Date.today());
+                    break;
+            }
+        }
+    });
+    window.addEventListener("resize", () => applySchedulerResponsiveLayout());
+
+    (async () => {
+        const ok = await initTransportSettings();
+        if (!ok) {
+            return;
+        }
+        await Promise.all([loadVehicles(), loadTrips()]);
+    })();
+    }
+</script>
+</body>
+</html>
+

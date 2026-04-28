@@ -11,6 +11,7 @@ $db = new PDO(
     $password,
     [
         PDO::ATTR_TIMEOUT => 5,
+        PDO::ATTR_PERSISTENT => true,
     ]
 );
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -18,6 +19,12 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->exec("CREATE DATABASE IF NOT EXISTS `$database`");
 $db->exec("use `$database`");
 $db->exec("SET SESSION lock_wait_timeout = 5");
+$schema_marker_file = __DIR__ . '/.db_mysql_schema_v1';
+
+// Skip repetitive schema checks after initial migration.
+if (file_exists($schema_marker_file)) {
+    return;
+}
 
 function tableExists($dbh, $id)
 {
@@ -306,9 +313,147 @@ if (!tableExists($db, "tenant_settings")) {
                         tenant_id INTEGER NOT NULL,
                         rental_mode VARCHAR(20) DEFAULT 'both',
                         short_term_day_threshold_hours INTEGER DEFAULT 4,
+                        transport_module_enabled TINYINT(1) DEFAULT 1,
+                        transport_dashboard_enabled TINYINT(1) DEFAULT 1,
                         updated_at DATETIME NULL)");
 }
 
 if (!columnExists($db, "tenant_settings", "short_term_day_threshold_hours")) {
     $db->exec("ALTER TABLE tenant_settings ADD COLUMN short_term_day_threshold_hours INTEGER DEFAULT 4");
 }
+
+if (!columnExists($db, "tenant_settings", "transport_module_enabled")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_module_enabled TINYINT(1) DEFAULT 1");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_dashboard_enabled")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_dashboard_enabled TINYINT(1) DEFAULT 1");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_discount_type")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_discount_type VARCHAR(20) DEFAULT 'fixed'");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_discount_value")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_discount_value DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_driver")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_driver DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_toll")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_toll DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_fuel")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_fuel DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_parking")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_parking DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_other")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_other DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_price_per_km")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_price_per_km DECIMAL(10,2) DEFAULT 6000");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_fuel_liters_per_100km")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_fuel_liters_per_100km DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_fuel_price_per_liter")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_fuel_price_per_liter DECIMAL(10,2) DEFAULT 22000");
+}
+
+if (!tableExists($db, "vehicles")) {
+    $db->exec("CREATE TABLE IF NOT EXISTS vehicles (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        name VARCHAR(200),
+                        plate_no VARCHAR(60),
+                        capacity INTEGER DEFAULT 4,
+                        status VARCHAR(30) DEFAULT 'Ready',
+                        fuel_consumption_per_100km DECIMAL(10,2) DEFAULT 8,
+                        base_price DECIMAL(10,2) DEFAULT 6000)");
+}
+
+if (!columnExists($db, "vehicles", "fuel_consumption_per_100km")) {
+    $db->exec("ALTER TABLE vehicles ADD COLUMN fuel_consumption_per_100km DECIMAL(10,2) DEFAULT 8");
+}
+
+if (!tableExists($db, "trip_reservations")) {
+    $db->exec("CREATE TABLE IF NOT EXISTS trip_reservations (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        customer_id INTEGER NULL,
+                        vehicle_id INTEGER NOT NULL,
+                        name VARCHAR(255),
+                        driver_name VARCHAR(200),
+                        distance_km DECIMAL(10,2) DEFAULT 0,
+                        fuel_estimated_cost DECIMAL(10,2) DEFAULT 0,
+                        start DATETIME,
+                        `end` DATETIME,
+                        status VARCHAR(30) DEFAULT 'New',
+                        trip_price DECIMAL(10,2) DEFAULT 0,
+                        discount_type VARCHAR(20) DEFAULT 'fixed',
+                        discount_value DECIMAL(10,2) DEFAULT 0,
+                        final_price DECIMAL(10,2) DEFAULT 0,
+                        paid_amount DECIMAL(10,2) DEFAULT 0,
+                        payment_status VARCHAR(20) DEFAULT 'unpaid',
+                        payment_method VARCHAR(30) NULL,
+                        payment_ref VARCHAR(120) NULL,
+                        note VARCHAR(255) NULL)");
+}
+
+if (!columnExists($db, "trip_reservations", "customer_id")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN customer_id INTEGER NULL");
+}
+
+if (!columnExists($db, "trip_reservations", "distance_km")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN distance_km DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "trip_reservations", "fuel_estimated_cost")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN fuel_estimated_cost DECIMAL(10,2) DEFAULT 0");
+}
+
+if (!columnExists($db, "trip_reservations", "payment_method")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN payment_method VARCHAR(30) NULL");
+}
+
+if (!columnExists($db, "trip_reservations", "payment_ref")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN payment_ref VARCHAR(120) NULL");
+}
+
+if (!tableExists($db, "trip_costs")) {
+    $db->exec("CREATE TABLE IF NOT EXISTS trip_costs (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        trip_reservation_id INTEGER NOT NULL,
+                        cost_type VARCHAR(30) DEFAULT 'other',
+                        description VARCHAR(255),
+                        amount DECIMAL(10,2) DEFAULT 0,
+                        incurred_at DATETIME NULL)");
+}
+
+if (!tableExists($db, "trip_invoices")) {
+    $db->exec("CREATE TABLE IF NOT EXISTS trip_invoices (
+                        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                        tenant_id INTEGER DEFAULT 1,
+                        trip_reservation_id INTEGER NOT NULL,
+                        invoice_no VARCHAR(50) NULL,
+                        total_amount DECIMAL(10,2) DEFAULT 0,
+                        paid_amount DECIMAL(10,2) DEFAULT 0,
+                        payment_status VARCHAR(20) DEFAULT 'unpaid',
+                        payment_method VARCHAR(30) NULL,
+                        payment_ref VARCHAR(120) NULL,
+                        paid_at DATETIME NULL,
+                        note VARCHAR(255) NULL)");
+}
+
+@file_put_contents($schema_marker_file, 'ok');

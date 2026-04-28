@@ -106,6 +106,25 @@ function redisCommand(array $parts)
     return $reply;
 }
 
+function redisCommandOnSocket($socket, array $parts)
+{
+    if (!$socket) {
+        return null;
+    }
+
+    $payload = redisEncodeCommand($parts);
+    $writeOk = fwrite($socket, $payload);
+    if ($writeOk === false) {
+        return null;
+    }
+
+    try {
+        return redisReadReply($socket);
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
 function getClientIdHeader()
 {
     $keys = ['HTTP_CLIENTID', 'REDIRECT_HTTP_CLIENTID'];
@@ -119,6 +138,11 @@ function getClientIdHeader()
 
 function resolveTenantContext()
 {
+    static $cachedContext = null;
+    if ($cachedContext !== null) {
+        return $cachedContext;
+    }
+
     $context = [
         'clientid' => '',
         'tenant_id' => 1,
@@ -128,25 +152,37 @@ function resolveTenantContext()
 
     $clientid = getClientIdHeader();
     if ($clientid === '') {
-        return $context;
+        $cachedContext = $context;
+        return $cachedContext;
     }
 
     $context['clientid'] = $clientid;
 
-    $tenantId = redisCommand(['HGET', "account:{$clientid}", 'tenant_id']);
+    $socket = redisConnectSocket();
+    if (!$socket) {
+        $cachedContext = $context;
+        return $cachedContext;
+    }
+
+    $tenantId = redisCommandOnSocket($socket, ['HGET', "account:{$clientid}", 'tenant_id']);
 
     if ($tenantId === null || $tenantId === '') {
-        return $context;
+        fclose($socket);
+        $cachedContext = $context;
+        return $cachedContext;
     }
 
     $tenantId = intval($tenantId);
     if ($tenantId <= 0) {
-        return $context;
+        fclose($socket);
+        $cachedContext = $context;
+        return $cachedContext;
     }
 
     $context['tenant_id'] = $tenantId;
 
-    $tenantData = redisCommand(['HGETALL', "tenant:{$tenantId}"]);
+    $tenantData = redisCommandOnSocket($socket, ['HGETALL', "tenant:{$tenantId}"]);
+    fclose($socket);
     if (is_array($tenantData) && count($tenantData) >= 2) {
         for ($i = 0; $i < count($tenantData); $i += 2) {
             $key = isset($tenantData[$i]) ? (string)$tenantData[$i] : '';
@@ -159,5 +195,6 @@ function resolveTenantContext()
         }
     }
 
-    return $context;
+    $cachedContext = $context;
+    return $cachedContext;
 }

@@ -14,6 +14,12 @@ $shortTermDayThresholdHours = isset($params->shortTermDayThresholdHours) ? intva
 if ($shortTermDayThresholdHours < 1) {
     $shortTermDayThresholdHours = 4;
 }
+$transportModuleEnabled = (isset($params->transportModuleEnabled) && $params->transportModuleEnabled) ? 1 : 0;
+$transportDashboardEnabled = (isset($params->transportDashboardEnabled) && $params->transportDashboardEnabled) ? 1 : 0;
+$transportPricePerKm = isset($params->transportPricePerKm) ? floatval($params->transportPricePerKm) : 6000;
+$transportFuelPricePerLiter = isset($params->transportFuelPricePerLiter) ? floatval($params->transportFuelPricePerLiter) : 22000;
+if ($transportPricePerKm <= 0) { $transportPricePerKm = 6000; }
+if ($transportFuelPricePerLiter < 0) { $transportFuelPricePerLiter = 0; }
 
 $check = $db->prepare("SELECT id FROM tenant_settings WHERE tenant_id = :tenant_id ORDER BY id DESC LIMIT 1");
 $check->bindValue(':tenant_id', $tenantId);
@@ -22,17 +28,25 @@ $existingId = $check->fetchColumn();
 $now = (new DateTime())->format('Y-m-d H:i:s');
 
 if ($existingId) {
-    $stmt = $db->prepare("UPDATE tenant_settings SET rental_mode = :rental_mode, short_term_day_threshold_hours = :short_term_day_threshold_hours, updated_at = :updated_at WHERE id = :id");
+    $stmt = $db->prepare("UPDATE tenant_settings SET rental_mode = :rental_mode, short_term_day_threshold_hours = :short_term_day_threshold_hours, transport_module_enabled = :transport_module_enabled, transport_dashboard_enabled = :transport_dashboard_enabled, transport_price_per_km = :transport_price_per_km, transport_fuel_price_per_liter = :transport_fuel_price_per_liter, updated_at = :updated_at WHERE id = :id");
     $stmt->bindValue(':id', intval($existingId));
     $stmt->bindValue(':rental_mode', $mode);
     $stmt->bindValue(':short_term_day_threshold_hours', $shortTermDayThresholdHours);
+    $stmt->bindValue(':transport_module_enabled', $transportModuleEnabled);
+    $stmt->bindValue(':transport_dashboard_enabled', $transportDashboardEnabled);
+    $stmt->bindValue(':transport_price_per_km', $transportPricePerKm);
+    $stmt->bindValue(':transport_fuel_price_per_liter', $transportFuelPricePerLiter);
     $stmt->bindValue(':updated_at', $now);
     $stmt->execute();
 } else {
-    $stmt = $db->prepare("INSERT INTO tenant_settings (tenant_id, rental_mode, short_term_day_threshold_hours, updated_at) VALUES (:tenant_id, :rental_mode, :short_term_day_threshold_hours, :updated_at)");
+    $stmt = $db->prepare("INSERT INTO tenant_settings (tenant_id, rental_mode, short_term_day_threshold_hours, transport_module_enabled, transport_dashboard_enabled, transport_price_per_km, transport_fuel_price_per_liter, updated_at) VALUES (:tenant_id, :rental_mode, :short_term_day_threshold_hours, :transport_module_enabled, :transport_dashboard_enabled, :transport_price_per_km, :transport_fuel_price_per_liter, :updated_at)");
     $stmt->bindValue(':tenant_id', $tenantId);
     $stmt->bindValue(':rental_mode', $mode);
     $stmt->bindValue(':short_term_day_threshold_hours', $shortTermDayThresholdHours);
+    $stmt->bindValue(':transport_module_enabled', $transportModuleEnabled);
+    $stmt->bindValue(':transport_dashboard_enabled', $transportDashboardEnabled);
+    $stmt->bindValue(':transport_price_per_km', $transportPricePerKm);
+    $stmt->bindValue(':transport_fuel_price_per_liter', $transportFuelPricePerLiter);
     $stmt->bindValue(':updated_at', $now);
     $stmt->execute();
 }
@@ -42,6 +56,10 @@ $result->result = 'OK';
 $result->tenantId = $tenantId;
 $result->rentalMode = $mode;
 $result->shortTermDayThresholdHours = $shortTermDayThresholdHours;
+$result->transportModuleEnabled = $transportModuleEnabled === 1;
+$result->transportDashboardEnabled = $transportDashboardEnabled === 1;
+$result->transportPricePerKm = $transportPricePerKm;
+$result->transportFuelPricePerLiter = $transportFuelPricePerLiter;
 $result->updatedAt = $now;
 
 header('Content-Type: application/json');

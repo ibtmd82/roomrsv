@@ -47,6 +47,35 @@
                         <div id="settingsMsg" class="small text-muted mt-2"></div>
                     </div>
                 </div>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Bật/tắt module menu</h5>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="transportModuleEnabled" checked>
+                            <label class="form-check-label" for="transportModuleEnabled">Hiển thị chức năng Đặt xe</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="transportDashboardEnabled" checked>
+                            <label class="form-check-label" for="transportDashboardEnabled">Hiển thị Thống kê đặt xe</label>
+                        </div>
+                        <div class="form-text">Ẩn/hiện các mục tương ứng ở menu bên trái theo tenant hiện tại.</div>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Thiết lập giá đặt xe</h5>
+                        <div class="row g-2">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label mb-1">Giá / km</label>
+                                <input id="transportPricePerKm" type="number" min="0" step="100" class="form-control form-control-sm" value="6000">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label mb-1">Giá 1 lít xăng/dầu</label>
+                                <input id="transportFuelPricePerLiter" type="number" min="0" step="100" class="form-control form-control-sm" value="22000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -83,18 +112,40 @@
         if (thresholdInput) {
             thresholdInput.value = data.shortTermDayThresholdHours || 4;
         }
+        const transportModuleEnabled = document.getElementById("transportModuleEnabled");
+        const transportDashboardEnabled = document.getElementById("transportDashboardEnabled");
+        if (transportModuleEnabled) {
+            transportModuleEnabled.checked = data.transportModuleEnabled !== false;
+        }
+        if (transportDashboardEnabled) {
+            transportDashboardEnabled.checked = data.transportDashboardEnabled !== false;
+        }
+        const setNumberInput = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = Number.isFinite(Number(val)) ? Number(val) : 0;
+            }
+        };
+        setNumberInput("transportPricePerKm", data.transportPricePerKm || 6000);
+        setNumberInput("transportFuelPricePerLiter", data.transportFuelPricePerLiter || 22000);
     };
 
     document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
         const msg = document.getElementById("settingsMsg");
         msg.textContent = "Đang lưu...";
         try {
+            const transportModuleEnabledEl = document.getElementById("transportModuleEnabled");
+            const transportDashboardEnabledEl = document.getElementById("transportDashboardEnabled");
             await fetch("backend_settings_update.php", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     rentalMode: readMode(),
-                    shortTermDayThresholdHours: readShortTermThreshold()
+                    shortTermDayThresholdHours: readShortTermThreshold(),
+                    transportModuleEnabled: transportModuleEnabledEl ? !!transportModuleEnabledEl.checked : true,
+                    transportDashboardEnabled: transportDashboardEnabledEl ? !!transportDashboardEnabledEl.checked : true,
+                    transportPricePerKm: Number(document.getElementById("transportPricePerKm") ? document.getElementById("transportPricePerKm").value : 6000) || 6000,
+                    transportFuelPricePerLiter: Number(document.getElementById("transportFuelPricePerLiter") ? document.getElementById("transportFuelPricePerLiter").value : 22000) || 22000
                 })
             });
             msg.textContent = "Đã lưu cài đặt thành công.";

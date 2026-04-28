@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Thống kê đặt xe | RoomRSV</title>
+    <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/master.css" rel="stylesheet">
+    <style>
+        .stat-card { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
+        .stat-title { color: #64748b; font-size: 13px; margin-bottom: 6px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+        .section-card { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <nav id="sidebar" class="active" data-current-page="transport-dashboard"></nav>
+    <div id="body" class="active">
+        <div id="topNavbar"></div>
+        <div class="content">
+            <div class="container">
+                <div class="page-title mb-3">
+                    <h3>Tổng quan đặt xe</h3>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng số xe</div><div id="vehiclesTotal" class="stat-value">0</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng số chuyến</div><div id="tripsTotal" class="stat-value">0</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng doanh thu</div><div id="totalFinalPrice" class="stat-value">0 đ</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Lợi nhuận ròng</div><div id="totalProfit" class="stat-value">0 đ</div></div></div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng chi phí</div><div id="totalCosts" class="stat-value">0 đ</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Biên lợi nhuận</div><div id="profitMargin" class="stat-value">0%</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Số chuyến lỗ (top 5)</div><div id="lossTripsCount" class="stat-value">0</div></div></div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Trạng thái chuyến</h5><ul id="tripsByStatus" class="list-group list-group-flush"></ul></div></div>
+                    <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Cơ cấu chi phí</h5><ul id="costsByType" class="list-group list-group-flush"></ul></div></div>
+                </div>
+
+                <div class="section-card p-3 mt-3">
+                    <h5 class="mb-3">8 chuyến gần nhất</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead><tr><th>ID</th><th>Tên chuyến</th><th>Tài xế</th><th>Thời gian</th><th>Trạng thái</th><th class="text-end">Doanh thu</th></tr></thead>
+                            <tbody id="latestTrips"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section-card p-3 mt-3">
+                    <h5 class="mb-3">Chuyến lỗ nổi bật</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead><tr><th>ID</th><th>Tên chuyến</th><th class="text-end">Doanh thu</th><th class="text-end">Chi phí</th><th class="text-end">Lỗ</th></tr></thead>
+                            <tbody id="lossTrips"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section-card p-3 mt-3">
+                    <h5 class="mb-3">Doanh thu chuyến theo kỳ</h5>
+                    <div class="row g-2 mb-3">
+                        <div class="col-12 col-md-3"><label class="form-label mb-1">Từ ngày</label><input id="revenueStartDate" type="date" class="form-control form-control-sm"></div>
+                        <div class="col-12 col-md-3"><label class="form-label mb-1">Đến ngày</label><input id="revenueEndDate" type="date" class="form-control form-control-sm"></div>
+                        <div class="col-12 col-md-3"><label class="form-label mb-1">Nhóm theo</label><select id="revenueGroupBy" class="form-select form-select-sm"><option value="day">Ngày</option><option value="month">Tháng</option></select></div>
+                        <div class="col-12 col-md-3 d-flex align-items-end"><button id="revenueFilterBtn" class="btn btn-primary btn-sm w-100">Xem thống kê</button></div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead><tr><th>Kỳ</th><th class="text-end">Doanh thu</th></tr></thead>
+                            <tbody id="revenueSeries"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="assets/js/backend-clientid.js"></script>
+<script>
+    const toCurrency = (v) => `${Number(v || 0).toLocaleString("vi-VN")} đ`;
+    const tripStatusLabels = { New: "Mới", Confirmed: "Đã xác nhận", InTrip: "Đang chạy", Done: "Hoàn tất", Cancelled: "Đã hủy" };
+    const costTypeLabels = { driver: "Tài xế", toll: "Qua trạm", fuel: "Xăng/Dầu", parking: "Đậu xe", other: "Khác" };
+
+    const fillMapList = (targetId, data, money = false, labelMap = {}) => {
+        const target = document.getElementById(targetId);
+        target.innerHTML = "";
+        const keys = Object.keys(data || {});
+        if (!keys.length) {
+            target.innerHTML = "<li class='list-group-item text-muted'>Không có dữ liệu</li>";
+            return;
+        }
+        keys.forEach((key) => {
+            const value = data[key];
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between";
+            li.innerHTML = `<span>${labelMap[key] || key}</span><strong>${money ? toCurrency(value) : value}</strong>`;
+            target.appendChild(li);
+        });
+    };
+
+    const fillLatest = (rows) => {
+        const body = document.getElementById("latestTrips");
+        body.innerHTML = "";
+        if (!rows || !rows.length) {
+            body.innerHTML = "<tr><td colspan='6' class='text-center text-muted'>Không có dữ liệu</td></tr>";
+            return;
+        }
+        rows.forEach((r) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${r.id}</td><td>${r.name || ""}</td><td>${r.driverName || ""}</td><td>${r.start} - ${r.end}</td><td>${tripStatusLabels[r.status] || r.status}</td><td class="text-end">${toCurrency(r.finalPrice)}</td>`;
+            body.appendChild(tr);
+        });
+    };
+
+    const fillSeries = (rows) => {
+        const body = document.getElementById("revenueSeries");
+        body.innerHTML = "";
+        if (!rows || !rows.length) {
+            body.innerHTML = "<tr><td colspan='2' class='text-center text-muted'>Không có dữ liệu</td></tr>";
+            return;
+        }
+        rows.forEach((r) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${r.period}</td><td class="text-end">${toCurrency(r.amount)}</td>`;
+            body.appendChild(tr);
+        });
+    };
+
+    const fillLossTrips = (rows) => {
+        const body = document.getElementById("lossTrips");
+        body.innerHTML = "";
+        if (!rows || !rows.length) {
+            body.innerHTML = "<tr><td colspan='5' class='text-center text-muted'>Không có chuyến lỗ</td></tr>";
+            return;
+        }
+        rows.forEach((r) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${r.id}</td><td>${r.name || ""}</td><td class="text-end">${toCurrency(r.finalPrice)}</td><td class="text-end">${toCurrency(r.totalCost)}</td><td class="text-end text-danger fw-bold">${toCurrency(r.lossAmount)}</td>`;
+            body.appendChild(tr);
+        });
+    };
+
+    const loadDashboard = async () => {
+        const settingsRes = await fetch("backend_settings_get.php");
+        const settings = await settingsRes.json();
+        if (settings.transportDashboardEnabled === false) {
+            window.location.href = "settings.html";
+            return;
+        }
+        const params = new URLSearchParams({
+            startDate: document.getElementById("revenueStartDate").value,
+            endDate: document.getElementById("revenueEndDate").value,
+            groupBy: document.getElementById("revenueGroupBy").value || "day"
+        });
+        const res = await fetch(`backend_transport_dashboard.php?${params.toString()}`);
+        const data = await res.json();
+        document.getElementById("vehiclesTotal").textContent = data.vehiclesTotal || 0;
+        document.getElementById("tripsTotal").textContent = data.tripsTotal || 0;
+        document.getElementById("totalFinalPrice").textContent = toCurrency(data.totalFinalPrice);
+        document.getElementById("totalProfit").textContent = toCurrency(data.totalProfit);
+        document.getElementById("totalCosts").textContent = toCurrency(data.totalCosts);
+        document.getElementById("profitMargin").textContent = `${Number(data.profitMargin || 0).toLocaleString("vi-VN")}%`;
+        document.getElementById("lossTripsCount").textContent = data.lossTripsCount || 0;
+        fillMapList("tripsByStatus", data.tripsByStatus, false, tripStatusLabels);
+        fillMapList("costsByType", data.costsByType, true, costTypeLabels);
+        fillLatest(data.latestTrips);
+        fillSeries(data.revenueSeries);
+        fillLossTrips(data.lossTrips);
+    };
+
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById("revenueStartDate").value = today;
+    document.getElementById("revenueEndDate").value = today;
+    document.getElementById("revenueFilterBtn").addEventListener("click", loadDashboard);
+    loadDashboard();
+</script>
+<script src="assets/js/sidebar-menu.js"></script>
+<script src="assets/js/top-navbar.js"></script>
+<script src="assets/vendor/jquery/jquery.min.js"></script>
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
+

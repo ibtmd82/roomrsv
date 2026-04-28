@@ -221,213 +221,6 @@
             font-weight: 700;
             cursor: pointer;
         }
-        .service-fee-table {
-            border: 1px solid #dbeafe;
-            border-radius: 10px;
-            background: #f8fbff;
-            padding: 8px;
-            display: grid;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-        .service-fee-row {
-            display: grid;
-            gap: 6px;
-            align-items: start;
-            grid-template-columns: 72px repeat(5, minmax(86px, 1fr));
-        }
-        .service-fee-row.other {
-            grid-template-columns: 72px repeat(6, minmax(86px, 1fr));
-        }
-        .service-fee-row-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #334155;
-            padding-top: 8px;
-        }
-        .service-fee-cell .modal_default_form_item {
-            margin: 0 !important;
-            padding: 6px !important;
-            min-height: 68px;
-        }
-        .service-fee-cell .modal_default_form_item_label {
-            font-size: 11px !important;
-            margin-bottom: 4px !important;
-            color: #64748b !important;
-        }
-        @media (max-width: 576px) {
-            .service-fee-table {
-                overflow-x: auto;
-                padding: 6px;
-            }
-            .service-fee-row,
-            .service-fee-row.other {
-                min-width: 720px;
-            }
-        }
-        .reservation-form-sections {
-            display: grid;
-            gap: 10px;
-        }
-        .reservation-form-section {
-            border: 1px solid #dbeafe;
-            border-radius: 12px;
-            background: #f8fbff;
-            padding: 8px;
-        }
-        .reservation-form-section-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1e3a8a;
-            margin: 0 0 8px;
-            padding: 0 2px 6px;
-            border-bottom: 1px dashed #bfdbfe;
-        }
-        .modal_form_section_divider {
-            margin: 10px 0 8px;
-            padding: 7px 10px;
-            border-radius: 10px;
-            border: 1px solid #bfdbfe;
-            background: #eff6ff;
-            color: #1e3a8a;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .reservation-native-section {
-            border: 1px solid #dbeafe;
-            border-radius: 12px;
-            background: #f8fbff;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        .reservation-native-section h6 {
-            margin: 0 0 8px;
-            color: #1e3a8a;
-            font-size: 13px;
-            font-weight: 700;
-        }
-        .native-modal .modal-content {
-            border: 1px solid #dbe3ef;
-            border-radius: 14px;
-            overflow: hidden;
-            box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28);
-        }
-        .native-modal .modal-header {
-            background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
-            border-bottom: 1px solid #dbeafe;
-            padding: 10px 12px;
-        }
-        .native-modal .modal-title {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 15px;
-            font-weight: 700;
-            color: #1e3a8a;
-        }
-        .native-modal .modal-body {
-            background: #ffffff;
-            padding: 12px;
-        }
-        .native-modal .modal-footer {
-            border-top: 1px solid #dbeafe;
-            background: #f8fbff;
-            padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
-            position: sticky;
-            bottom: 0;
-            z-index: 5;
-        }
-        .native-modal .modal-footer .btn {
-            min-width: 92px;
-            font-weight: 600;
-        }
-        .native-modal .modal-footer .btn.btn-primary {
-            border-color: #1d4ed8;
-            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-            color: #ffffff;
-        }
-        .native-modal .modal-footer .btn.btn-primary:hover {
-            border-color: #1e3a8a;
-            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
-        }
-        .native-modal .modal-footer .btn.btn-secondary {
-            border-color: #64748b;
-            background: #64748b;
-            color: #ffffff;
-        }
-        .native-modal .modal-footer .btn.btn-secondary:hover {
-            border-color: #475569;
-            background: #475569;
-        }
-        .reservation-native-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-        }
-        .reservation-native-grid-3 {
-            display: grid;
-            grid-template-columns: 90px repeat(6, minmax(86px, 1fr));
-            gap: 6px;
-            align-items: start;
-        }
-        .reservation-native-grid-3 .row-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #334155;
-            padding-top: 8px;
-        }
-        .reservation-native-cell label {
-            display: block;
-            font-size: 11px;
-            color: #64748b;
-            margin-bottom: 3px;
-            font-weight: 600;
-        }
-        .reservation-native-collapse-btn {
-            border: 1px solid #bfdbfe;
-            background: #eff6ff;
-            color: #1d4ed8;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 4px 10px;
-            cursor: pointer;
-        }
-        .reservation-native-add-btn {
-            border: 1px solid #93c5fd;
-            background: #dbeafe;
-            color: #1d4ed8;
-            border-radius: 999px;
-            width: 28px;
-            height: 28px;
-            font-size: 16px;
-            font-weight: 700;
-            line-height: 1;
-            cursor: pointer;
-        }
-        @media (max-width: 576px) {
-            .native-modal .modal-dialog {
-                margin: 6px;
-            }
-            .native-modal .modal-content {
-                border-radius: 12px;
-                max-height: calc(100dvh - 12px);
-            }
-            .native-modal .modal-body {
-                padding: 10px;
-            }
-            .native-modal .modal-footer .btn {
-                flex: 1 1 0;
-                min-width: 0;
-            }
-            .reservation-native-grid {
-                grid-template-columns: 1fr;
-            }
-            .reservation-native-grid-3 {
-                overflow-x: auto;
-                grid-template-columns: 78px repeat(6, minmax(110px, 1fr));
-            }
-        }
         .app-toast {
             position: fixed;
             right: 16px;
@@ -711,6 +504,7 @@
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/vendor/datatables/datatables.min.css" rel="stylesheet">
     <link href="assets/css/master.css" rel="stylesheet">
+    <link href="assets/css/booking-shared.css" rel="stylesheet">
 
 </head>
 <body>
@@ -3174,8 +2968,8 @@
                             //end bug
                             args.preventDefault();
                             //args.source.stopPropagation();
-                            if (!confirm("Bạn có chắc chắn muốn xóa đặt phòng này không?")) {
-                                //args.preventDefault();
+                            const modal = await DayPilot.Modal.confirm("Bạn có chắc chắn muốn xóa đặt phòng này không?");
+                            if (modal.canceled) {
                                 return false;
                             }
                             //console.log(args.source);

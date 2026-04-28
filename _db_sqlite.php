@@ -3,6 +3,12 @@
 $db_exists = file_exists("daypilot.sqlite");
 
 $db = new PDO('sqlite:daypilot.sqlite');
+$schema_marker_file = "daypilot.sqlite.schema_v1";
+
+// Skip heavy schema checks on normal requests after initial migration.
+if (file_exists($schema_marker_file) && $db_exists) {
+    return;
+}
 
 function columnExists($dbh, $table, $column) {
     $stmt = $dbh->query("PRAGMA table_info($table)");
@@ -266,8 +272,138 @@ $db->exec("CREATE TABLE IF NOT EXISTS tenant_settings (
                     tenant_id INTEGER NOT NULL,
                     rental_mode TEXT DEFAULT 'both',
                     short_term_day_threshold_hours INTEGER DEFAULT 4,
+                    transport_module_enabled INTEGER DEFAULT 1,
+                    transport_dashboard_enabled INTEGER DEFAULT 1,
                     updated_at DATETIME NULL)");
 
 if (!columnExists($db, "tenant_settings", "short_term_day_threshold_hours")) {
     $db->exec("ALTER TABLE tenant_settings ADD COLUMN short_term_day_threshold_hours INTEGER DEFAULT 4");
 }
+
+if (!columnExists($db, "tenant_settings", "transport_module_enabled")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_module_enabled INTEGER DEFAULT 1");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_dashboard_enabled")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_dashboard_enabled INTEGER DEFAULT 1");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_discount_type")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_discount_type TEXT DEFAULT 'fixed'");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_discount_value")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_discount_value REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_driver")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_driver REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_toll")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_toll REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_fuel")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_fuel REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_parking")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_parking REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_default_cost_other")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_default_cost_other REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_price_per_km")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_price_per_km REAL DEFAULT 6000");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_fuel_liters_per_100km")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_fuel_liters_per_100km REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "tenant_settings", "transport_fuel_price_per_liter")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN transport_fuel_price_per_liter REAL DEFAULT 22000");
+}
+
+$db->exec("CREATE TABLE IF NOT EXISTS vehicles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    tenant_id INTEGER DEFAULT 1,
+                    name TEXT,
+                    plate_no TEXT,
+                    capacity INTEGER DEFAULT 4,
+                    status TEXT DEFAULT 'Ready',
+                    fuel_consumption_per_100km REAL DEFAULT 8,
+                    base_price REAL DEFAULT 6000)");
+
+if (!columnExists($db, "vehicles", "fuel_consumption_per_100km")) {
+    $db->exec("ALTER TABLE vehicles ADD COLUMN fuel_consumption_per_100km REAL DEFAULT 8");
+}
+
+$db->exec("CREATE TABLE IF NOT EXISTS trip_reservations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    tenant_id INTEGER DEFAULT 1,
+                    customer_id INTEGER NULL,
+                    vehicle_id INTEGER NOT NULL,
+                    name TEXT,
+                    driver_name TEXT,
+                    distance_km REAL DEFAULT 0,
+                    fuel_estimated_cost REAL DEFAULT 0,
+                    start DATETIME,
+                    `end` DATETIME,
+                    status TEXT DEFAULT 'New',
+                    trip_price REAL DEFAULT 0,
+                    discount_type TEXT DEFAULT 'fixed',
+                    discount_value REAL DEFAULT 0,
+                    final_price REAL DEFAULT 0,
+                    paid_amount REAL DEFAULT 0,
+                    payment_status TEXT DEFAULT 'unpaid',
+                    payment_method TEXT NULL,
+                    payment_ref TEXT NULL,
+                    note TEXT NULL)");
+
+if (!columnExists($db, "trip_reservations", "customer_id")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN customer_id INTEGER NULL");
+}
+
+if (!columnExists($db, "trip_reservations", "distance_km")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN distance_km REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "trip_reservations", "fuel_estimated_cost")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN fuel_estimated_cost REAL DEFAULT 0");
+}
+
+if (!columnExists($db, "trip_reservations", "payment_method")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN payment_method TEXT NULL");
+}
+
+if (!columnExists($db, "trip_reservations", "payment_ref")) {
+    $db->exec("ALTER TABLE trip_reservations ADD COLUMN payment_ref TEXT NULL");
+}
+
+$db->exec("CREATE TABLE IF NOT EXISTS trip_costs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    tenant_id INTEGER DEFAULT 1,
+                    trip_reservation_id INTEGER NOT NULL,
+                    cost_type TEXT DEFAULT 'other',
+                    description TEXT,
+                    amount REAL DEFAULT 0,
+                    incurred_at DATETIME NULL)");
+
+$db->exec("CREATE TABLE IF NOT EXISTS trip_invoices (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    tenant_id INTEGER DEFAULT 1,
+                    trip_reservation_id INTEGER NOT NULL,
+                    invoice_no TEXT NULL,
+                    total_amount REAL DEFAULT 0,
+                    paid_amount REAL DEFAULT 0,
+                    payment_status TEXT DEFAULT 'unpaid',
+                    payment_method TEXT NULL,
+                    payment_ref TEXT NULL,
+                    paid_at DATETIME NULL,
+                    note TEXT NULL)");
+
+@file_put_contents($schema_marker_file, 'ok');

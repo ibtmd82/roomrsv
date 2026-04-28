@@ -2,6 +2,8 @@
     const menuItems = [
         { id: "dashboard", href: "dashboard.html", icon: "fa-chart-line", label: "Thống kê" },
         { id: "booking", href: "index.html", icon: "fa-calendar-check", label: "Đặt/Thuê phòng" },
+        { id: "transport", href: "transport.html", icon: "fa-shuttle-van", label: "Đặt xe" },
+        { id: "transport-dashboard", href: "transport_dashboard.html", icon: "fa-truck-moving", label: "Thống kê đặt xe" },
         { id: "users", href: "users.html", icon: "fa-user-friends", label: "Người dùng" },
         { id: "settings", href: "settings.html", icon: "fa-cog", label: "Cài đặt" }
     ];
@@ -11,13 +13,63 @@
         { href: "signup.html", icon: "fa-user-plus", label: "Đăng ký" }
     ];
 
-    const renderSidebar = () => {
+    const STORAGE_KEY = "roomrsv_sidebar_module_settings";
+
+    const normalizeSettings = (data) => ({
+        transportModuleEnabled: data && data.transportModuleEnabled !== false,
+        transportDashboardEnabled: data && data.transportDashboardEnabled !== false
+    });
+
+    const getCachedModuleSettings = () => {
+        try {
+            if (window.__sidebarModuleSettings) {
+                return normalizeSettings(window.__sidebarModuleSettings);
+            }
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+                return null;
+            }
+            return normalizeSettings(JSON.parse(raw));
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const getModuleSettings = async () => {
+        if (window.__sidebarModuleSettings) {
+            return normalizeSettings(window.__sidebarModuleSettings);
+        }
+        try {
+            const res = await fetch("backend_settings_get.php");
+            if (!res.ok) {
+                return { transportModuleEnabled: true, transportDashboardEnabled: true };
+            }
+            const data = await res.json();
+            window.__sidebarModuleSettings = data;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            return normalizeSettings(data);
+        } catch (e) {
+            return { transportModuleEnabled: true, transportDashboardEnabled: true };
+        }
+    };
+
+    const renderSidebar = (moduleSettings) => {
         const sidebar = document.getElementById("sidebar");
         if (!sidebar) {
             return;
         }
+        const settings = moduleSettings || { transportModuleEnabled: true, transportDashboardEnabled: true };
         const current = sidebar.getAttribute("data-current-page") || "";
-        const menuHtml = menuItems.map((item) => {
+        const filteredItems = menuItems.filter((item) => {
+            if (item.id === "transport" && !settings.transportModuleEnabled) {
+                return false;
+            }
+            if (item.id === "transport-dashboard" && !settings.transportDashboardEnabled) {
+                return false;
+            }
+            return true;
+        });
+        const menuHtml = filteredItems.map((item) => {
             const activeClass = item.id === current ? ' class="active"' : "";
             return `<li${activeClass}><a href="${item.href}"><i class="fas ${item.icon}"></i>${item.label}</a></li>`;
         }).join("");
@@ -39,9 +91,18 @@
         `;
     };
 
+    const initSidebar = () => {
+        // Render immediately (no network wait) to match booking page UX.
+        renderSidebar(getCachedModuleSettings() || { transportModuleEnabled: true, transportDashboardEnabled: true });
+        // Refresh in background and re-render only if settings differ.
+        getModuleSettings().then((fresh) => {
+            renderSidebar(fresh);
+        });
+    };
+
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", renderSidebar);
+        document.addEventListener("DOMContentLoaded", initSidebar);
     } else {
-        renderSidebar();
+        initSidebar();
     }
 })();
