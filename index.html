@@ -905,13 +905,18 @@
                         {name: "4", id: 4},
                     ];
 
+                    const isLongTermOnlyMode = app.rentalMode === "long_term";
                     const form = [
                         {name: "Tên phòng (VD: Phòng 101)", id: "name"},
                         {name: "Sức chứa", id: "capacity", type: "select", options: capacities},
-                        {name: "Giá tháng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice},
-                        {name: "Giá ngày (VD: 300000)", id: "priceDay", type: "number", onValidate: validateRoomPrice},
-                        {name: "Giá giờ (VD: 50000)", id: "priceHour", type: "number", onValidate: validateRoomPrice}
+                        {name: "Giá tháng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice}
                     ];
+                    if (!isLongTermOnlyMode) {
+                        form.push(
+                            {name: "Giá ngày (VD: 300000)", id: "priceDay", type: "number", onValidate: validateRoomPrice},
+                            {name: "Giá giờ (VD: 50000)", id: "priceHour", type: "number", onValidate: validateRoomPrice}
+                        );
+                    }
 
                     const data = {
                         capacity: 2,
@@ -926,10 +931,15 @@
                     }
 
                     const room = modal.result;
-                    room.price = Math.max(0, parseLocaleNumber(room.price));
-                    room.priceDay = Math.max(0, parseLocaleNumber(room.priceDay));
-                    room.priceHour = Math.max(0, parseLocaleNumber(room.priceHour));
-                    const {data: result} = await DayPilot.Http.post("backend_room_create.php", room);
+                    const roomPayload = {
+                        ...room,
+                        price: Math.max(0, parseLocaleNumber(room.price))
+                    };
+                    if (!isLongTermOnlyMode) {
+                        roomPayload.priceDay = Math.max(0, parseLocaleNumber(room.priceDay));
+                        roomPayload.priceHour = Math.max(0, parseLocaleNumber(room.priceHour));
+                    }
+                    const {data: result} = await DayPilot.Http.post("backend_room_create.php", roomPayload);
 
                     room.id = result.id;
                     room.status = result.status;
@@ -2484,14 +2494,19 @@
                                 {name: "Bẩn", id: "Dirty"},
                             ];
     
+                            const isLongTermOnlyMode = app.rentalMode === "long_term";
                             const form = [
                                 {name: "Tên phòng (VD: Phòng 101)", id: "name"},
                                 {name: "Sức chứa", id: "capacity", type: "select", options: capacities},
                                 {name: "Trạng thái", id: "status", type: "select", options: statuses},
-                                {name: "Giá tháng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice},
-                                {name: "Giá ngày (VD: 300000)", id: "priceDay", type: "number", onValidate: validateRoomPrice},
-                                {name: "Giá giờ (VD: 50000)", id: "priceHour", type: "number", onValidate: validateRoomPrice}
+                                {name: "Giá tháng (VD: 600000)", id: "price", type: "number", onValidate: validateRoomPrice}
                             ];
+                            if (!isLongTermOnlyMode) {
+                                form.push(
+                                    {name: "Giá ngày (VD: 300000)", id: "priceDay", type: "number", onValidate: validateRoomPrice},
+                                    {name: "Giá giờ (VD: 50000)", id: "priceHour", type: "number", onValidate: validateRoomPrice}
+                                );
+                            }
     
                             const data = args.source.data;
     
@@ -2501,11 +2516,16 @@
                             }
     
                             const room = modal.result;
-                            room.price = Math.max(0, parseLocaleNumber(room.price));
-                            room.priceDay = Math.max(0, parseLocaleNumber(room.priceDay));
-                            room.priceHour = Math.max(0, parseLocaleNumber(room.priceHour));
-                            await DayPilot.Http.post("backend_room_update.php", room);
-                            dp.rows.update(room);
+                            const roomPayload = {
+                                ...room,
+                                price: Math.max(0, parseLocaleNumber(room.price))
+                            };
+                            if (!isLongTermOnlyMode) {
+                                roomPayload.priceDay = Math.max(0, parseLocaleNumber(room.priceDay));
+                                roomPayload.priceHour = Math.max(0, parseLocaleNumber(room.priceHour));
+                            }
+                            await DayPilot.Http.post("backend_room_update.php", roomPayload);
+                            dp.rows.update(roomPayload);
                         }},
                     { text: "Xóa", onClick: async (args) => {
                             const id = args.source.id;
