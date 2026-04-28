@@ -905,28 +905,34 @@
         onEventClick: async (args) => {
             const payload = await editTripNativeModal(args.e.data);
             if (!payload) return;
+            const previousData = { ...(args.e.data || {}) };
             payload.id = args.e.id();
             payload.start = args.e.start();
             payload.end = args.e.end();
             payload.resource = args.e.resource();
             const { data } = await DayPilot.Http.post("backend_trip_reservation_update.php", payload);
-            args.e.data = {
-                ...args.e.data,
-                ...payload,
-                status: data.status || payload.status,
-                tripPrice: data.tripPrice !== undefined ? data.tripPrice : payload.tripPrice,
-                fuelEstimatedCost: data.fuelEstimatedCost !== undefined ? data.fuelEstimatedCost : payload.fuelEstimatedCost,
-                tripCosts: Array.isArray(data.tripCosts) ? data.tripCosts : payload.tripCosts,
-                tripCostsTotal: data.tripCostsTotal !== undefined ? data.tripCostsTotal : payload.tripCostsTotal,
-                discountType: data.discountType || payload.discountType,
-                discountValue: data.discountValue !== undefined ? data.discountValue : payload.discountValue,
-                finalPrice: data.finalPrice !== undefined ? data.finalPrice : payload.finalPrice,
-                paymentStatus: data.paymentStatus || payload.paymentStatus,
-                paidAmount: data.paidAmount !== undefined ? data.paidAmount : payload.paidAmount,
-                paymentMethod: data.paymentMethod !== undefined ? data.paymentMethod : payload.paymentMethod,
-                paymentRef: data.paymentRef !== undefined ? data.paymentRef : payload.paymentRef,
-                customer: data.customer || payload.customer
-            };
+            const currentData = args.e.data || {};
+            currentData.id = currentData.id || previousData.id || payload.id;
+            currentData.text = payload.text || currentData.text || previousData.text || "Chuyến xe";
+            currentData.resource = previousData.resource || currentData.resource || payload.resource;
+            currentData.start = payload.start || currentData.start || previousData.start;
+            currentData.end = payload.end || currentData.end || previousData.end;
+            currentData.driverName = payload.driverName || currentData.driverName || previousData.driverName || "";
+            currentData.distanceKm = payload.distanceKm !== undefined ? payload.distanceKm : (currentData.distanceKm || previousData.distanceKm || 0);
+            currentData.status = data.status || payload.status || currentData.status || previousData.status || "New";
+            currentData.tripPrice = data.tripPrice !== undefined ? data.tripPrice : (payload.tripPrice !== undefined ? payload.tripPrice : (currentData.tripPrice || previousData.tripPrice || 0));
+            currentData.fuelEstimatedCost = data.fuelEstimatedCost !== undefined ? data.fuelEstimatedCost : (payload.fuelEstimatedCost !== undefined ? payload.fuelEstimatedCost : (currentData.fuelEstimatedCost || previousData.fuelEstimatedCost || 0));
+            currentData.tripCosts = Array.isArray(data.tripCosts) ? data.tripCosts : (Array.isArray(payload.tripCosts) ? payload.tripCosts : (currentData.tripCosts || previousData.tripCosts || []));
+            currentData.tripCostsTotal = data.tripCostsTotal !== undefined ? data.tripCostsTotal : (payload.tripCostsTotal !== undefined ? payload.tripCostsTotal : (currentData.tripCostsTotal || previousData.tripCostsTotal || 0));
+            currentData.discountType = data.discountType || payload.discountType || currentData.discountType || previousData.discountType || "fixed";
+            currentData.discountValue = data.discountValue !== undefined ? data.discountValue : (payload.discountValue !== undefined ? payload.discountValue : (currentData.discountValue || previousData.discountValue || 0));
+            currentData.finalPrice = data.finalPrice !== undefined ? data.finalPrice : (payload.finalPrice !== undefined ? payload.finalPrice : (currentData.finalPrice || previousData.finalPrice || 0));
+            currentData.paymentStatus = data.paymentStatus || payload.paymentStatus || currentData.paymentStatus || previousData.paymentStatus || "unpaid";
+            currentData.paidAmount = data.paidAmount !== undefined ? data.paidAmount : (payload.paidAmount !== undefined ? payload.paidAmount : (currentData.paidAmount || previousData.paidAmount || 0));
+            currentData.paymentMethod = data.paymentMethod !== undefined ? data.paymentMethod : (payload.paymentMethod !== undefined ? payload.paymentMethod : (currentData.paymentMethod || previousData.paymentMethod || null));
+            currentData.paymentRef = data.paymentRef !== undefined ? data.paymentRef : (payload.paymentRef !== undefined ? payload.paymentRef : (currentData.paymentRef || previousData.paymentRef || null));
+            currentData.note = payload.note !== undefined ? payload.note : (currentData.note || previousData.note || "");
+            currentData.customer = data.customer || payload.customer || currentData.customer || previousData.customer || {};
             dp.events.update(args.e);
             await notify("Đã cập nhật chuyến.");
         },
