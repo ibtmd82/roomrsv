@@ -36,6 +36,9 @@ $settingStmt->bindValue(':tenant_id', $tenantId);
 $settingStmt->execute();
 $settingRow = $settingStmt->fetch(PDO::FETCH_ASSOC);
 $fuelPricePerLiter = $settingRow && isset($settingRow['transport_fuel_price_per_liter']) ? floatval($settingRow['transport_fuel_price_per_liter']) : 22000;
+if ($fuelPricePerLiter <= 0) {
+    $fuelPricePerLiter = 22000;
+}
 
 $vehicleStmt = $db->prepare("SELECT base_price, fuel_consumption_per_100km FROM vehicles WHERE tenant_id = :tenant_id AND id = :vehicle_id LIMIT 1");
 $vehicleStmt->bindValue(':tenant_id', $tenantId);

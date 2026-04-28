@@ -33,6 +33,9 @@ if ($result->transportPricePerKm <= 0) {
     $result->transportPricePerKm = 6000;
 }
 $result->transportFuelPricePerLiter = $row && isset($row['transport_fuel_price_per_liter']) ? floatval($row['transport_fuel_price_per_liter']) : 22000;
+if ($result->transportFuelPricePerLiter <= 0) {
+    $result->transportFuelPricePerLiter = 22000;
+}
 
 header('Content-Type: application/json');
 echo json_encode($result);

@@ -882,10 +882,24 @@
             dp.clearSelection();
             if (!payload) return;
             const { data } = await DayPilot.Http.post("backend_trip_reservation_create.php", payload);
-            payload.id = data.id;
-            payload.status = data.status;
-            payload.finalPrice = data.finalPrice;
-            dp.events.add(payload);
+            const nextEvent = {
+                ...payload,
+                id: data.id,
+                status: data.status || payload.status,
+                tripPrice: data.tripPrice !== undefined ? data.tripPrice : payload.tripPrice,
+                fuelEstimatedCost: data.fuelEstimatedCost !== undefined ? data.fuelEstimatedCost : payload.fuelEstimatedCost,
+                tripCosts: Array.isArray(data.tripCosts) ? data.tripCosts : payload.tripCosts,
+                tripCostsTotal: data.tripCostsTotal !== undefined ? data.tripCostsTotal : payload.tripCostsTotal,
+                discountType: data.discountType || payload.discountType,
+                discountValue: data.discountValue !== undefined ? data.discountValue : payload.discountValue,
+                finalPrice: data.finalPrice !== undefined ? data.finalPrice : payload.finalPrice,
+                paymentStatus: data.paymentStatus || payload.paymentStatus,
+                paidAmount: data.paidAmount !== undefined ? data.paidAmount : payload.paidAmount,
+                paymentMethod: data.paymentMethod !== undefined ? data.paymentMethod : payload.paymentMethod,
+                paymentRef: data.paymentRef !== undefined ? data.paymentRef : payload.paymentRef,
+                customer: data.customer || payload.customer
+            };
+            dp.events.add(nextEvent);
             await notify("Đã tạo chuyến.");
         },
         onEventClick: async (args) => {
@@ -896,7 +910,23 @@
             payload.end = args.e.end();
             payload.resource = args.e.resource();
             const { data } = await DayPilot.Http.post("backend_trip_reservation_update.php", payload);
-            args.e.data = { ...args.e.data, ...payload, status: data.status, finalPrice: data.finalPrice };
+            args.e.data = {
+                ...args.e.data,
+                ...payload,
+                status: data.status || payload.status,
+                tripPrice: data.tripPrice !== undefined ? data.tripPrice : payload.tripPrice,
+                fuelEstimatedCost: data.fuelEstimatedCost !== undefined ? data.fuelEstimatedCost : payload.fuelEstimatedCost,
+                tripCosts: Array.isArray(data.tripCosts) ? data.tripCosts : payload.tripCosts,
+                tripCostsTotal: data.tripCostsTotal !== undefined ? data.tripCostsTotal : payload.tripCostsTotal,
+                discountType: data.discountType || payload.discountType,
+                discountValue: data.discountValue !== undefined ? data.discountValue : payload.discountValue,
+                finalPrice: data.finalPrice !== undefined ? data.finalPrice : payload.finalPrice,
+                paymentStatus: data.paymentStatus || payload.paymentStatus,
+                paidAmount: data.paidAmount !== undefined ? data.paidAmount : payload.paidAmount,
+                paymentMethod: data.paymentMethod !== undefined ? data.paymentMethod : payload.paymentMethod,
+                paymentRef: data.paymentRef !== undefined ? data.paymentRef : payload.paymentRef,
+                customer: data.customer || payload.customer
+            };
             dp.events.update(args.e);
             await notify("Đã cập nhật chuyến.");
         },

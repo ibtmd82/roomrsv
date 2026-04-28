@@ -6,6 +6,15 @@ $end = isset($_GET['end']) ? $_GET['end'] : null;
 $tenantContext = resolveTenantContext();
 $tenantId = $tenantContext['tenant_id'];
 
+$settingStmt = $db->prepare("SELECT transport_fuel_price_per_liter FROM tenant_settings WHERE tenant_id = :tenant_id ORDER BY id DESC LIMIT 1");
+$settingStmt->bindValue(':tenant_id', $tenantId);
+$settingStmt->execute();
+$settingRow = $settingStmt->fetch(PDO::FETCH_ASSOC);
+$fuelPricePerLiter = $settingRow && isset($settingRow['transport_fuel_price_per_liter']) ? floatval($settingRow['transport_fuel_price_per_liter']) : 22000;
+if ($fuelPricePerLiter <= 0) {
+    $fuelPricePerLiter = 22000;
+}
+
 $stmt = $db->prepare("SELECT t.*, c.full_name AS customer_full_name, c.phone_number AS customer_phone_number, c.id_type AS customer_id_type, c.id_number AS customer_id_number, c.birthday AS customer_birthday
                       FROM trip_reservations t
                       LEFT JOIN customers c ON c.id = t.customer_id AND c.tenant_id = t.tenant_id
@@ -17,8 +26,10 @@ $stmt->execute();
 $rows = $stmt->fetchAll();
 
 $reservationIds = [];
+$vehicleIds = [];
 foreach ($rows as $row) {
     $reservationIds[] = intval($row['id']);
+    $vehicleIds[] = intval($row['vehicle_id']);
 }
 
 $costMap = [];
@@ -75,6 +86,30 @@ if (!empty($reservationIds)) {
     }
 }
 
+$vehicleMap = [];
+if (!empty($vehicleIds)) {
+    $vehicleIds = array_values(array_unique(array_filter($vehicleIds, function ($id) {
+        return intval($id) > 0;
+    })));
+    if (!empty($vehicleIds)) {
+        $placeholders = implode(',', array_fill(0, count($vehicleIds), '?'));
+        $vehicleStmt = $db->prepare("SELECT id, base_price, fuel_consumption_per_100km FROM vehicles WHERE tenant_id = ? AND id IN ($placeholders)");
+        $idx = 1;
+        $vehicleStmt->bindValue($idx++, $tenantId);
+        foreach ($vehicleIds as $vehicleId) {
+            $vehicleStmt->bindValue($idx++, intval($vehicleId));
+        }
+        $vehicleStmt->execute();
+        $vehicleRows = $vehicleStmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($vehicleRows as $vehicleRow) {
+            $vehicleMap[intval($vehicleRow['id'])] = [
+                'base_price' => isset($vehicleRow['base_price']) ? floatval($vehicleRow['base_price']) : 6000,
+                'fuel_consumption_per_100km' => isset($vehicleRow['fuel_consumption_per_100km']) ? floatval($vehicleRow['fuel_consumption_per_100km']) : 8,
+            ];
+        }
+    }
+}
+
 $events = [];
 foreach ($rows as $row) {
     $event = new stdClass();
@@ -87,11 +122,11 @@ foreach ($rows as $row) {
     $event->status = isset($row['status']) ? $row['status'] : 'New';
     $event->driverName = isset($row['driver_name']) ? $row['driver_name'] : '';
     $event->distanceKm = isset($row['distance_km']) ? floatval($row['distance_km']) : 0;
+    $event->tripPrice = isset($row['trip_price']) ? floatval($row['trip_price']) : 0;
     $event->fuelEstimatedCost = isset($row['fuel_estimated_cost']) ? floatval($row['fuel_estimated_cost']) : 0;
-    $event->tripPrice = floatval($row['trip_price']);
     $event->discountType = isset($row['discount_type']) ? $row['discount_type'] : 'fixed';
     $event->discountValue = floatval($row['discount_value']);
-    $event->finalPrice = floatval($row['final_price']);
+    $event->finalPrice = isset($row['final_price']) ? floatval($row['final_price']) : 0;
     $invoice = isset($invoiceMap[intval($row['id'])]) ? $invoiceMap[intval($row['id'])] : null;
     $event->paidAmount = $invoice ? $invoice->paidAmount : floatval($row['paid_amount']);
     $event->paymentStatus = $invoice ? $invoice->paymentStatus : (isset($row['payment_status']) ? $row['payment_status'] : 'unpaid');
@@ -108,6 +143,36 @@ foreach ($rows as $row) {
     $reservationId = intval($row['id']);
     $event->tripCosts = isset($costMap[$reservationId]) ? $costMap[$reservationId] : [];
     $event->tripCostsTotal = calculateTripCostsTotal($event->tripCosts) + $event->fuelEstimatedCost;
+    $vehicleInfo = isset($vehicleMap[$event->resource]) ? $vehicleMap[$event->resource] : null;
+    if ($vehicleInfo) {
+        $basePricePerKm = isset($vehicleInfo['base_price']) ? floatval($vehicleInfo['base_price']) : 0;
+        if ($basePricePerKm <= 0) {
+            $basePricePerKm = 6000;
+        }
+        $fuelLitersPer100Km = isset($vehicleInfo['fuel_consumption_per_100km']) ? floatval($vehicleInfo['fuel_consumption_per_100km']) : 0;
+        if ($fuelLitersPer100Km <= 0) {
+            $fuelLitersPer100Km = 8;
+        }
+        $expectedTripPrice = round(max(0, $event->distanceKm) * $basePricePerKm, 2);
+        $expectedFuelEstimatedCost = round((max(0, $event->distanceKm) * $fuelLitersPer100Km / 100) * $fuelPricePerLiter, 2);
+        $expectedTripCostsTotal = calculateTripCostsTotal($event->tripCosts) + $expectedFuelEstimatedCost;
+        $expectedFinalPrice = computeTripFinalTotal($expectedTripPrice, $expectedTripCostsTotal, $event->discountType, $event->discountValue);
+
+        $hasMismatch =
+            abs($event->tripPrice - $expectedTripPrice) > 0.009 ||
+            abs($event->fuelEstimatedCost - $expectedFuelEstimatedCost) > 0.009 ||
+            abs($event->finalPrice - $expectedFinalPrice) > 0.009;
+
+        if ($hasMismatch) {
+            $event->dataNeedsRecalculation = true;
+            $event->recalculated = new stdClass();
+            $event->recalculated->tripPrice = $expectedTripPrice;
+            $event->recalculated->fuelEstimatedCost = $expectedFuelEstimatedCost;
+            $event->recalculated->tripCostsTotal = $expectedTripCostsTotal;
+            $event->recalculated->finalPrice = $expectedFinalPrice;
+            $event->warningMessage = 'Du lieu gia chuyen dang lech cong thuc, vui long mo va luu lai de cap nhat.';
+        }
+    }
     $event->profit = $event->finalPrice - $event->tripCostsTotal;
     $events[] = $event;
 }

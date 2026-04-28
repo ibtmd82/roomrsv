@@ -19,7 +19,7 @@ $transportDashboardEnabled = (isset($params->transportDashboardEnabled) && $para
 $transportPricePerKm = isset($params->transportPricePerKm) ? floatval($params->transportPricePerKm) : 6000;
 $transportFuelPricePerLiter = isset($params->transportFuelPricePerLiter) ? floatval($params->transportFuelPricePerLiter) : 22000;
 if ($transportPricePerKm <= 0) { $transportPricePerKm = 6000; }
-if ($transportFuelPricePerLiter < 0) { $transportFuelPricePerLiter = 0; }
+if ($transportFuelPricePerLiter <= 0) { $transportFuelPricePerLiter = 22000; }
 
 $check = $db->prepare("SELECT id FROM tenant_settings WHERE tenant_id = :tenant_id ORDER BY id DESC LIMIT 1");
 $check->bindValue(':tenant_id', $tenantId);
