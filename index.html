@@ -650,7 +650,7 @@
                             <h6 class="mb-0">Kỳ thanh toán</h6>
                             <button type="button" class="reservation-native-collapse-btn" id="rn_toggleInvoiceFees">▾ Thu gọn chi phí theo kỳ</button>
                         </div>
-                        <div class="small text-muted mb-2">Dài hạn: thu theo kỳ tháng và tiền phòng prorate theo số ngày thực tế trong kỳ. Ngắn hạn: thu 1 lần (giá giờ/ngày theo cài đặt).</div>
+                        <div id="rn_invoiceModeHint" class="small text-muted mb-2"></div>
                         <div id="rn_invoicesWrap" class="small"></div>
                     </div>
                 </div>
@@ -1236,27 +1236,19 @@
             };
             const updateModeConstraintHint = () => {
                 const hint = byId("rn_modeConstraintHint");
+                const invoiceHint = byId("rn_invoiceModeHint");
                 if (!hint) {
                     return;
                 }
-                if (!isCreateMode || app.rentalMode === "both") {
-                    hint.style.display = "none";
-                    hint.textContent = "";
-                    return;
-                }
                 const isLong = isMonthlyCycleRange();
-                if (app.rentalMode === "short_term") {
-                    hint.style.display = "";
-                    hint.style.color = isLong ? "#b91c1c" : "#64748b";
-                    hint.textContent = isLong
-                        ? "Chế độ hiện tại chỉ cho phép ngắn hạn (< 1 tháng)."
-                        : "Chế độ hiện tại: chỉ ngắn hạn.";
-                } else if (app.rentalMode === "long_term") {
-                    hint.style.display = "";
-                    hint.style.color = isLong ? "#64748b" : "#b91c1c";
-                    hint.textContent = isLong
-                        ? "Chế độ hiện tại: chỉ dài hạn (>= 1 tháng)."
-                        : "Chế độ hiện tại chỉ cho phép dài hạn (>= 1 tháng).";
+                const description = isLong
+                    ? "Dài hạn: thu theo kỳ tháng và tiền phòng prorate theo số ngày thực tế trong kỳ."
+                    : "Ngắn hạn: thu 1 lần (giá giờ/ngày theo cài đặt).";
+                hint.style.display = "";
+                hint.style.color = "#64748b";
+                hint.textContent = description;
+                if (invoiceHint) {
+                    invoiceHint.textContent = description;
                 }
             };
             const isLongTermRange = (startValue, endValue) => {

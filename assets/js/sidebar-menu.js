@@ -1,9 +1,9 @@
 (() => {
     const menuItems = [
-        { id: "dashboard", href: "dashboard.html", icon: "fa-chart-line", label: "Thống kê" },
+        { id: "dashboard", href: "dashboard.html", icon: "fa-chart-pie", label: "Thống kê đặt phòng" },
         { id: "booking", href: "index.html", icon: "fa-calendar-check", label: "Đặt/Thuê phòng" },
         { id: "transport", href: "transport.html", icon: "fa-shuttle-van", label: "Đặt xe" },
-        { id: "transport-dashboard", href: "transport_dashboard.html", icon: "fa-truck-moving", label: "Thống kê đặt xe" },
+        { id: "transport-dashboard", href: "transport_dashboard.html", icon: "fa-chart-bar", label: "Thống kê đặt xe" },
         { id: "users", href: "users.html", icon: "fa-user-friends", label: "Người dùng" },
         { id: "settings", href: "settings.html", icon: "fa-cog", label: "Cài đặt" }
     ];
