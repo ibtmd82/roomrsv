@@ -271,6 +271,7 @@ $db->exec("CREATE TABLE IF NOT EXISTS tenant_settings (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     tenant_id INTEGER NOT NULL,
                     rental_mode TEXT DEFAULT 'both',
+                    room_module_enabled INTEGER DEFAULT 1,
                     short_term_day_threshold_hours INTEGER DEFAULT 4,
                     transport_module_enabled INTEGER DEFAULT 1,
                     transport_dashboard_enabled INTEGER DEFAULT 1,
@@ -278,6 +279,10 @@ $db->exec("CREATE TABLE IF NOT EXISTS tenant_settings (
 
 if (!columnExists($db, "tenant_settings", "short_term_day_threshold_hours")) {
     $db->exec("ALTER TABLE tenant_settings ADD COLUMN short_term_day_threshold_hours INTEGER DEFAULT 4");
+}
+
+if (!columnExists($db, "tenant_settings", "room_module_enabled")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN room_module_enabled INTEGER DEFAULT 1");
 }
 
 if (!columnExists($db, "tenant_settings", "transport_module_enabled")) {

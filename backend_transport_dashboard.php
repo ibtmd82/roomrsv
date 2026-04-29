@@ -22,6 +22,19 @@ $tripTotalStmt->bindValue(':tenant_id', $tenantId);
 $tripTotalStmt->execute();
 $result->tripsTotal = intval($tripTotalStmt->fetchColumn());
 
+$completedTripsStmt = $db->prepare("SELECT COUNT(*) FROM trip_reservations WHERE tenant_id = :tenant_id AND status = 'Done'");
+$completedTripsStmt->bindValue(':tenant_id', $tenantId);
+$completedTripsStmt->execute();
+$result->completedTrips = intval($completedTripsStmt->fetchColumn());
+
+$cancelledTripsStmt = $db->prepare("SELECT COUNT(*) FROM trip_reservations WHERE tenant_id = :tenant_id AND status = 'Cancelled'");
+$cancelledTripsStmt->bindValue(':tenant_id', $tenantId);
+$cancelledTripsStmt->execute();
+$result->cancelledTrips = intval($cancelledTripsStmt->fetchColumn());
+
+$result->completionRate = $result->tripsTotal > 0 ? round(($result->completedTrips / $result->tripsTotal) * 100, 2) : 0;
+$result->cancellationRate = $result->tripsTotal > 0 ? round(($result->cancelledTrips / $result->tripsTotal) * 100, 2) : 0;
+
 $revenueStmt = $db->prepare("SELECT COALESCE(SUM(final_price), 0) AS total, COALESCE(AVG(final_price), 0) AS average FROM trip_reservations WHERE tenant_id = :tenant_id");
 $revenueStmt->bindValue(':tenant_id', $tenantId);
 $revenueStmt->execute();
@@ -39,6 +52,15 @@ $totalCosts = floatval($costStmt->fetchColumn());
 $result->totalCosts = $totalCosts;
 $result->totalProfit = $result->totalFinalPrice - $totalCosts;
 $result->profitMargin = $result->totalFinalPrice > 0 ? round(($result->totalProfit / $result->totalFinalPrice) * 100, 2) : 0;
+
+$receivableStmt = $db->prepare("SELECT COALESCE(SUM(total_amount), 0) AS total_amount, COALESCE(SUM(paid_amount), 0) AS paid_amount FROM trip_invoices WHERE tenant_id = :tenant_id");
+$receivableStmt->bindValue(':tenant_id', $tenantId);
+$receivableStmt->execute();
+$receivableRow = $receivableStmt->fetch(PDO::FETCH_ASSOC);
+$result->totalReceivable = floatval($receivableRow['total_amount']);
+$result->totalCollected = floatval($receivableRow['paid_amount']);
+$result->totalOutstanding = max(0, $result->totalReceivable - $result->totalCollected);
+$result->collectionRate = $result->totalReceivable > 0 ? round(($result->totalCollected / $result->totalReceivable) * 100, 2) : 0;
 
 $statusStmt = $db->prepare("SELECT status, COUNT(*) AS count FROM trip_reservations WHERE tenant_id = :tenant_id GROUP BY status");
 $statusStmt->bindValue(':tenant_id', $tenantId);
@@ -83,8 +105,8 @@ $lossStmt = $db->prepare("SELECT t.id, t.name, t.final_price, COALESCE(SUM(c.amo
                           LEFT JOIN trip_costs c ON c.trip_reservation_id = t.id AND c.tenant_id = t.tenant_id
                           WHERE t.tenant_id = :tenant_id
                           GROUP BY t.id, t.name, t.final_price
-                          HAVING total_cost > t.final_price
-                          ORDER BY (total_cost - t.final_price) DESC
+                          HAVING COALESCE(SUM(c.amount), 0) > t.final_price
+                          ORDER BY (COALESCE(SUM(c.amount), 0) - t.final_price) DESC
                           LIMIT 5");
 $lossStmt->bindValue(':tenant_id', $tenantId);
 $lossStmt->execute();
@@ -101,6 +123,75 @@ foreach ($lossRows as $row) {
 }
 $result->lossTrips = $lossTrips;
 $result->lossTripsCount = count($lossTrips);
+
+$utilizationStmt = $db->prepare("SELECT start, `end` FROM trip_reservations
+                                 WHERE tenant_id = :tenant_id
+                                 AND start IS NOT NULL
+                                 AND `end` IS NOT NULL
+                                 AND NOT ((`end` < :start_date) OR (start > :end_date))");
+$utilizationStmt->bindValue(':tenant_id', $tenantId);
+$utilizationStmt->bindValue(':start_date', $startDate . ' 00:00:00');
+$utilizationStmt->bindValue(':end_date', $endDate . ' 23:59:59');
+$utilizationStmt->execute();
+$utilizationRows = $utilizationStmt->fetchAll(PDO::FETCH_ASSOC);
+$bookedHours = 0.0;
+$rangeStartTs = strtotime($startDate . ' 00:00:00');
+$rangeEndTs = strtotime($endDate . ' 23:59:59');
+foreach ($utilizationRows as $uRow) {
+    $tripStart = strtotime($uRow['start']);
+    $tripEnd = strtotime($uRow['end']);
+    if ($tripStart === false || $tripEnd === false || $tripEnd <= $tripStart) {
+        continue;
+    }
+    $effectiveStart = max($tripStart, $rangeStartTs);
+    $effectiveEnd = min($tripEnd, $rangeEndTs);
+    if ($effectiveEnd > $effectiveStart) {
+        $bookedHours += ($effectiveEnd - $effectiveStart) / 3600;
+    }
+}
+$result->bookedHours = round($bookedHours, 2);
+$periodHours = max(1.0, ($rangeEndTs - $rangeStartTs) / 3600);
+$capacityHours = max(1.0, $periodHours * max(1, $result->vehiclesTotal));
+$result->utilizationRate = round(min(100, ($bookedHours / $capacityHours) * 100), 2);
+
+$topVehiclesStmt = $db->prepare("SELECT v.name AS vehicle_name, COUNT(t.id) AS trip_count, COALESCE(SUM(t.final_price), 0) AS revenue
+                                 FROM trip_reservations t
+                                 LEFT JOIN vehicles v ON v.id = t.vehicle_id AND v.tenant_id = t.tenant_id
+                                 WHERE t.tenant_id = :tenant_id
+                                 GROUP BY t.vehicle_id, v.name
+                                 ORDER BY revenue DESC
+                                 LIMIT 5");
+$topVehiclesStmt->bindValue(':tenant_id', $tenantId);
+$topVehiclesStmt->execute();
+$topVehiclesRows = $topVehiclesStmt->fetchAll(PDO::FETCH_ASSOC);
+$topVehicles = [];
+foreach ($topVehiclesRows as $row) {
+    $item = new stdClass();
+    $item->vehicleName = $row['vehicle_name'] ?: 'Chua dat ten';
+    $item->tripCount = intval($row['trip_count']);
+    $item->revenue = floatval($row['revenue']);
+    $topVehicles[] = $item;
+}
+$result->topVehicles = $topVehicles;
+
+$topDriversStmt = $db->prepare("SELECT TRIM(COALESCE(driver_name, '')) AS driver_name, COUNT(*) AS trip_count, COALESCE(SUM(final_price), 0) AS revenue
+                                FROM trip_reservations
+                                WHERE tenant_id = :tenant_id
+                                GROUP BY TRIM(COALESCE(driver_name, ''))
+                                ORDER BY revenue DESC
+                                LIMIT 5");
+$topDriversStmt->bindValue(':tenant_id', $tenantId);
+$topDriversStmt->execute();
+$topDriversRows = $topDriversStmt->fetchAll(PDO::FETCH_ASSOC);
+$topDrivers = [];
+foreach ($topDriversRows as $row) {
+    $item = new stdClass();
+    $item->driverName = $row['driver_name'] !== '' ? $row['driver_name'] : 'Chua nhap tai xe';
+    $item->tripCount = intval($row['trip_count']);
+    $item->revenue = floatval($row['revenue']);
+    $topDrivers[] = $item;
+}
+$result->topDrivers = $topDrivers;
 
 $seriesStmt = $db->prepare("SELECT start, final_price FROM trip_reservations WHERE tenant_id = :tenant_id AND date(start) >= :start_date AND date(start) <= :end_date");
 $seriesStmt->bindValue(':tenant_id', $tenantId);

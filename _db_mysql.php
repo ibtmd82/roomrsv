@@ -312,10 +312,15 @@ if (!tableExists($db, "tenant_settings")) {
                         id INTEGER PRIMARY KEY AUTO_INCREMENT,
                         tenant_id INTEGER NOT NULL,
                         rental_mode VARCHAR(20) DEFAULT 'both',
+                        room_module_enabled TINYINT(1) DEFAULT 1,
                         short_term_day_threshold_hours INTEGER DEFAULT 4,
                         transport_module_enabled TINYINT(1) DEFAULT 1,
                         transport_dashboard_enabled TINYINT(1) DEFAULT 1,
                         updated_at DATETIME NULL)");
+}
+
+if (!columnExists($db, "tenant_settings", "room_module_enabled")) {
+    $db->exec("ALTER TABLE tenant_settings ADD COLUMN room_module_enabled TINYINT(1) DEFAULT 1");
 }
 
 if (!columnExists($db, "tenant_settings", "short_term_day_threshold_hours")) {

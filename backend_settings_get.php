@@ -4,7 +4,7 @@ require_once '_db.php';
 $tenantContext = resolveTenantContext();
 $tenantId = intval($tenantContext['tenant_id']);
 
-$stmt = $db->prepare("SELECT rental_mode, short_term_day_threshold_hours, transport_module_enabled, transport_dashboard_enabled, transport_price_per_km, transport_fuel_price_per_liter FROM tenant_settings WHERE tenant_id = :tenant_id ORDER BY id DESC LIMIT 1");
+$stmt = $db->prepare("SELECT * FROM tenant_settings WHERE tenant_id = :tenant_id ORDER BY id DESC LIMIT 1");
 $stmt->bindValue(':tenant_id', $tenantId);
 $stmt->execute();
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -26,8 +26,9 @@ $result->result = 'OK';
 $result->tenantId = $tenantId;
 $result->rentalMode = $mode;
 $result->shortTermDayThresholdHours = $shortTermDayThresholdHours;
+$result->roomModuleEnabled = $row && isset($row['room_module_enabled']) ? intval($row['room_module_enabled']) === 1 : true;
 $result->transportModuleEnabled = $row && isset($row['transport_module_enabled']) ? intval($row['transport_module_enabled']) === 1 : true;
-$result->transportDashboardEnabled = $row && isset($row['transport_dashboard_enabled']) ? intval($row['transport_dashboard_enabled']) === 1 : true;
+$result->transportDashboardEnabled = $result->transportModuleEnabled;
 $result->transportPricePerKm = $row && isset($row['transport_price_per_km']) ? floatval($row['transport_price_per_km']) : 6000;
 if ($result->transportPricePerKm <= 0) {
     $result->transportPricePerKm = 6000;

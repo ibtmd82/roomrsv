@@ -29,18 +29,29 @@
                 <div class="row g-3 mb-3">
                     <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng số xe</div><div id="vehiclesTotal" class="stat-value">0</div></div></div>
                     <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng số chuyến</div><div id="tripsTotal" class="stat-value">0</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng doanh thu</div><div id="totalFinalPrice" class="stat-value">0 đ</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Lợi nhuận ròng</div><div id="totalProfit" class="stat-value">0 đ</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tỷ lệ hoàn tất</div><div id="completionRate" class="stat-value">0%</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tỷ lệ hủy</div><div id="cancellationRate" class="stat-value">0%</div></div></div>
                 </div>
                 <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng doanh thu</div><div id="totalFinalPrice" class="stat-value">0 đ</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Lợi nhuận ròng</div><div id="totalProfit" class="stat-value">0 đ</div></div></div>
                     <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng chi phí</div><div id="totalCosts" class="stat-value">0 đ</div></div></div>
                     <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Biên lợi nhuận</div><div id="profitMargin" class="stat-value">0%</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Số chuyến lỗ (top 5)</div><div id="lossTripsCount" class="stat-value">0</div></div></div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Đã thu</div><div id="totalCollected" class="stat-value">0 đ</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Còn phải thu</div><div id="totalOutstanding" class="stat-value">0 đ</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tỷ lệ thu tiền</div><div id="collectionRate" class="stat-value">0%</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tỷ lệ sử dụng xe</div><div id="utilizationRate" class="stat-value">0%</div></div></div>
                 </div>
 
                 <div class="row g-3">
                     <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Trạng thái chuyến</h5><ul id="tripsByStatus" class="list-group list-group-flush"></ul></div></div>
                     <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Cơ cấu chi phí</h5><ul id="costsByType" class="list-group list-group-flush"></ul></div></div>
+                </div>
+                <div class="row g-3 mt-0">
+                    <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Top xe theo doanh thu</h5><ul id="topVehicles" class="list-group list-group-flush"></ul></div></div>
+                    <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Top tài xế theo doanh thu</h5><ul id="topDrivers" class="list-group list-group-flush"></ul></div></div>
                 </div>
 
                 <div class="section-card p-3 mt-3">
@@ -87,6 +98,7 @@
     const toCurrency = (v) => `${Number(v || 0).toLocaleString("vi-VN")} đ`;
     const tripStatusLabels = { New: "Mới", Confirmed: "Đã xác nhận", InTrip: "Đang chạy", Done: "Hoàn tất", Cancelled: "Đã hủy" };
     const costTypeLabels = { driver: "Tài xế", toll: "Qua trạm", fuel: "Xăng/Dầu", parking: "Đậu xe", other: "Khác" };
+    const toPercent = (v) => `${Number(v || 0).toLocaleString("vi-VN")} %`;
 
     const fillMapList = (targetId, data, money = false, labelMap = {}) => {
         const target = document.getElementById(targetId);
@@ -147,6 +159,21 @@
         });
     };
 
+    const fillTopList = (targetId, rows, nameField) => {
+        const target = document.getElementById(targetId);
+        target.innerHTML = "";
+        if (!rows || !rows.length) {
+            target.innerHTML = "<li class='list-group-item text-muted'>Không có dữ liệu</li>";
+            return;
+        }
+        rows.forEach((row) => {
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between";
+            li.innerHTML = `<span>${row[nameField] || ""} (${row.tripCount || 0} chuyến)</span><strong>${toCurrency(row.revenue || 0)}</strong>`;
+            target.appendChild(li);
+        });
+    };
+
     const loadDashboard = async () => {
         const settingsRes = await fetch("backend_settings_get.php");
         const settings = await settingsRes.json();
@@ -163,20 +190,29 @@
         const data = await res.json();
         document.getElementById("vehiclesTotal").textContent = data.vehiclesTotal || 0;
         document.getElementById("tripsTotal").textContent = data.tripsTotal || 0;
+        document.getElementById("completionRate").textContent = toPercent(data.completionRate);
+        document.getElementById("cancellationRate").textContent = toPercent(data.cancellationRate);
         document.getElementById("totalFinalPrice").textContent = toCurrency(data.totalFinalPrice);
         document.getElementById("totalProfit").textContent = toCurrency(data.totalProfit);
         document.getElementById("totalCosts").textContent = toCurrency(data.totalCosts);
-        document.getElementById("profitMargin").textContent = `${Number(data.profitMargin || 0).toLocaleString("vi-VN")}%`;
-        document.getElementById("lossTripsCount").textContent = data.lossTripsCount || 0;
+        document.getElementById("profitMargin").textContent = toPercent(data.profitMargin);
+        document.getElementById("totalCollected").textContent = toCurrency(data.totalCollected);
+        document.getElementById("totalOutstanding").textContent = toCurrency(data.totalOutstanding);
+        document.getElementById("collectionRate").textContent = toPercent(data.collectionRate);
+        document.getElementById("utilizationRate").textContent = toPercent(data.utilizationRate);
         fillMapList("tripsByStatus", data.tripsByStatus, false, tripStatusLabels);
         fillMapList("costsByType", data.costsByType, true, costTypeLabels);
+        fillTopList("topVehicles", data.topVehicles, "vehicleName");
+        fillTopList("topDrivers", data.topDrivers, "driverName");
         fillLatest(data.latestTrips);
         fillSeries(data.revenueSeries);
         fillLossTrips(data.lossTrips);
     };
 
-    const today = new Date().toISOString().slice(0, 10);
-    document.getElementById("revenueStartDate").value = today;
+    const now = new Date();
+    const today = now.toISOString().slice(0, 10);
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    document.getElementById("revenueStartDate").value = firstDay;
     document.getElementById("revenueEndDate").value = today;
     document.getElementById("revenueFilterBtn").addEventListener("click", loadDashboard);
     loadDashboard();

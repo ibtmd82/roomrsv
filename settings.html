@@ -51,12 +51,12 @@
                     <div class="card-body">
                         <h5 class="card-title mb-3">Bật/tắt module menu</h5>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="transportModuleEnabled" checked>
-                            <label class="form-check-label" for="transportModuleEnabled">Hiển thị chức năng Đặt xe</label>
+                            <input class="form-check-input" type="checkbox" id="roomModuleEnabled" checked>
+                            <label class="form-check-label" for="roomModuleEnabled">Bật module Đặt/Thuê phòng (gồm lịch và thống kê)</label>
                         </div>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="transportDashboardEnabled" checked>
-                            <label class="form-check-label" for="transportDashboardEnabled">Hiển thị Thống kê đặt xe</label>
+                            <input class="form-check-input" type="checkbox" id="transportModuleEnabled" checked>
+                            <label class="form-check-label" for="transportModuleEnabled">Bật module Đặt xe (gồm lịch và thống kê)</label>
                         </div>
                         <div class="form-text">Ẩn/hiện các mục tương ứng ở menu bên trái theo tenant hiện tại.</div>
                     </div>
@@ -112,13 +112,13 @@
         if (thresholdInput) {
             thresholdInput.value = data.shortTermDayThresholdHours || 4;
         }
+        const roomModuleEnabled = document.getElementById("roomModuleEnabled");
         const transportModuleEnabled = document.getElementById("transportModuleEnabled");
-        const transportDashboardEnabled = document.getElementById("transportDashboardEnabled");
+        if (roomModuleEnabled) {
+            roomModuleEnabled.checked = data.roomModuleEnabled !== false;
+        }
         if (transportModuleEnabled) {
             transportModuleEnabled.checked = data.transportModuleEnabled !== false;
-        }
-        if (transportDashboardEnabled) {
-            transportDashboardEnabled.checked = data.transportDashboardEnabled !== false;
         }
         const setNumberInput = (id, val) => {
             const el = document.getElementById(id);
@@ -134,16 +134,16 @@
         const msg = document.getElementById("settingsMsg");
         msg.textContent = "Đang lưu...";
         try {
+            const roomModuleEnabledEl = document.getElementById("roomModuleEnabled");
             const transportModuleEnabledEl = document.getElementById("transportModuleEnabled");
-            const transportDashboardEnabledEl = document.getElementById("transportDashboardEnabled");
             await fetch("backend_settings_update.php", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     rentalMode: readMode(),
                     shortTermDayThresholdHours: readShortTermThreshold(),
+                    roomModuleEnabled: roomModuleEnabledEl ? !!roomModuleEnabledEl.checked : true,
                     transportModuleEnabled: transportModuleEnabledEl ? !!transportModuleEnabledEl.checked : true,
-                    transportDashboardEnabled: transportDashboardEnabledEl ? !!transportDashboardEnabledEl.checked : true,
                     transportPricePerKm: Number(document.getElementById("transportPricePerKm") ? document.getElementById("transportPricePerKm").value : 6000) || 6000,
                     transportFuelPricePerLiter: Number(document.getElementById("transportFuelPricePerLiter") ? document.getElementById("transportFuelPricePerLiter").value : 22000) || 22000
                 })

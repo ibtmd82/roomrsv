@@ -16,8 +16,9 @@
     const STORAGE_KEY = "roomrsv_sidebar_module_settings";
 
     const normalizeSettings = (data) => ({
+        roomModuleEnabled: data && data.roomModuleEnabled !== false,
         transportModuleEnabled: data && data.transportModuleEnabled !== false,
-        transportDashboardEnabled: data && data.transportDashboardEnabled !== false
+        transportDashboardEnabled: data && data.transportModuleEnabled !== false
     });
 
     const getCachedModuleSettings = () => {
@@ -42,14 +43,14 @@
         try {
             const res = await fetch("backend_settings_get.php");
             if (!res.ok) {
-                return { transportModuleEnabled: true, transportDashboardEnabled: true };
+                return { roomModuleEnabled: true, transportModuleEnabled: true, transportDashboardEnabled: true };
             }
             const data = await res.json();
             window.__sidebarModuleSettings = data;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             return normalizeSettings(data);
         } catch (e) {
-            return { transportModuleEnabled: true, transportDashboardEnabled: true };
+            return { roomModuleEnabled: true, transportModuleEnabled: true, transportDashboardEnabled: true };
         }
     };
 
@@ -58,13 +59,16 @@
         if (!sidebar) {
             return;
         }
-        const settings = moduleSettings || { transportModuleEnabled: true, transportDashboardEnabled: true };
+        const settings = moduleSettings || { roomModuleEnabled: true, transportModuleEnabled: true, transportDashboardEnabled: true };
         const current = sidebar.getAttribute("data-current-page") || "";
         const filteredItems = menuItems.filter((item) => {
+            if ((item.id === "dashboard" || item.id === "booking") && !settings.roomModuleEnabled) {
+                return false;
+            }
             if (item.id === "transport" && !settings.transportModuleEnabled) {
                 return false;
             }
-            if (item.id === "transport-dashboard" && !settings.transportDashboardEnabled) {
+            if (item.id === "transport-dashboard" && !settings.transportModuleEnabled) {
                 return false;
             }
             return true;
@@ -93,7 +97,7 @@
 
     const initSidebar = () => {
         // Render immediately (no network wait) to match booking page UX.
-        renderSidebar(getCachedModuleSettings() || { transportModuleEnabled: true, transportDashboardEnabled: true });
+        renderSidebar(getCachedModuleSettings() || { roomModuleEnabled: true, transportModuleEnabled: true, transportDashboardEnabled: true });
         // Refresh in background and re-render only if settings differ.
         getModuleSettings().then((fresh) => {
             renderSidebar(fresh);
