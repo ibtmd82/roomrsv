@@ -874,13 +874,14 @@
             args.row.html = `<div style="display:grid; grid-template-columns: 150px 95px 1fr; align-items:center; gap:0; padding-right:20px;"><div style="font-weight:600; padding-right:8px;">${DayPilot.Util.escapeHtml(args.row.data.name || "")}</div><div style="font-size:12px; color:#4b5563;">${capacity} chỗ<br /><span style="color:#64748b">${DayPilot.Util.escapeHtml(plateNo)}</span></div><div style="display:flex; flex-direction:column; align-items:flex-start; gap:4px; font-size:12px;">${statusButton}</div></div>`;
         },
         onTimeRangeSelected: async (args) => {
-            const payload = await createOrEditTrip({
-                start: args.start,
-                end: args.end,
-                resource: args.resource
-            });
+            // Use the native bootstrap modal for create flow to keep UI consistent with edit modal.
+            const payload = await editTripNativeModal({ start: args.start, end: args.end, resource: args.resource });
             dp.clearSelection();
             if (!payload) return;
+            // ensure created payload contains start/end/resource
+            payload.start = payload.start || args.start;
+            payload.end = payload.end || args.end;
+            payload.resource = payload.resource || args.resource;
             const { data } = await DayPilot.Http.post("backend_trip_reservation_create.php", payload);
             const nextEvent = {
                 ...payload,
