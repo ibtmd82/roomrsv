@@ -54,8 +54,8 @@
                 <select id="sn_status" class="form-select form-select-sm"></select>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary btn-sm" id="sn_saveBtn">OK</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary btn-sm" id="sn_saveBtn">Lưu</button>
             </div>
         </div>
     </div>
@@ -136,9 +136,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary btn-sm" id="tn_saveBtn">Lưu</button>
-            </div>
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="tn_saveBtn">Lưu</button>
+                    </div>
         </div>
     </div>
 </div>
@@ -400,7 +400,7 @@
             if (c.costType === "other") defaults.otherCost = amount;
         });
 
-        const modal = await DayPilot.Modal.form(form, defaults);
+    const modal = await DayPilot.Modal.form(form, defaults, { okText: 'Lưu', cancelText: 'Hủy' });
         if (modal.canceled) return null;
         const result = modal.result;
         const selectedStatus = result.status || (isCreate ? "New" : (data.status || "New"));
@@ -720,7 +720,7 @@
                         { name: "Lít tiêu thụ / 100km", id: "fuelConsumptionPer100Km", type: "number" },
                         { name: "Trạng thái", id: "status", type: "select", options: [{ name: "Sẵn sàng", id: "Ready" }, { name: "Đang chạy", id: "Busy" }, { name: "Bảo trì", id: "Maintenance" }] }
                     ];
-                    const modal = await DayPilot.Modal.form(form, args.source.data);
+                    const modal = await DayPilot.Modal.form(form, args.source.data, { okText: 'Lưu', cancelText: 'Hủy' });
                     if (modal.canceled) return;
                     const vehicle = { ...modal.result, id: args.source.id };
                     await DayPilot.Http.post("backend_vehicle_update.php", vehicle);
@@ -1036,7 +1036,7 @@
             { name: "Lít tiêu thụ / 100km", id: "fuelConsumptionPer100Km", type: "number" },
             { name: "Trạng thái", id: "status", type: "select", options: [{ name: "Sẵn sàng", id: "Ready" }, { name: "Đang chạy", id: "Busy" }, { name: "Bảo trì", id: "Maintenance" }] }
         ];
-        const modal = await DayPilot.Modal.form(form, { capacity: 4, basePrice: 6000, fuelConsumptionPer100Km: 8, status: "Ready" });
+    const modal = await DayPilot.Modal.form(form, { capacity: 4, basePrice: 6000, fuelConsumptionPer100Km: 8, status: "Ready" }, { okText: 'Lưu', cancelText: 'Hủy' });
         if (modal.canceled) return;
         const payload = { ...modal.result };
         const { data } = await DayPilot.Http.post("backend_vehicle_create.php", payload);
