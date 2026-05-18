@@ -106,6 +106,7 @@ body {
 .navigator_default_cell:hover, .navigator_default_day:hover { background: #dbeafe !important; color: #1e3a8a !important; }
 .navigator_default_todaybox { border: 2px solid #1d4ed8 !important; border-radius: 6px; }
 .navigator_default_cell_selected, .navigator_default_selected { background: var(--cal-selected-bg) !important; color: #1e3a8a !important; box-shadow: inset 0 0 0 1px var(--cal-selected-border); }
+.navigator_default_select .navigator_default_cell_box { background-color: #bfdbfe !important; opacity: 1 !important; }
 
 .modal_default_main { border-radius: 14px; border: 1px solid #dbe3ef; box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28); overflow: hidden; background: #ffffff; display: flex; flex-direction: column; }
 .modal_default_content { padding: 14px; background: linear-gradient(180deg, #f8fbff 0%, #ffffff 24%); overflow-y: auto; max-height: min(78vh, 720px); -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
