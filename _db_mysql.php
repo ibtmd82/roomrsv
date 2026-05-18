@@ -19,6 +19,52 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->exec("CREATE DATABASE IF NOT EXISTS `$database`");
 $db->exec("use `$database`");
 $db->exec("SET SESSION lock_wait_timeout = 5");
+
+// Extend customers table with mkanhminh fields (runs once via marker).
+$customers_ext_marker = __DIR__ . '/.db_customers_ext_v1';
+if (!file_exists($customers_ext_marker)) {
+    $customers_ext_cols = [
+        "ALTER TABLE customers ADD COLUMN code VARCHAR(50)",
+        "ALTER TABLE customers ADD COLUMN gender VARCHAR(10)",
+        "ALTER TABLE customers ADD COLUMN mobile VARCHAR(20)",
+        "ALTER TABLE customers ADD COLUMN address TEXT",
+        "ALTER TABLE customers ADD COLUMN province VARCHAR(100)",
+        "ALTER TABLE customers ADD COLUMN district VARCHAR(100)",
+        "ALTER TABLE customers ADD COLUMN register_at_store VARCHAR(100)",
+        "ALTER TABLE customers ADD COLUMN notes TEXT",
+        "ALTER TABLE customers ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP",
+        "ALTER TABLE customers ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+        "ALTER TABLE customers ADD COLUMN created_by_tenant_id INTEGER",
+    ];
+    foreach ($customers_ext_cols as $sql) {
+        try { $db->exec($sql); } catch (\Throwable $e) {}
+    }
+    @file_put_contents($customers_ext_marker, 'ok');
+}
+
+// Add tenant_customers junction table with per-tenant override fields.
+$tenant_customers_marker = __DIR__ . '/.db_tenant_customers_v1';
+if (!file_exists($tenant_customers_marker)) {
+    $db->exec("CREATE TABLE IF NOT EXISTS tenant_customers (
+        id                INTEGER PRIMARY KEY AUTO_INCREMENT,
+        tenant_id         INTEGER NOT NULL,
+        customer_id       INTEGER NOT NULL,
+        full_name         VARCHAR(200),
+        phone_number      VARCHAR(30),
+        mobile            VARCHAR(20),
+        code              VARCHAR(50),
+        address           TEXT,
+        province          VARCHAR(100),
+        district          VARCHAR(100),
+        register_at_store VARCHAR(100),
+        notes             TEXT,
+        created_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at        DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_tenant_customer (tenant_id, customer_id)
+    )");
+    @file_put_contents($tenant_customers_marker, 'ok');
+}
+
 $schema_marker_file = __DIR__ . '/.db_mysql_schema_v1';
 
 // Skip repetitive schema checks after initial migration.

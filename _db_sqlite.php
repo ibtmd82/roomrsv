@@ -3,7 +3,53 @@
 $db_exists = file_exists("daypilot.sqlite");
 
 $db = new PDO('sqlite:daypilot.sqlite');
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $schema_marker_file = "daypilot.sqlite.schema_v1";
+
+// Extend customers table with mkanhminh fields (runs once via marker).
+$customers_ext_marker = __DIR__ . '/.db_customers_ext_v1';
+if (!file_exists($customers_ext_marker)) {
+    $customers_ext_cols = [
+        "ALTER TABLE customers ADD COLUMN code TEXT",
+        "ALTER TABLE customers ADD COLUMN gender TEXT",
+        "ALTER TABLE customers ADD COLUMN mobile TEXT",
+        "ALTER TABLE customers ADD COLUMN address TEXT",
+        "ALTER TABLE customers ADD COLUMN province TEXT",
+        "ALTER TABLE customers ADD COLUMN district TEXT",
+        "ALTER TABLE customers ADD COLUMN register_at_store TEXT",
+        "ALTER TABLE customers ADD COLUMN notes TEXT",
+        "ALTER TABLE customers ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP",
+        "ALTER TABLE customers ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP",
+        "ALTER TABLE customers ADD COLUMN created_by_tenant_id INTEGER",
+    ];
+    foreach ($customers_ext_cols as $sql) {
+        try { $db->exec($sql); } catch (\Throwable $e) {}
+    }
+    @file_put_contents($customers_ext_marker, 'ok');
+}
+
+// Add tenant_customers junction table with per-tenant override fields.
+$tenant_customers_marker = __DIR__ . '/.db_tenant_customers_v1';
+if (!file_exists($tenant_customers_marker)) {
+    $db->exec("CREATE TABLE IF NOT EXISTS tenant_customers (
+        id                INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id         INTEGER NOT NULL,
+        customer_id       INTEGER NOT NULL,
+        full_name         TEXT,
+        phone_number      TEXT,
+        mobile            TEXT,
+        code              TEXT,
+        address           TEXT,
+        province          TEXT,
+        district          TEXT,
+        register_at_store TEXT,
+        notes             TEXT,
+        created_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (tenant_id, customer_id)
+    )");
+    @file_put_contents($tenant_customers_marker, 'ok');
+}
 
 // Skip heavy schema checks on normal requests after initial migration.
 if (file_exists($schema_marker_file) && $db_exists) {

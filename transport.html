@@ -435,6 +435,103 @@
         payload.finalPrice = computeFinalPrice(payload.tripPrice + calculateTripCostsTotal(payload.tripCosts) + payload.fuelEstimatedCost, payload.discountType, payload.discountValue);
         return payload;
     };
+    
+    // Native modal for creating a trip (keeps the same fields as DayPilot form create)
+    const createTripNativeModal = (data) => new Promise((resolve) => {
+        const formId = `ct_modal_${Date.now()}`;
+        const defaults = data || {};
+        const modalHtml = `
+            <div class="modal fade native-modal" id="${formId}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-md modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-plus-circle"></i> Tạo đặt chuyến</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="modal_default_form_item">
+                                <div class="modal_default_form_item_label">Tên chuyến</div>
+                                <input id="ct_text" class="form-control form-control-sm" />
+                            </div>
+                            <div class="modal_default_form_item">
+                                <div class="modal_default_form_item_label">Tài xế</div>
+                                <input id="ct_driverName" class="form-control form-control-sm" />
+                            </div>
+                            <div class="modal_default_form_item">
+                                <div class="modal_default_form_item_label">Bắt đầu</div>
+                                <input id="ct_start" type="datetime-local" class="form-control form-control-sm" />
+                            </div>
+                            <div class="modal_default_form_item">
+                                <div class="modal_default_form_item_label">Kết thúc</div>
+                                <input id="ct_end" type="datetime-local" class="form-control form-control-sm" />
+                            </div>
+                            <div class="modal_default_form_item">
+                                <div class="modal_default_form_item_label">Quãng đường (km)</div>
+                                <input id="ct_distanceKm" type="number" min="0" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" class="btn btn-primary btn-sm" id="ct_saveBtn">Lưu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = modalHtml;
+        document.body.appendChild(wrapper);
+        const modalEl = document.getElementById(formId);
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val == null ? '' : val;
+        };
+        setVal('ct_text', defaults.text || 'Chuyến mới');
+        setVal('ct_driverName', defaults.driverName || '');
+        setVal('ct_start', toDatetimeLocalValue(defaults.start || data.start || null));
+        setVal('ct_end', toDatetimeLocalValue(defaults.end || data.end || null));
+        setVal('ct_distanceKm', defaults.distanceKm || 0);
+
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const saveBtn = document.getElementById('ct_saveBtn');
+        let saved = false;
+        const onSave = () => {
+            saved = true;
+            const next = {
+                text: (document.getElementById('ct_text').value || '').trim(),
+                driverName: (document.getElementById('ct_driverName').value || '').trim(),
+                start: document.getElementById('ct_start').value || defaults.start || null,
+                end: document.getElementById('ct_end').value || defaults.end || null,
+                distanceKm: Math.max(0, toNumber(document.getElementById('ct_distanceKm').value)),
+                status: 'New',
+                discountType: app.defaultDiscountType,
+                discountValue: app.defaultDiscountValue,
+                paymentStatus: 'unpaid',
+                paidAmount: 0,
+                note: '',
+                customer: {},
+                tripCosts: [
+                    { costType: 'driver', amount: Math.max(0, toNumber(app.defaultCosts.driver || 0)), description: 'Chi phí tài xế' }
+                ]
+            };
+            const estimate = computeTripPriceByDistance(next.distanceKm, defaults.resource || data.resource);
+            next.tripPrice = estimate.tripPrice;
+            next.fuelEstimatedCost = estimate.fuelEstimatedCost;
+            next.finalPrice = computeFinalPrice(next.tripPrice + calculateTripCostsTotal(next.tripCosts) + next.fuelEstimatedCost, next.discountType, next.discountValue);
+            modalEl.__result = next;
+            bsModal.hide();
+        };
+        const onHidden = () => {
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            if (saveBtn) saveBtn.removeEventListener('click', onSave);
+            // cleanup
+            setTimeout(() => { if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper); }, 80);
+            resolve(saved ? modalEl.__result : null);
+        };
+        modalEl.addEventListener('hidden.bs.modal', onHidden);
+        if (saveBtn) saveBtn.addEventListener('click', onSave);
+        bsModal.show();
+    });
     const editTripNativeModal = (data) => new Promise((resolve) => {
         const modalEl = document.getElementById("tripEditNativeModal");
         if (!modalEl || !window.bootstrap) {
@@ -874,8 +971,8 @@
             args.row.html = `<div style="display:grid; grid-template-columns: 150px 95px 1fr; align-items:center; gap:0; padding-right:20px;"><div style="font-weight:600; padding-right:8px;">${DayPilot.Util.escapeHtml(args.row.data.name || "")}</div><div style="font-size:12px; color:#4b5563;">${capacity} chỗ<br /><span style="color:#64748b">${DayPilot.Util.escapeHtml(plateNo)}</span></div><div style="display:flex; flex-direction:column; align-items:flex-start; gap:4px; font-size:12px;">${statusButton}</div></div>`;
         },
         onTimeRangeSelected: async (args) => {
-            // Use the native bootstrap modal for create flow to keep UI consistent with edit modal.
-            const payload = await editTripNativeModal({ start: args.start, end: args.end, resource: args.resource });
+            // Use the native bootstrap modal for create flow (mirror DayPilot form fields) so UI is consistent.
+            const payload = await createTripNativeModal({ start: args.start, end: args.end, resource: args.resource });
             dp.clearSelection();
             if (!payload) return;
             // ensure created payload contains start/end/resource
