@@ -519,7 +519,7 @@
                     <div class="page-title">
                         <div class="d-flex align-items-center justify-content-between gap-2 flex-nowrap">
                             <div class="d-flex align-items-center gap-2 flex-nowrap">
-                                <h3 class="toolbar-label">Xem lịch đặt phòng theo</h3>
+                                <h3 class="toolbar-label">Xem lịch theo</h3>
                                 <select id="timerange" class="form-select form-select-sm">
                                     <option value="week">Tuần</option>
                                     <option value="month" selected>Tháng</option>
@@ -847,14 +847,6 @@
                 const label = document.querySelector(".toolbar-label");
                 if (!label) {
                     return;
-                }
-                const modeText = app.rentalMode === "short_term"
-                    ? " (chế độ: ngắn hạn)"
-                    : app.rentalMode === "long_term"
-                        ? " (chế độ: dài hạn)"
-                        : " (chế độ: cả hai)";
-                if (label.textContent.indexOf("chế độ:") === -1) {
-                    label.textContent = `${label.textContent}${modeText}`;
                 }
             },
             init() {
