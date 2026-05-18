@@ -3,10 +3,10 @@
     --accent-strong: #1e40af;
     --text-primary: #1f2937;
     --surface-soft: #f8fafc;
-    --cal-header-bg: #f1f5f9;
-    --cal-header-text: #334155;
+    --cal-header-bg: #e8f0fe;
+    --cal-header-text: #1e3a8a;
     --cal-selected-bg: #dbeafe;
-    --cal-selected-border: #60a5fa;
+    --cal-selected-border: #3b82f6;
 }
 
 p, body, td, input, select, button {
@@ -87,18 +87,18 @@ body {
 .app-toast.error { background: #b91c1c; }
 
 .scheduler_default_timeheadercol, .scheduler_default_timeheadergroup { background: var(--cal-header-bg) !important; color: var(--cal-header-text) !important; font-weight: 600; }
-.scheduler_default_corner { background: #e2e8f0 !important; color: #334155 !important; font-weight: 700; }
-.scheduler_default_rowheader { background: #f8fafc !important; color: #1f2937 !important; }
+.scheduler_default_corner { background: #c7d9f8 !important; color: #1e3a8a !important; font-weight: 700; }
+.scheduler_default_rowheader { background: #f0f6ff !important; color: #1f2937 !important; }
 .scheduler_default_cell { background: #fff !important; }
 .scheduler_default_cell_selected, .scheduler_default_selected { background: var(--cal-selected-bg) !important; box-shadow: inset 0 0 0 1px var(--cal-selected-border); }
 .scheduler_default_event { border-radius: 6px !important; color: #1f2937 !important; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12); }
 
 .navigator_default_main { border-color: #dbeafe !important; background: #ffffff !important; }
-.navigator_default_title, .navigator_default_dayheader { color: #334155 !important; font-weight: 600; background: #f1f5f9 !important; }
-.navigator_default_cell, .navigator_default_day { background: #ffffff !important; color: #334155 !important; border-color: #e2e8f0 !important; }
+.navigator_default_title, .navigator_default_dayheader { color: #1e3a8a !important; font-weight: 600; background: #e8f0fe !important; }
+.navigator_default_cell, .navigator_default_day { background: #ffffff !important; color: #334155 !important; border-color: #dbeafe !important; }
 .navigator_default_weekend { background: #f8fafc !important; color: #475569 !important; }
-.navigator_default_cell:hover, .navigator_default_day:hover { background: #eff6ff !important; color: #1e3a8a !important; }
-.navigator_default_todaybox { border: 1px solid #93c5fd !important; border-radius: 6px; }
+.navigator_default_cell:hover, .navigator_default_day:hover { background: #dbeafe !important; color: #1e3a8a !important; }
+.navigator_default_todaybox { border: 2px solid #1d4ed8 !important; border-radius: 6px; }
 .navigator_default_cell_selected, .navigator_default_selected { background: var(--cal-selected-bg) !important; color: #1e3a8a !important; box-shadow: inset 0 0 0 1px var(--cal-selected-border); }
 
 .modal_default_main { border-radius: 14px; border: 1px solid #dbe3ef; box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28); overflow: hidden; background: #ffffff; display: flex; flex-direction: column; }
