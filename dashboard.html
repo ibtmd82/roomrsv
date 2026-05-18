@@ -3,18 +3,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Tổng quan | Đặt/Thuê phòng</title>
     <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
     <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
-    <link href="assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/master.css" rel="stylesheet">
     <style>
-        .stat-card { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
-        .stat-title { color: #64748b; font-size: 13px; margin-bottom: 6px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #1e293b; }
-        .section-card { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
+        .stat-card { border-left: 4px solid; border-radius: 6px; }
+        .stat-card.blue   { border-color: #0d6efd; }
+        .stat-card.green  { border-color: #198754; }
+        .stat-card.orange { border-color: #fd7e14; }
+        .stat-card.purple { border-color: #6f42c1; }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+        .stat-card .stat-label { font-size: .82rem; color: #6c757d; margin-top: 2px; }
+        .stat-card .stat-icon  { font-size: 2rem; opacity: .18; }
+        .chart-box { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 16px; }
+        .chart-box h5, .chart-box h6 { font-weight: 600; margin-bottom: 12px; color: #333; }
     </style>
 </head>
 <body>
@@ -25,58 +29,70 @@
         <div id="topNavbar"></div>
 
         <div class="content">
-            <div class="container">
-                <div class="page-title mb-3">
-                    <h3>Tổng quan hệ thống</h3>
+            <div class="container-fluid">
+                <div class="page-title">
+                    <h3>Tổng quan</h3>
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-12 col-md-6 col-xl-3">
-                        <div class="p-3 stat-card">
-                            <div class="stat-title">Tổng số phòng</div>
-                            <div id="roomsTotal" class="stat-value">0</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6 col-xl-3">
+                        <div class="stat-card blue box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-primary" id="roomsTotal">—</div>
+                                <div class="stat-label">Tổng số phòng</div>
+                            </div>
+                            <i class="fas fa-bed stat-icon text-primary"></i>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-xl-3">
-                        <div class="p-3 stat-card">
-                            <div class="stat-title">Tổng đặt/thuê phòng</div>
-                            <div id="reservationsTotal" class="stat-value">0</div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="stat-card green box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-success" id="reservationsTotal">—</div>
+                                <div class="stat-label">Tổng đặt/thuê phòng</div>
+                            </div>
+                            <i class="fas fa-calendar-check stat-icon text-success"></i>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-xl-3">
-                        <div class="p-3 stat-card">
-                            <div class="stat-title">Tổng giá trị còn lại</div>
-                            <div id="totalFinalPrice" class="stat-value">0 đ</div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="stat-card orange box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-warning" id="totalFinalPrice">—</div>
+                                <div class="stat-label">Tổng giá trị còn lại</div>
+                            </div>
+                            <i class="fas fa-coins stat-icon text-warning"></i>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-xl-3">
-                        <div class="p-3 stat-card">
-                            <div class="stat-title">Giá trị trung bình/phòng</div>
-                            <div id="averageFinalPrice" class="stat-value">0 đ</div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="stat-card purple box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-purple" id="averageFinalPrice">—</div>
+                                <div class="stat-label">Giá trị trung bình/phòng</div>
+                            </div>
+                            <i class="fas fa-chart-line stat-icon" style="color:#6f42c1"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="row g-3">
+                <div class="row g-3 mb-4">
                     <div class="col-12 col-lg-6">
-                        <div class="section-card p-3 h-100">
-                            <h5 class="mb-3">Trạng thái phòng</h5>
+                        <div class="chart-box h-100">
+                            <h6><i class="fas fa-door-open me-1 text-primary"></i>Trạng thái phòng</h6>
                             <ul id="roomsByStatus" class="list-group list-group-flush"></ul>
                         </div>
                     </div>
                     <div class="col-12 col-lg-6">
-                        <div class="section-card p-3 h-100">
-                            <h5 class="mb-3">Trạng thái đặt/thuê phòng</h5>
+                        <div class="chart-box h-100">
+                            <h6><i class="fas fa-calendar-alt me-1 text-success"></i>Trạng thái đặt/thuê phòng</h6>
                             <ul id="reservationsByStatus" class="list-group list-group-flush"></ul>
                         </div>
                     </div>
                 </div>
 
-                <div class="section-card p-3 mt-3">
-                    <h5 class="mb-3">5 đặt/thuê phòng gần nhất</h5>
+                <div class="chart-box mb-4">
+                    <h6><i class="fas fa-history me-1 text-secondary"></i>5 đặt/thuê phòng gần nhất</h6>
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead>
+                            <thead class="table-light">
                             <tr>
                                 <th>ID</th>
                                 <th>Nội dung</th>
@@ -90,8 +106,8 @@
                     </div>
                 </div>
 
-                <div class="section-card p-3 mt-3">
-                    <h5 class="mb-3">Doanh thu theo invoice đã thanh toán</h5>
+                <div class="chart-box">
+                    <h6><i class="fas fa-chart-bar me-1 text-primary"></i>Doanh thu theo invoice đã thanh toán</h6>
                     <div class="row g-2 mb-3">
                         <div class="col-12 col-md-3">
                             <label class="form-label mb-1">Từ ngày</label>
@@ -114,7 +130,7 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead>
+                            <thead class="table-light">
                             <tr>
                                 <th>Kỳ</th>
                                 <th class="text-end">Doanh thu</th>
@@ -129,6 +145,11 @@
     </div>
 </div>
 
+<script src="assets/js/sidebar-menu.js"></script>
+<script src="assets/js/top-navbar.js"></script>
+<script src="assets/vendor/jquery/jquery.min.js"></script>
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/script.js"></script>
 <script src="assets/js/backend-clientid.js"></script>
 <script>
     const toCurrency = (v) => `${Number(v || 0).toLocaleString("vi-VN")} đ`;
@@ -226,10 +247,5 @@
     document.getElementById("revenueFilterBtn").addEventListener("click", loadDashboard);
     loadDashboard();
 </script>
-<script src="assets/js/sidebar-menu.js"></script>
-<script src="assets/js/top-navbar.js"></script>
-<script src="assets/vendor/jquery/jquery.min.js"></script>
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/script.js"></script>
 </body>
 </html>
