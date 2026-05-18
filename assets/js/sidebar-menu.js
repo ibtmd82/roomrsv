@@ -4,13 +4,7 @@
         { id: "booking", href: "index.html", icon: "fa-calendar-check", label: "Đặt/Thuê phòng" },
         { id: "transport", href: "transport.html", icon: "fa-shuttle-van", label: "Đặt xe" },
         { id: "transport-dashboard", href: "transport_dashboard.html", icon: "fa-chart-bar", label: "Thống kê đặt xe" },
-        { id: "users", href: "users.html", icon: "fa-user-friends", label: "Người dùng" },
         { id: "settings", href: "settings.html", icon: "fa-cog", label: "Cài đặt" }
-    ];
-
-    const authItems = [
-        { href: "login.html", icon: "fa-lock", label: "Đăng nhập" },
-        { href: "signup.html", icon: "fa-user-plus", label: "Đăng ký" }
     ];
 
     const STORAGE_KEY = "roomrsv_sidebar_module_settings";
@@ -77,7 +71,6 @@
             const activeClass = item.id === current ? ' class="active"' : "";
             return `<li${activeClass}><a href="${item.href}"><i class="fas ${item.icon}"></i>${item.label}</a></li>`;
         }).join("");
-        const authHtml = authItems.map((item) => `<li><a href="${item.href}"><i class="fas ${item.icon}"></i>${item.label}</a></li>`).join("");
 
         sidebar.innerHTML = `
             <div class="sidebar-header">
@@ -86,12 +79,6 @@
             </div>
             <ul class="list-unstyled components">
                 ${menuHtml}
-                <li>
-                    <a href="#authmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-user-shield"></i>Xác thực</a>
-                    <ul class="collapse list-unstyled" id="authmenu">
-                        ${authHtml}
-                    </ul>
-                </li>
             </ul>
         `;
     };

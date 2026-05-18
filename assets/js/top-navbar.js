@@ -25,7 +25,6 @@
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end nav-link-menu" aria-labelledby="navUserMenu">
                                         <ul class="nav-list">
-                                            <li><a href="users.html" class="dropdown-item"><i class="fas fa-address-card"></i> Hồ sơ</a></li>
                                             <li><a href="settings.html" class="dropdown-item"><i class="fas fa-cog"></i> Cài đặt</a></li>
                                             <div class="dropdown-divider"></div>
                                             <li><a href="#" class="dropdown-item" data-action="logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
