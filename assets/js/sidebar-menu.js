@@ -1,7 +1,7 @@
 (() => {
     const menuItems = [
-        { id: "dashboard", href: "dashboard.html", icon: "fa-chart-pie", label: "Thống kê đặt phòng" },
         { id: "booking", href: "index.html", icon: "fa-calendar-check", label: "Đặt/Thuê phòng" },
+        { id: "dashboard", href: "dashboard.html", icon: "fa-chart-pie", label: "Thống kê đặt phòng" },
         { id: "transport", href: "transport.html", icon: "fa-shuttle-van", label: "Đặt xe" },
         { id: "transport-dashboard", href: "transport_dashboard.html", icon: "fa-chart-bar", label: "Thống kê đặt xe" },
         { id: "settings", href: "settings.html", icon: "fa-cog", label: "Cài đặt" }
