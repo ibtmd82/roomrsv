@@ -3,13 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Cài đặt | Đặt/Thuê phòng</title>
     <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
     <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
-    <link href="assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/master.css" rel="stylesheet">
+    <style>
+        .chart-box { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 16px; }
+        .chart-box h6 { font-weight: 600; margin-bottom: 12px; color: #333; }
+    </style>
 </head>
 <body>
 <div class="wrapper">
@@ -19,60 +21,54 @@
         <div id="topNavbar"></div>
 
         <div class="content">
-            <div class="container">
-                <div class="page-title mb-3">
+            <div class="container-fluid">
+                <div class="page-title">
                     <h3>Cài đặt vận hành</h3>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Đối tượng sử dụng</h5>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="rentalMode" id="modeBoth" value="both" checked>
-                            <label class="form-check-label" for="modeBoth">Cả ngắn hạn và dài hạn</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="rentalMode" id="modeShort" value="short_term">
-                            <label class="form-check-label" for="modeShort">Chỉ ngắn hạn (thu 1 lần)</label>
-                        </div>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="rentalMode" id="modeLong" value="long_term">
-                            <label class="form-check-label" for="modeLong">Chỉ dài hạn (theo chu kỳ tháng)</label>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label mb-1" for="shortTermDayThresholdHours">Ngưỡng giờ tính giá ngày (ngắn hạn)</label>
-                            <input id="shortTermDayThresholdHours" type="number" min="1" step="1" class="form-control form-control-sm" value="4">
-                            <div class="form-text">Nếu thời gian ở lớn hơn ngưỡng này, hệ thống dùng giá ngày; ngược lại dùng giá giờ.</div>
-                        </div>
-                        <button id="saveSettingsBtn" class="btn btn-primary btn-sm">Lưu cài đặt</button>
-                        <div id="settingsMsg" class="small text-muted mt-2"></div>
+                <div class="chart-box mb-4">
+                    <h6><i class="fas fa-home me-1 text-primary"></i>Đối tượng sử dụng</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="rentalMode" id="modeBoth" value="both" checked>
+                        <label class="form-check-label" for="modeBoth">Cả ngắn hạn và dài hạn</label>
                     </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Bật/tắt module menu</h5>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="roomModuleEnabled" checked>
-                            <label class="form-check-label" for="roomModuleEnabled">Bật module Đặt/Thuê phòng (gồm lịch và thống kê)</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="transportModuleEnabled" checked>
-                            <label class="form-check-label" for="transportModuleEnabled">Bật module Đặt xe (gồm lịch và thống kê)</label>
-                        </div>
-                        <div class="form-text">Ẩn/hiện các mục tương ứng ở menu bên trái theo tenant hiện tại.</div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="rentalMode" id="modeShort" value="short_term">
+                        <label class="form-check-label" for="modeShort">Chỉ ngắn hạn (thu 1 lần)</label>
                     </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="rentalMode" id="modeLong" value="long_term">
+                        <label class="form-check-label" for="modeLong">Chỉ dài hạn (theo chu kỳ tháng)</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label mb-1" for="shortTermDayThresholdHours">Ngưỡng giờ tính giá ngày (ngắn hạn)</label>
+                        <input id="shortTermDayThresholdHours" type="number" min="1" step="1" class="form-control form-control-sm" style="max-width:160px" value="4">
+                        <div class="form-text">Nếu thời gian ở lớn hơn ngưỡng này, hệ thống dùng giá ngày; ngược lại dùng giá giờ.</div>
+                    </div>
+                    <button id="saveSettingsBtn" class="btn btn-primary btn-sm">Lưu cài đặt</button>
+                    <div id="settingsMsg" class="small text-muted mt-2"></div>
                 </div>
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Thiết lập giá đặt xe</h5>
-                        <div class="row g-2">
-                            <div class="col-12 col-md-4">
-                                <label class="form-label mb-1">Giá / km</label>
-                                <input id="transportPricePerKm" type="number" min="0" step="100" class="form-control form-control-sm" value="6000">
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label class="form-label mb-1">Giá 1 lít xăng/dầu</label>
-                                <input id="transportFuelPricePerLiter" type="number" min="0" step="100" class="form-control form-control-sm" value="22000">
-                            </div>
+                <div class="chart-box mb-4">
+                    <h6><i class="fas fa-toggle-on me-1 text-success"></i>Bật/tắt module menu</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="roomModuleEnabled" checked>
+                        <label class="form-check-label" for="roomModuleEnabled">Bật module Đặt/Thuê phòng (gồm lịch và thống kê)</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="transportModuleEnabled" checked>
+                        <label class="form-check-label" for="transportModuleEnabled">Bật module Đặt xe (gồm lịch và thống kê)</label>
+                    </div>
+                    <div class="form-text">Ẩn/hiện các mục tương ứng ở menu bên trái theo tenant hiện tại.</div>
+                </div>
+                <div class="chart-box">
+                    <h6><i class="fas fa-shuttle-van me-1 text-warning"></i>Thiết lập giá đặt xe</h6>
+                    <div class="row g-2">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1">Giá / km</label>
+                            <input id="transportPricePerKm" type="number" min="0" step="100" class="form-control form-control-sm" value="6000">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1">Giá 1 lít xăng/dầu</label>
+                            <input id="transportFuelPricePerLiter" type="number" min="0" step="100" class="form-control form-control-sm" value="22000">
                         </div>
                     </div>
                 </div>
@@ -81,6 +77,11 @@
     </div>
 </div>
 
+<script src="assets/js/sidebar-menu.js"></script>
+<script src="assets/js/top-navbar.js"></script>
+<script src="assets/vendor/jquery/jquery.min.js"></script>
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/script.js"></script>
 <script src="assets/js/backend-clientid.js"></script>
 <script>
     const modeMap = {
@@ -156,10 +157,5 @@
 
     loadSettings();
 </script>
-<script src="assets/js/sidebar-menu.js"></script>
-<script src="assets/js/top-navbar.js"></script>
-<script src="assets/vendor/jquery/jquery.min.js"></script>
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/script.js"></script>
 </body>
 </html>
