@@ -22,6 +22,14 @@
         }
     }
 
+    function handleUnauthorized(response) {
+        if (response.status === 401) {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+        return response;
+    }
+
     if (window.fetch) {
         var originalFetch = window.fetch.bind(window);
         window.fetch = function (input, init) {
@@ -29,7 +37,7 @@
             var clientId = getClientId();
 
             if (!isPhpRequest(requestUrl) || !clientId) {
-                return originalFetch(input, init);
+                return originalFetch(input, init).then(handleUnauthorized);
             }
 
             var finalInit = init ? Object.assign({}, init) : {};
@@ -37,7 +45,7 @@
             headers.set("clientid", clientId);
             finalInit.headers = headers;
 
-            return originalFetch(input, finalInit);
+            return originalFetch(input, finalInit).then(handleUnauthorized);
         };
     }
 
@@ -56,10 +64,14 @@
                 if (clientId) {
                     try {
                         this.setRequestHeader("clientid", clientId);
-                    } catch (e) {
-                        // Ignore if request headers can no longer be modified.
-                    }
+                    } catch (e) {}
                 }
+                this.addEventListener("load", function () {
+                    if (this.status === 401) {
+                        localStorage.clear();
+                        window.location.href = "login.html";
+                    }
+                });
             }
             return originalSend.apply(this, arguments);
         };

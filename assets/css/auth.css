@@ -1,106 +1,136 @@
-/*------------------------------------------------------------------
-* Bootstrap Simple Admin Template
-* Version: 3.0
-* Author: Alexis Luna
-* Website: https://github.com/alexis-luna/bootstrap-simple-admin-template
--------------------------------------------------------------------*/
-
-/*------------------------------------------------------------------
-[Table of contents]
-
-1. Body / #body
-2. Contents / #auth-content
-3. Cards / .card
-4. Miscellaneous
-5. Adjustments to dafault behaviors
--------------------------------------------------------------------*/
-
-/*------------------------------------------------------------------
-[1. Body / #body]
-*/
+/* ── Login page ───────────────────────────────────────────────────────── */
 body {
-    background: #f1f1f1;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0d1b3e 0%, #1565c0 60%, #1e88e5 100%);
+    background-attachment: fixed;
+    font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 .wrapper {
     position: relative;
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
     align-items: center;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
     justify-content: center;
-    overflow: hidden;
     min-width: 100%;
     min-height: 100vh;
+    padding: 1rem;
 }
 
-/*------------------------------------------------------------------
-[2. Contents / #auth-content]
-*/
+/* Decorative blurred circles */
+.wrapper::before,
+.wrapper::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+}
+.wrapper::before {
+    width: 480px; height: 480px;
+    background: rgba(255,255,255,.04);
+    top: -120px; left: -120px;
+}
+.wrapper::after {
+    width: 360px; height: 360px;
+    background: rgba(255,255,255,.04);
+    bottom: -80px; right: -80px;
+}
+
+/* ── Auth card ────────────────────────────────────────────────────────── */
 .auth-content {
     position: relative;
-    width: 480px;
-    padding: 15px;
+    width: 100%;
+    max-width: 420px;
     z-index: 5;
 }
 
-/*------------------------------------------------------------------
-[3. Cards / .card]
-*/
 .auth-content .card {
-    margin-bottom: 0;
-    -webkit-box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
-    box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
     border: none;
-    -webkit-transition: all 0.5s ease-in-out;
-    transition: all 0.5s ease-in-out;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35), 0 4px 16px rgba(0,0,0,.2);
+    overflow: hidden;
+    margin-bottom: 0;
 }
 
-.auth-content .card .card-block,
+/* Card header band */
+.auth-content .card::before {
+    content: '';
+    display: block;
+    height: 4px;
+    background: linear-gradient(90deg, #42a5f5, #7c4dff, #42a5f5);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite linear;
+}
+
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
 .auth-content .card .card-body {
-    padding: 30px 25px;
+    padding: 2rem 2rem 2.25rem;
+}
+
+/* Brand area */
+.auth-content .brand-logo {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #1565c0, #42a5f5);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    margin: 0 auto 1rem;
+    box-shadow: 0 4px 12px rgba(21,101,192,.35);
+}
+
+/* Form controls */
+.auth-content .form-label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: .3rem;
 }
 
 .auth-content .form-control {
-    background: #f4f7fa;
-    min-height: 42px;
-    line-height: 42px;
-    font-size: 14px;
-    padding: 10px 15px;
-    height: 42px;
+    background: #f4f7fb;
+    border: 1.5px solid #dde4f0;
+    border-radius: 8px;
+    height: 44px;
+    font-size: .95rem;
+    padding: .5rem 1rem;
+    transition: border-color .2s, box-shadow .2s;
 }
 
-/*------------------------------------------------------------------
-[4. Miscellaneous]
-*/
-.shadow-2 {
-    -webkit-box-shadow: 0 10px 18px 0 rgba(62, 57, 107, 0.2);
-    box-shadow: 0 10px 18px 0 rgba(62, 57, 107, 0.2);
+.auth-content .form-control:focus {
+    background: #fff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
 }
 
-p.text-muted {
-    font-size: 13px;
-}
-
-/*------------------------------------------------------------------
-[5. Adjustments to dafault behaviors]
-*/
-.btn {
-    padding: 10px 20px;
-    border-radius: 0.25rem;
-    font-size: 14px;
-    margin-bottom: 5px;
-    margin-right: 10px;
-    -webkit-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
-}
-
-.wrapper a,
-.wrapper p>a {
-    color: #3e8ef7;
+/* Submit button */
+.auth-content .btn-primary {
+    height: 46px;
+    font-size: 1rem;
     font-weight: 600;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1565c0, #1e88e5);
+    border: none;
+    letter-spacing: .3px;
+    transition: opacity .2s, transform .15s;
+}
+
+.auth-content .btn-primary:hover:not(:disabled) {
+    opacity: .92;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(21,101,192,.35);
+}
+
+.auth-content .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.shadow-2 {
+    box-shadow: 0 10px 18px rgba(62,57,107,.2);
 }

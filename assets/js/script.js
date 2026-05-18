@@ -78,7 +78,7 @@
     }
 
     // Toggle sidebar on Menu button click (supports dynamically-rendered navbar)
-    $(document).on('click', '#sidebarCollapse', function() {
+    $(document).on('click', '#sidebarCollapse', function () {
         $('#sidebar').toggleClass('active');
         $('#body').toggleClass('active');
     });
@@ -151,3 +151,30 @@
     // });
 })();
 
+/**
+ * tablePlaceholder(tblEl, phEl, state, icon)
+ * state: 'loading' | 'empty' | 'error' | 'show'
+ * icon : FontAwesome class string, e.g. 'fa-store'
+ */
+function tablePlaceholder(tblEl, phEl, state, icon) {
+    if (state === 'show') {
+        phEl.classList.remove('show');
+        tblEl.classList.remove('d-none');
+        return;
+    }
+    tblEl.classList.add('d-none');
+    phEl.classList.add('show');
+    if (state === 'loading') {
+        phEl.innerHTML =
+            '<div class="tbl-ph-spinner"><div class="spinner-border spinner-border-sm text-secondary" style="opacity:.5"></div></div>' +
+            '<div class="tbl-ph-msg">Đang tải...</div>';
+    } else if (state === 'empty') {
+        phEl.innerHTML =
+            '<i class="fas ' + (icon || 'fa-table') + ' tbl-ph-icon"></i>' +
+            '<div class="tbl-ph-msg">Không có dữ liệu</div>';
+    } else if (state === 'error') {
+        phEl.innerHTML =
+            '<i class="fas fa-exclamation-circle tbl-ph-icon" style="opacity:.6;color:#f59e0b"></i>' +
+            '<div class="tbl-ph-msg text-danger">Lỗi tải dữ liệu</div>';
+    }
+}
