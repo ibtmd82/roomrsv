@@ -3,17 +3,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Thống kê đặt xe | RoomRSV</title>
     <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
     <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/master.css" rel="stylesheet">
     <style>
-        .stat-card { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
-        .stat-title { color: #64748b; font-size: 13px; margin-bottom: 6px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #1e293b; }
-        .section-card { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
+        .stat-card { border-left: 4px solid; border-radius: 6px; }
+        .stat-card.blue   { border-color: #0d6efd; }
+        .stat-card.green  { border-color: #198754; }
+        .stat-card.red    { border-color: #dc3545; }
+        .stat-card.orange { border-color: #fd7e14; }
+        .stat-card.purple { border-color: #6f42c1; }
+        .stat-card.teal   { border-color: #20c997; }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+        .stat-card .stat-label { font-size: .82rem; color: #6c757d; margin-top: 2px; }
+        .stat-card .stat-icon  { font-size: 2rem; opacity: .18; }
+        .chart-box { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 16px; }
+        .chart-box h6 { font-weight: 600; margin-bottom: 12px; color: #333; }
     </style>
 </head>
 <body>
@@ -22,60 +29,176 @@
     <div id="body" class="active">
         <div id="topNavbar"></div>
         <div class="content">
-            <div class="container">
-                <div class="page-title mb-3">
+            <div class="container-fluid">
+                <div class="page-title">
                     <h3>Tổng quan đặt xe</h3>
                 </div>
                 <div class="row g-3 mb-3">
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng số xe</div><div id="vehiclesTotal" class="stat-value">0</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng số chuyến</div><div id="tripsTotal" class="stat-value">0</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tỷ lệ hoàn tất</div><div id="completionRate" class="stat-value">0%</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tỷ lệ hủy</div><div id="cancellationRate" class="stat-value">0%</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card blue box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-primary" id="vehiclesTotal">0</div>
+                                <div class="stat-label">Tổng số xe</div>
+                            </div>
+                            <i class="fas fa-car stat-icon text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card green box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-success" id="tripsTotal">0</div>
+                                <div class="stat-label">Tổng số chuyến</div>
+                            </div>
+                            <i class="fas fa-route stat-icon text-success"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card teal box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value" style="color:#20c997" id="completionRate">0%</div>
+                                <div class="stat-label">Tỷ lệ hoàn tất</div>
+                            </div>
+                            <i class="fas fa-check-circle stat-icon" style="color:#20c997"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card red box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-danger" id="cancellationRate">0%</div>
+                                <div class="stat-label">Tỷ lệ hủy</div>
+                            </div>
+                            <i class="fas fa-times-circle stat-icon text-danger"></i>
+                        </div>
+                    </div>
                 </div>
                 <div class="row g-3 mb-3">
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng doanh thu</div><div id="totalFinalPrice" class="stat-value">0 đ</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Lợi nhuận ròng</div><div id="totalProfit" class="stat-value">0 đ</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tổng chi phí</div><div id="totalCosts" class="stat-value">0 đ</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Biên lợi nhuận</div><div id="profitMargin" class="stat-value">0%</div></div></div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card green box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-success" id="totalFinalPrice">0 đ</div>
+                                <div class="stat-label">Tổng doanh thu</div>
+                            </div>
+                            <i class="fas fa-coins stat-icon text-success"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card blue box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-primary" id="totalProfit">0 đ</div>
+                                <div class="stat-label">Lợi nhuận ròng</div>
+                            </div>
+                            <i class="fas fa-chart-line stat-icon text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card red box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-danger" id="totalCosts">0 đ</div>
+                                <div class="stat-label">Tổng chi phí</div>
+                            </div>
+                            <i class="fas fa-receipt stat-icon text-danger"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card purple box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value" style="color:#6f42c1" id="profitMargin">0%</div>
+                                <div class="stat-label">Biên lợi nhuận</div>
+                            </div>
+                            <i class="fas fa-percentage stat-icon" style="color:#6f42c1"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card green box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-success" id="totalCollected">0 đ</div>
+                                <div class="stat-label">Đã thu</div>
+                            </div>
+                            <i class="fas fa-wallet stat-icon text-success"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card orange box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-warning" id="totalOutstanding">0 đ</div>
+                                <div class="stat-label">Còn phải thu</div>
+                            </div>
+                            <i class="fas fa-clock stat-icon text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card blue box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value text-primary" id="collectionRate">0%</div>
+                                <div class="stat-label">Tỷ lệ thu tiền</div>
+                            </div>
+                            <i class="fas fa-hand-holding-usd stat-icon text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div class="stat-card purple box p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value" style="color:#6f42c1" id="utilizationRate">0%</div>
+                                <div class="stat-label">Tỷ lệ sử dụng xe</div>
+                            </div>
+                            <i class="fas fa-tachometer-alt stat-icon" style="color:#6f42c1"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-box h-100">
+                            <h6><i class="fas fa-list me-1 text-primary"></i>Trạng thái chuyến</h6>
+                            <ul id="tripsByStatus" class="list-group list-group-flush"></ul>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-box h-100">
+                            <h6><i class="fas fa-receipt me-1 text-warning"></i>Cơ cấu chi phí</h6>
+                            <ul id="costsByType" class="list-group list-group-flush"></ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="row g-3 mb-3">
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Đã thu</div><div id="totalCollected" class="stat-value">0 đ</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Còn phải thu</div><div id="totalOutstanding" class="stat-value">0 đ</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tỷ lệ thu tiền</div><div id="collectionRate" class="stat-value">0%</div></div></div>
-                    <div class="col-12 col-md-6 col-xl-3"><div class="p-3 stat-card"><div class="stat-title">Tỷ lệ sử dụng xe</div><div id="utilizationRate" class="stat-value">0%</div></div></div>
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-box h-100">
+                            <h6><i class="fas fa-car-side me-1 text-success"></i>Top xe theo doanh thu</h6>
+                            <ul id="topVehicles" class="list-group list-group-flush"></ul>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-box h-100">
+                            <h6><i class="fas fa-id-card me-1 text-info"></i>Top tài xế theo doanh thu</h6>
+                            <ul id="topDrivers" class="list-group list-group-flush"></ul>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="row g-3">
-                    <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Trạng thái chuyến</h5><ul id="tripsByStatus" class="list-group list-group-flush"></ul></div></div>
-                    <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Cơ cấu chi phí</h5><ul id="costsByType" class="list-group list-group-flush"></ul></div></div>
-                </div>
-                <div class="row g-3 mt-0">
-                    <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Top xe theo doanh thu</h5><ul id="topVehicles" class="list-group list-group-flush"></ul></div></div>
-                    <div class="col-12 col-lg-6"><div class="section-card p-3 h-100"><h5 class="mb-3">Top tài xế theo doanh thu</h5><ul id="topDrivers" class="list-group list-group-flush"></ul></div></div>
-                </div>
-
-                <div class="section-card p-3 mt-3">
-                    <h5 class="mb-3">8 chuyến gần nhất</h5>
+                <div class="chart-box mb-3">
+                    <h6><i class="fas fa-history me-1 text-secondary"></i>8 chuyến gần nhất</h6>
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead><tr><th>ID</th><th>Tên chuyến</th><th>Tài xế</th><th>Thời gian</th><th>Trạng thái</th><th class="text-end">Doanh thu</th></tr></thead>
+                            <thead class="table-light"><tr><th>ID</th><th>Tên chuyến</th><th>Tài xế</th><th>Thời gian</th><th>Trạng thái</th><th class="text-end">Doanh thu</th></tr></thead>
                             <tbody id="latestTrips"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="section-card p-3 mt-3">
-                    <h5 class="mb-3">Chuyến lỗ nổi bật</h5>
+                <div class="chart-box mb-3">
+                    <h6><i class="fas fa-exclamation-triangle me-1 text-danger"></i>Chuyến lỗ nổi bật</h6>
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead><tr><th>ID</th><th>Tên chuyến</th><th class="text-end">Doanh thu</th><th class="text-end">Chi phí</th><th class="text-end">Lỗ</th></tr></thead>
+                            <thead class="table-light"><tr><th>ID</th><th>Tên chuyến</th><th class="text-end">Doanh thu</th><th class="text-end">Chi phí</th><th class="text-end">Lỗ</th></tr></thead>
                             <tbody id="lossTrips"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="section-card p-3 mt-3">
-                    <h5 class="mb-3">Doanh thu chuyến theo kỳ</h5>
+                <div class="chart-box">
+                    <h6><i class="fas fa-chart-bar me-1 text-primary"></i>Doanh thu chuyến theo kỳ</h6>
                     <div class="row g-2 mb-3">
                         <div class="col-12 col-md-3"><label class="form-label mb-1">Từ ngày</label><input id="revenueStartDate" type="date" class="form-control form-control-sm"></div>
                         <div class="col-12 col-md-3"><label class="form-label mb-1">Đến ngày</label><input id="revenueEndDate" type="date" class="form-control form-control-sm"></div>
@@ -84,7 +207,7 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead><tr><th>Kỳ</th><th class="text-end">Doanh thu</th></tr></thead>
+                            <thead class="table-light"><tr><th>Kỳ</th><th class="text-end">Doanh thu</th></tr></thead>
                             <tbody id="revenueSeries"></tbody>
                         </table>
                     </div>
@@ -93,6 +216,11 @@
         </div>
     </div>
 </div>
+<script src="assets/js/sidebar-menu.js"></script>
+<script src="assets/js/top-navbar.js"></script>
+<script src="assets/vendor/jquery/jquery.min.js"></script>
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/script.js"></script>
 <script src="assets/js/backend-clientid.js"></script>
 <script>
     const toCurrency = (v) => `${Number(v || 0).toLocaleString("vi-VN")} đ`;
@@ -217,11 +345,5 @@
     document.getElementById("revenueFilterBtn").addEventListener("click", loadDashboard);
     loadDashboard();
 </script>
-<script src="assets/js/sidebar-menu.js"></script>
-<script src="assets/js/top-navbar.js"></script>
-<script src="assets/vendor/jquery/jquery.min.js"></script>
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/script.js"></script>
 </body>
 </html>
-
