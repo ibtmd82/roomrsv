@@ -91,6 +91,12 @@ body {
 .scheduler_default_rowheader { background: #f0f6ff !important; color: #1f2937 !important; }
 .scheduler_default_cell { background: #fff !important; }
 .scheduler_default_cell_selected, .scheduler_default_selected { background: var(--cal-selected-bg) !important; box-shadow: inset 0 0 0 1px var(--cal-selected-border); }
+.scheduler_default_selectionrectangle { background-color: rgba(37, 99, 235, 0.15) !important; border: 1px solid #2563eb !important; opacity: 1 !important; }
+.scheduler_default_shadow_inner { background-color: rgba(37, 99, 235, 0.22) !important; border: 2px solid rgba(37, 99, 235, 0.55) !important; opacity: 1 !important; }
+.scheduler_default_crosshair_vertical, .scheduler_default_crosshair_horizontal, .scheduler_default_crosshair_left, .scheduler_default_crosshair_top { background-color: #2563eb !important; opacity: 0.15 !important; }
+.scheduler_default_cell_focus { outline: 2px solid #2563eb !important; outline-offset: -2px !important; z-index: 100 !important; opacity: 0.7 !important; }
+.scheduler_default_cell_focus.scheduler_default_cell_focus_top { border-top: 4px solid #2563eb !important; }
+.scheduler_default_cell_focus.scheduler_default_cell_focus_bottom { border-bottom: 4px solid #2563eb !important; }
 .scheduler_default_event { border-radius: 6px !important; color: #1f2937 !important; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12); }
 
 .navigator_default_main { border-color: #dbeafe !important; background: #ffffff !important; }
