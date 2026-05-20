@@ -575,7 +575,7 @@
                                 <label class="form-label mb-1">Sức chứa <span class="text-danger">*</span></label>
                                 <select id="rm_capacity" class="form-select form-select-sm"><option value="1">1</option><option value="2">2</option><option value="4">4</option></select>
                             </div>
-                            <div><label class="form-label mb-1">Trạng thái</label><select id="rm_status" class="form-select form-select-sm"><option value="Ready">Sẵn sàng</option><option value="Cleanup">Cần dọn</option><option value="Dirty">Bẩn</option></select></div>
+
                             <div id="rm_priceMonthWrap"><label class="form-label mb-1">Giá tháng (dài hạn)</label><input id="rm_price" class="form-control form-control-sm" /></div>
                             <div id="rm_priceDayWrap"><label class="form-label mb-1">Giá ngày (ngắn hạn)</label><input id="rm_priceDay" class="form-control form-control-sm" /></div>
                             <div id="rm_priceHourWrap"><label class="form-label mb-1">Giá giờ (ngắn hạn)</label><input id="rm_priceHour" class="form-control form-control-sm" /></div>
@@ -1100,7 +1100,6 @@
 
             byId("rm_name").value = data && data.name ? data.name : "";
             byId("rm_capacity").value = data && data.capacity ? String(data.capacity) : "2";
-            byId("rm_status").value = data && data.status ? data.status : "Ready";
             byId("rm_price").value = normalizeNumericInput(data && data.price !== undefined ? data.price : 0);
             byId("rm_priceDay").value = normalizeNumericInput(data && data.priceDay !== undefined ? data.priceDay : 0);
             byId("rm_priceHour").value = normalizeNumericInput(data && data.priceHour !== undefined ? data.priceHour : 0);
@@ -1136,7 +1135,7 @@
                         id: data && data.id ? data.id : undefined,
                         name,
                         capacity: parseInt(byId("rm_capacity").value || "2", 10),
-                        status: byId("rm_status").value || "Ready",
+                        status: (data && data.status) || "Ready",
                         price: parseLocaleNumber(byId("rm_price").value || 0),
                         priceDay: parseLocaleNumber(byId("rm_priceDay").value || 0),
                         priceHour: parseLocaleNumber(byId("rm_priceHour").value || 0)
