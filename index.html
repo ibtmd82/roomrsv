@@ -593,13 +593,13 @@
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Thông tin đặt/thuê phòng</h5>
+                    <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Thông tin đặt phòng</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="reservationNativeBody">
                     <div class="reservation-native-section" id="rn_bookingSection">
                         <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-                            <h6 class="mb-0">Thông tin đặt/thuê phòng</h6>
+                            <h6 class="mb-0">Thông tin đặt phòng</h6>
                             <button type="button" class="reservation-native-collapse-btn" id="rn_toggleBookingSection">▸ Mở rộng</button>
                         </div>
                         <div id="rn_bookingContent">
@@ -816,7 +816,7 @@
                                         dp.events.update(event);
                                     }
                                     updated = true;
-                                    await notify("Đã cập nhật trạng thái đặt/thuê phòng.", "success");
+                                    await notify("Đã cập nhật trạng thái đặt phòng.", "success");
                                 }
                             } catch (err) {
                                 console.error(err);
@@ -897,7 +897,7 @@
             const titleEl = document.getElementById("sn_title");
             const bsModal = new bootstrap.Modal(modalEl, {backdrop: "static"});
 
-            titleEl.textContent = statusType === "room" ? "Chọn trạng thái phòng" : "Chọn trạng thái đặt/thuê phòng";
+            titleEl.textContent = statusType === "room" ? "Chọn trạng thái phòng" : "Chọn trạng thái đặt phòng";
             selectEl.innerHTML = options.map((s) => `<option value="${s}">${labels[s] || s}</option>`).join("");
             selectEl.value = currentStatus || options[0];
 
@@ -2616,12 +2616,12 @@
                     const response = await DayPilot.Http.post("backend_reservation_create.php", e);
                     result = response.data;
                     if (!result || result.result !== "OK") {
-                        const message = result && result.message ? result.message : extractBackendMessage(response, "Không thể tạo đặt/thuê phòng.");
+                        const message = result && result.message ? result.message : extractBackendMessage(response, "Không thể tạo đặt phòng.");
                         await notify(message, "error");
                         return;
                     }
                 } catch (err) {
-                    const backendMessage = extractBackendMessage(err, "Không thể tạo đặt/thuê phòng.");
+                    const backendMessage = extractBackendMessage(err, "Không thể tạo đặt phòng.");
                     await notify(backendMessage, "error");
                     return;
                 }
@@ -2639,7 +2639,7 @@
                 e.invoices = result.invoices || [];
                 dp.events.add(e);
                 } catch (err) {
-                    const backendMessage = extractBackendMessage(err, "Không thể tạo đặt/thuê phòng.");
+                    const backendMessage = extractBackendMessage(err, "Không thể tạo đặt phòng.");
                     await notify(backendMessage, "error");
                     console.error(err);
                 }
@@ -2761,12 +2761,12 @@
                     const response = await DayPilot.Http.post("backend_reservation_update.php", payload);
                     result = response.data;
                     if (!result || result.result !== "OK") {
-                        const message = result && result.message ? result.message : extractBackendMessage(response, "Không thể cập nhật đặt/thuê phòng.");
+                        const message = result && result.message ? result.message : extractBackendMessage(response, "Không thể cập nhật đặt phòng.");
                         await notify(message, "error");
                         return;
                     }
                 } catch (err) {
-                    const backendMessage = extractBackendMessage(err, "Không thể cập nhật đặt/thuê phòng.");
+                    const backendMessage = extractBackendMessage(err, "Không thể cập nhật đặt phòng.");
                     await notify(backendMessage, "error");
                     return;
                 }
@@ -2796,7 +2796,7 @@
                     return;
                 }
                 dp.events.update(args.e);
-                await notify("Đã cập nhật đặt/thuê phòng.", "success");
+                await notify("Đã cập nhật đặt phòng.", "success");
             },
             
             onBeforeEventRender: (args) => {
@@ -2945,7 +2945,7 @@
                                 await DayPilot.Http.post("backend_reservation_status_update.php", {id: args.source.id(), status: picked});
                                 args.source.data.status = picked;
                                 dp.events.update(args.source);
-                                await notify("Đã cập nhật trạng thái đặt/thuê phòng.", "success");
+                                await notify("Đã cập nhật trạng thái đặt phòng.", "success");
                             } catch (err) {
                                 console.error(err);
                                 await notify("Không thể cập nhật trạng thái. Vui lòng thử lại.", "error");
