@@ -60,6 +60,32 @@
         </div>
     </div>
 </div>
+<div class="modal fade native-modal" id="vehicleNativeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="veh_modalTitle"><i class="fas fa-car"></i> Thông tin xe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="reservation-native-section mb-0">
+                    <div class="reservation-native-grid">
+                        <div><label class="form-label mb-1">Tên xe</label><input id="veh_name" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Biển số</label><input id="veh_plateNo" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Sức chứa</label><input id="veh_capacity" type="number" min="1" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Trạng thái</label><select id="veh_status" class="form-select form-select-sm"><option value="Ready">Sẵn sàng</option><option value="Busy">Đang chạy</option><option value="Maintenance">Bảo trì</option></select></div>
+                        <div><label class="form-label mb-1">Giá cơ sở / km</label><input id="veh_basePrice" type="number" min="0" step="100" class="form-control form-control-sm"></div>
+                        <div><label class="form-label mb-1">Lít tiêu thụ / 100km</label><input id="veh_fuelConsumption" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary btn-sm" id="veh_saveBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade native-modal" id="tripEditNativeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -809,17 +835,9 @@
         contextMenuResource: new DayPilot.Menu({
             items: [
                 { text: "Chỉnh sửa...", onClick: async (args) => {
-                    const form = [
-                        { name: "Tên xe", id: "name" },
-                        { name: "Biển số", id: "plateNo" },
-                        { name: "Sức chứa", id: "capacity", type: "number" },
-                        { name: "Giá cơ sở / km", id: "basePrice", type: "number" },
-                        { name: "Lít tiêu thụ / 100km", id: "fuelConsumptionPer100Km", type: "number" },
-                        { name: "Trạng thái", id: "status", type: "select", options: [{ name: "Sẵn sàng", id: "Ready" }, { name: "Đang chạy", id: "Busy" }, { name: "Bảo trì", id: "Maintenance" }] }
-                    ];
-                    const modal = await DayPilot.Modal.form(form, args.source.data, { okText: 'Lưu', cancelText: 'Hủy' });
-                    if (modal.canceled) return;
-                    const vehicle = { ...modal.result, id: args.source.id };
+                    const result = await openVehicleModal(args.source.data, false);
+                    if (!result) return;
+                    const vehicle = { ...result, id: args.source.id };
                     await DayPilot.Http.post("backend_vehicle_update.php", vehicle);
                     dp.rows.update(vehicle);
                     await notify("Đã cập nhật xe.");
@@ -1124,21 +1142,50 @@
     };
     const loadTrips = async () => dp.events.load("backend_trip_reservations.php");
 
+    const openVehicleModal = (data, isCreate) => new Promise((resolve) => {
+        const modalEl = document.getElementById("vehicleNativeModal");
+        if (!modalEl || !window.bootstrap) { resolve(null); return; }
+        document.getElementById("veh_modalTitle").innerHTML = `<i class="fas fa-car"></i> ${isCreate ? "Thêm xe" : "Chỉnh sửa xe"}`;
+        document.getElementById("veh_name").value = data.name || "";
+        document.getElementById("veh_plateNo").value = data.plateNo || "";
+        document.getElementById("veh_capacity").value = data.capacity || 4;
+        document.getElementById("veh_basePrice").value = data.basePrice || 6000;
+        document.getElementById("veh_fuelConsumption").value = data.fuelConsumptionPer100Km || 8;
+        document.getElementById("veh_status").value = data.status || "Ready";
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const saveBtn = document.getElementById("veh_saveBtn");
+        let resolved = false;
+        const finish = (result) => {
+            if (resolved) return;
+            resolved = true;
+            modalEl.removeEventListener("hidden.bs.modal", onHidden);
+            saveBtn.removeEventListener("click", onSave);
+            resolve(result);
+        };
+        const onHidden = () => finish(null);
+        const onSave = () => {
+            const result = {
+                name: document.getElementById("veh_name").value.trim(),
+                plateNo: document.getElementById("veh_plateNo").value.trim(),
+                capacity: Number(document.getElementById("veh_capacity").value) || 4,
+                basePrice: Number(document.getElementById("veh_basePrice").value) || 6000,
+                fuelConsumptionPer100Km: Number(document.getElementById("veh_fuelConsumption").value) || 8,
+                status: document.getElementById("veh_status").value || "Ready"
+            };
+            bsModal.hide();
+            finish(result);
+        };
+        saveBtn.addEventListener("click", onSave);
+        modalEl.addEventListener("hidden.bs.modal", onHidden);
+        bsModal.show();
+    });
+
     const addVehicle = async () => {
-        const form = [
-            { name: "Tên xe", id: "name" },
-            { name: "Biển số", id: "plateNo" },
-            { name: "Sức chứa", id: "capacity", type: "number" },
-            { name: "Giá cơ sở / km", id: "basePrice", type: "number" },
-            { name: "Lít tiêu thụ / 100km", id: "fuelConsumptionPer100Km", type: "number" },
-            { name: "Trạng thái", id: "status", type: "select", options: [{ name: "Sẵn sàng", id: "Ready" }, { name: "Đang chạy", id: "Busy" }, { name: "Bảo trì", id: "Maintenance" }] }
-        ];
-    const modal = await DayPilot.Modal.form(form, { capacity: 4, basePrice: 6000, fuelConsumptionPer100Km: 8, status: "Ready" }, { okText: 'Lưu', cancelText: 'Hủy' });
-        if (modal.canceled) return;
-        const payload = { ...modal.result };
-        const { data } = await DayPilot.Http.post("backend_vehicle_create.php", payload);
-        payload.id = data.id;
-        dp.resources.push(payload);
+        const result = await openVehicleModal({ capacity: 4, basePrice: 6000, fuelConsumptionPer100Km: 8, status: "Ready" }, true);
+        if (!result) return;
+        const { data } = await DayPilot.Http.post("backend_vehicle_create.php", result);
+        result.id = data.id;
+        dp.resources.push(result);
         dp.update();
     };
 
