@@ -108,15 +108,18 @@ body {
 .navigator_default_cell_selected, .navigator_default_selected { background: var(--cal-selected-bg) !important; color: #1e3a8a !important; box-shadow: inset 0 0 0 1px var(--cal-selected-border); }
 .navigator_default_select .navigator_default_cell_box { background-color: #bfdbfe !important; opacity: 1 !important; }
 
-.modal_default_main { border-radius: 14px; border: 1px solid #dbe3ef; box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28); overflow: hidden; background: #ffffff; display: flex; flex-direction: column; }
-.modal_default_content { padding: 14px; background: linear-gradient(180deg, #f8fbff 0%, #ffffff 24%); overflow-y: auto; max-height: min(78vh, 720px); -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-.modal_default_form_item { margin-bottom: 8px; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 10px; background: #ffffff; }
-.modal_default_form_item_label { margin-bottom: 6px; color: #374151; font-weight: 600; font-size: 13px; }
+.modal_default_main { border-radius: 14px !important; border: 1px solid #dbe3ef !important; box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28) !important; overflow: hidden !important; background: #ffffff !important; display: flex !important; flex-direction: column !important; max-width: min(480px, 92vw) !important; }
+.modal_default_inner { padding: 0 !important; display: flex !important; flex-direction: column !important; }
+.modal_default_content { padding: 16px 20px 4px !important; background: linear-gradient(180deg, #f8fbff 0%, #ffffff 40%) !important; font-size: 14px !important; color: #1f2937 !important; line-height: 1.55 !important; overflow-y: auto !important; max-height: min(60vh, 480px) !important; }
+.modal_default_form_item { margin-bottom: 8px !important; padding: 8px 10px !important; border: 1px solid #e2e8f0 !important; border-radius: 10px !important; background: #ffffff !important; }
+.modal_default_form_item_label { margin-bottom: 6px !important; color: #374151 !important; font-weight: 600 !important; font-size: 13px !important; }
 .modal_default_form_item input, .modal_default_form_item select, .modal_default_form_item textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.42rem 0.62rem; font-size: 14px; line-height: 1.4; background: #f8fafc; }
 .modal_default_form_item input:focus, .modal_default_form_item select:focus, .modal_default_form_item textarea:focus { outline: 0; border-color: #60a5fa; box-shadow: 0 0 0 0.18rem rgba(59, 130, 246, 0.22); background: #ffffff; }
-.modal_default_buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; position: sticky; bottom: 0; z-index: 8; background: #ffffff; border-top: 1px solid #e2e8f0; padding: 10px 2px calc(8px + env(safe-area-inset-bottom, 0px)) 2px; }
-.modal_default_buttons input { border-radius: 8px; border: 1px solid #1d4ed8; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: #fff; padding: 0.42rem 0.85rem; font-size: 14px; font-weight: 600; min-width: 108px; }
-.modal_default_cancel { border-color: #94a3b8 !important; background: #94a3b8 !important; }
+.modal_default_buttons { display: flex !important; justify-content: flex-end !important; gap: 8px !important; margin-top: 0 !important; background: #f8fbff !important; border-top: 1px solid #dbeafe !important; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)) !important; }
+.modal_default_buttons input { border-radius: 8px !important; border: 1px solid #1d4ed8 !important; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important; color: #fff !important; padding: 0.42rem 0.85rem !important; font-size: 14px !important; font-weight: 600 !important; min-width: 88px !important; cursor: pointer !important; }
+.modal_default_buttons input:hover { background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%) !important; }
+.modal_default_cancel { border-color: #64748b !important; background: #64748b !important; }
+.modal_default_cancel:hover { border-color: #475569 !important; background: #475569 !important; }
 
 /* DayPilot form modal styles (DayPilot.Modal.form uses theme 'form_default')
    Keep these visual rules consistent with native bootstrap modal footer buttons so DayPilot form OK/Cancel match site UX. */
