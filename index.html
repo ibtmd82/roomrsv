@@ -566,18 +566,25 @@
                     <div class="reservation-native-section mb-0">
                         <h6>Thông tin phòng</h6>
                         <div class="reservation-native-grid">
-                            <div><label class="form-label mb-1">Tên phòng</label><input id="rm_name" class="form-control form-control-sm" /></div>
-                            <div><label class="form-label mb-1">Sức chứa</label><select id="rm_capacity" class="form-select form-select-sm"><option value="1">1</option><option value="2">2</option><option value="4">4</option></select></div>
+                            <div>
+                                <label class="form-label mb-1">Tên phòng <span class="text-danger">*</span></label>
+                                <input id="rm_name" class="form-control form-control-sm" />
+                                <div id="rm_nameError" class="text-danger small mt-1" style="display:none">Vui lòng nhập tên phòng</div>
+                            </div>
+                            <div>
+                                <label class="form-label mb-1">Sức chứa <span class="text-danger">*</span></label>
+                                <select id="rm_capacity" class="form-select form-select-sm"><option value="1">1</option><option value="2">2</option><option value="4">4</option></select>
+                            </div>
                             <div><label class="form-label mb-1">Trạng thái</label><select id="rm_status" class="form-select form-select-sm"><option value="Ready">Sẵn sàng</option><option value="Cleanup">Cần dọn</option><option value="Dirty">Bẩn</option></select></div>
-                            <div><label class="form-label mb-1">Giá tháng (dài hạn)</label><input id="rm_price" class="form-control form-control-sm" /></div>
-                            <div><label class="form-label mb-1">Giá ngày (ngắn hạn)</label><input id="rm_priceDay" class="form-control form-control-sm" /></div>
-                            <div><label class="form-label mb-1">Giá giờ (ngắn hạn)</label><input id="rm_priceHour" class="form-control form-control-sm" /></div>
+                            <div id="rm_priceMonthWrap"><label class="form-label mb-1">Giá tháng (dài hạn)</label><input id="rm_price" class="form-control form-control-sm" /></div>
+                            <div id="rm_priceDayWrap"><label class="form-label mb-1">Giá ngày (ngắn hạn)</label><input id="rm_priceDay" class="form-control form-control-sm" /></div>
+                            <div id="rm_priceHourWrap"><label class="form-label mb-1">Giá giờ (ngắn hạn)</label><input id="rm_priceHour" class="form-control form-control-sm" /></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary btn-sm" id="rm_saveBtn">OK</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="rm_saveBtn">Lưu</button>
                 </div>
             </div>
         </div>
@@ -1097,16 +1104,19 @@
             byId("rm_price").value = normalizeNumericInput(data && data.price !== undefined ? data.price : 0);
             byId("rm_priceDay").value = normalizeNumericInput(data && data.priceDay !== undefined ? data.priceDay : 0);
             byId("rm_priceHour").value = normalizeNumericInput(data && data.priceHour !== undefined ? data.priceHour : 0);
-            byId("rm_price").oninput = (ev) => {
-                ev.target.value = normalizeNumericInput(ev.target.value);
-            };
-            byId("rm_priceDay").oninput = (ev) => {
-                ev.target.value = normalizeNumericInput(ev.target.value);
-            };
-            byId("rm_priceHour").oninput = (ev) => {
-                ev.target.value = normalizeNumericInput(ev.target.value);
-            };
-            titleEl.textContent = data && data.id ? "Chỉnh sửa phòng" : "Thêm phòng";
+            byId("rm_price").oninput = (ev) => { ev.target.value = normalizeNumericInput(ev.target.value); };
+            byId("rm_priceDay").oninput = (ev) => { ev.target.value = normalizeNumericInput(ev.target.value); };
+            byId("rm_priceHour").oninput = (ev) => { ev.target.value = normalizeNumericInput(ev.target.value); };
+            byId("rm_nameError").style.display = "none";
+            byId("rm_name").classList.remove("is-invalid");
+            titleEl.innerHTML = `<i class="fas fa-door-open"></i> ${data && data.id ? "Chỉnh sửa phòng" : "Thêm phòng"}`;
+
+            const mode = app.rentalMode || "both";
+            const showMonth = mode === "both" || mode === "long_term";
+            const showDay   = mode === "both" || mode === "short_term";
+            byId("rm_priceMonthWrap").style.display = showMonth ? "" : "none";
+            byId("rm_priceDayWrap").style.display   = showDay   ? "" : "none";
+            byId("rm_priceHourWrap").style.display  = showDay   ? "" : "none";
 
             return await new Promise((resolve) => {
                 const onHidden = () => {
@@ -1115,9 +1125,16 @@
                 };
                 modalEl.addEventListener("hidden.bs.modal", onHidden, {once: true});
                 saveBtn.onclick = () => {
+                    const name = byId("rm_name").value.trim();
+                    if (!name) {
+                        byId("rm_name").classList.add("is-invalid");
+                        byId("rm_nameError").style.display = "";
+                        byId("rm_name").focus();
+                        return;
+                    }
                     const result = {
                         id: data && data.id ? data.id : undefined,
-                        name: byId("rm_name").value || "",
+                        name,
                         capacity: parseInt(byId("rm_capacity").value || "2", 10),
                         status: byId("rm_status").value || "Ready",
                         price: parseLocaleNumber(byId("rm_price").value || 0),
